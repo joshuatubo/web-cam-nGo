@@ -147,7 +147,10 @@ export default {
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn text @click="switchToSignup">Sign Up</v-btn>
+                <h5 class="text-center">
+                  Don't have an account?
+                  <v-btn text @click="switchToSignup">Sign Up</v-btn>
+                </h5>
               </v-card-actions>
             </v-col>
           </v-row>
@@ -199,7 +202,10 @@ export default {
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn text @click="switchToLogin">Login</v-btn>
+                <h5 class="text-center">
+                  Already have an account?
+                  <v-btn text @click="switchToLogin">Login</v-btn>
+                </h5>
               </v-card-actions>
             </v-col>
           </v-row>
