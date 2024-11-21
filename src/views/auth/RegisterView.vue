@@ -85,7 +85,8 @@ export default {
         <v-toolbar-title>Cam'n GO</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          variant="elevated"
           slim
           @click="onClick"
         ></v-btn>
