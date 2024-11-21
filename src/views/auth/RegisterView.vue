@@ -41,6 +41,7 @@ import AppLayout from '@/components/layout/AppLayout.vue'
   </AppLayout>
 </template> -->
 <script setup>
+import { RouterLink } from 'vue-router'
 import { ref } from 'vue'
 
 const theme = ref('light')
