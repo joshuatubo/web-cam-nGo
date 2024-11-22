@@ -15,7 +15,7 @@ const { mobile } = useDisplay()
             <v-card-title class="text-center">
               <v-img class="mx-auto" src="/img/logo.png" :width="mobile ? '75%' : '25%'"></v-img>
               <h3 class="font-weight-black text-center">Welcome to Cam'n Go</h3>
-              <p>Sign Up</p>
+              <p>Register Form</p>
             </v-card-title>
 
             <v-card-text class="bg-surface-light pt-4">

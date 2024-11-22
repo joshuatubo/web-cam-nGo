@@ -12,7 +12,9 @@
     <v-divider class="my-5"></v-divider>
     <h5 class="text-center">
       Already have account?
-      <RouterLink to="/login">Click here to Login</RouterLink>
+      <RouterLink class="text-red-darken-1 font-weight-black" to="/login"
+        >Click here to Login</RouterLink
+      >
     </h5>
   </v-form>
 </template>
