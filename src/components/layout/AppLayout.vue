@@ -12,12 +12,16 @@ function onClick() {
 <template>
   <v-responsive class="border rounded">
     <v-app :theme="theme">
-      <v-app-bar class="px-3" color="grey-lighten-3">
+      <v-app-bar
+        class="px-3"
+        :color="theme === 'light' ? 'grey-lighten-1' : 'grey-lighten-3'"
+        border
+      >
         <v-spacer></v-spacer>
 
         <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          text="Toggle Theme"
+          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          variant="elevated"
           slim
           @click="onClick"
         ></v-btn>
@@ -30,24 +34,7 @@ function onClick() {
       </v-main>
 
       <v-footer class="d-flex flex-column" app>
-        <div class="bg-blue-grey d-flex w-100 align-center px-4">
-          <strong>Get connected with us on social networks!</strong>
-
-          <v-spacer></v-spacer>
-
-          <v-btn
-            v-for="icon in icons"
-            :key="icon"
-            :icon="icon"
-            class="mx-4"
-            size="small"
-            variant="plain"
-          ></v-btn>
-        </div>
-
-        <div class="px-4 py-2 bg-black text-center w-100">
-          {{ new Date().getFullYear() }} — <strong> Cam'n Go</strong>
-        </div>
+        <strong>2024 - Cam'n Go</strong>
       </v-footer>
     </v-app>
   </v-responsive>

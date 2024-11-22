@@ -1,5 +1,9 @@
 <script setup>
 import AppLayout from '@/components/layout/AppLayout.vue'
+import { useDisplay } from 'vuetify'
+import RegisterForm from '@/components/auth/RegisterForm.vue'
+
+const { mobile } = useDisplay()
 </script>
 
 <template>
@@ -7,32 +11,17 @@ import AppLayout from '@/components/layout/AppLayout.vue'
     <template #content>
       <v-row class="">
         <v-col cols="12" md="6" class="mx-auto">
-          <v-card class="mx-auto" prepend-icon="mdi-account-plus" subtitle="Sign Up">
-            <template v-slot:title>
-              <span class="font-weight-black">Welcome to Cam'n Go</span>
-            </template>
+          <v-card class="mx-auto" elevation="24">
+            <v-card-title class="text-center">
+              <v-img class="mx-auto" src="/img/logo.png" :width="mobile ? '75%' : '25%'"></v-img>
+              <h3 class="font-weight-black text-center">Welcome to Cam'n Go</h3>
+              <p>Sign Up</p>
+            </v-card-title>
 
             <v-card-text class="bg-surface-light pt-4">
-              <v-form fast-fail @submit.prevent>
-                <v-text-field label="Firstname" variant="outlined"></v-text-field>
-                <v-text-field label="Lastname" variant="outlined"></v-text-field>
-                <v-text-field label="Email" variant="outlined"></v-text-field>
-
-                <v-text-field label="Password" type="password" variant="outlined"></v-text-field>
-                <v-text-field
-                  label="Password Confirmation"
-                  type="password"
-                  variant="outlined"
-                ></v-text-field>
-                <v-divider class="my-5"></v-divider>
-
-                <v-btn class="mt-2" type="submit" block>Submit</v-btn>
-                <v-divider class="my-5"></v-divider>
-                <h5 class="text-center">
-                  Already have account?
-                  <RouterLink to="/login">Click here to Login</RouterLink>
-                </h5>
-              </v-form>
+              <v-divider class="my-5"></v-divider>
+              <RegisterForm> </RegisterForm>
+              <v-divider class="my-5"></v-divider>
             </v-card-text>
           </v-card>
         </v-col>
