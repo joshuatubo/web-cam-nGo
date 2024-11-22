@@ -6,10 +6,6 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login', // Automatically redirect '/' to '/login'
-    },
-    {
-      path: '/login',
       name: 'login',
       component: LoginView,
     },
