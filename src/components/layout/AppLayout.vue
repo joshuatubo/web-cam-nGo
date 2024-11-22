@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
 
-const theme = ref('light')
+const theme = ref(localStorage.getItem('theme') ?? 'light')
 
 function onClick() {
   theme.value = theme.value === 'light' ? 'dark' : 'light'
+  localStorage.getItem('theme', theme.value)
 }
 </script>
 
@@ -21,6 +21,7 @@ function onClick() {
 
         <v-btn
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          color="red-darken-1"
           variant="elevated"
           slim
           @click="onClick"

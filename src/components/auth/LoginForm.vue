@@ -9,7 +9,9 @@
     <v-divider class="my-5"></v-divider>
     <h5 class="text-center">
       Don't have account?
-      <RouterLink to="/register">Signup</RouterLink>
+      <RouterLink class="text-red-darken-1 font-weight-black" to="/register"
+        >Click here to Register</RouterLink
+      >
     </h5>
   </v-form>
 </template>
