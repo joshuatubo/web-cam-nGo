@@ -1,4 +1,4 @@
-<!-- <script setup>
+<script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
@@ -8,7 +8,6 @@ function onClick() {
   theme.value = theme.value === 'light' ? 'dark' : 'light'
 }
 </script>
-
 
 <template>
   <v-responsive class="border rounded">
@@ -53,4 +52,3 @@ function onClick() {
     </v-app>
   </v-responsive>
 </template>
- -->
