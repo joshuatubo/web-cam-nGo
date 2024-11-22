@@ -12,7 +12,7 @@
     <v-divider class="my-5"></v-divider>
     <h5 class="text-center">
       Already have account?
-      <RouterLink class="text-red-darken-1 font-weight-black" to="/login"
+      <RouterLink class="text-red-darken-1 font-weight-black" to="/"
         >Click here to Login</RouterLink
       >
     </h5>
