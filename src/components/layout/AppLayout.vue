@@ -1,31 +1,19 @@
 <script setup>
 import { ref } from 'vue'
-
-const theme = ref(localStorage.getItem('theme') ?? 'light')
+const theme = ref('dark')
 
 function onClick() {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-  localStorage.getItem('theme', theme.value)
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
 }
 </script>
 
 <template>
   <v-responsive>
     <v-app :theme="theme">
-      <v-app-bar
-        class="px-3"
-        :color="theme === 'light' ? 'grey-lighten-1' : 'grey-lighten-3'"
-        border
-      >
+      <v-app-bar class="px-7" :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'">
         <v-spacer></v-spacer>
 
-        <v-btn
-          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          color="red-darken-1"
-          variant="elevated"
-          slim
-          @click="onClick"
-        ></v-btn>
+        <v-switch color="primary" slim @click="onClick" variant="elevated"> </v-switch>
       </v-app-bar>
 
       <v-main>
@@ -34,9 +22,14 @@ function onClick() {
         </v-container>
       </v-main>
 
-      <v-footer class="d-flex flex-column" app>
-        <strong>2024 - Cam'n Go</strong>
-      </v-footer>
+      <v-footer
+        class="text-center d-flex flex-column"
+        :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
+        border
+        app
+        elevation="24"
+        >2024 - Copyright</v-footer
+      >
     </v-app>
   </v-responsive>
 </template>
