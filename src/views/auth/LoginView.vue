@@ -21,7 +21,7 @@ const visible = ref(false)
           <v-card elevation="24" class="mx-auto" width="100%">
             <v-card-title class="text-center">
               <v-img
-                src="/public/images/logo.png"
+                src="/images/logo.png"
                 alt="Logo"
                 :width="mobile ? '75%' : '45%'"
                 class="d-block mx-auto"
