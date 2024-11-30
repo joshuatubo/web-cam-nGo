@@ -18,7 +18,7 @@ const visible = ref(false)
   <AppLayout>
     <template #content>
       <v-container>
-        <v-row class="">
+        <v-row>
           <v-col cols="12" md="6" class="mx-auto" style="margin-top: 3%">
             <v-card elevation="24" class="mx-auto" width="100%">
               <v-card-title class="text-center">
@@ -33,13 +33,14 @@ const visible = ref(false)
               </v-card-title>
 
               <v-sheet class="mx-auto" width="85%">
-                <LoginForm> </LoginForm>
+                <LoginForm></LoginForm>
                 <v-divider class="my-4"></v-divider>
                 <h6 class="my-3 text-center">
                   Don't have an account?
-                  <RouterLink to="/register" class="text-primary" style="text-decoration: none"
-                    >Sign up here<v-icon icon="mdi-chevron-right"></v-icon
-                  ></RouterLink>
+                  <RouterLink to="/register" class="text-primary" style="text-decoration: none">
+                    Sign up here
+                    <v-icon icon="mdi-chevron-right"></v-icon>
+                  </RouterLink>
                 </h6>
               </v-sheet>
             </v-card>
