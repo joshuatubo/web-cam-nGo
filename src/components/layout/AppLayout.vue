@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-const theme = ref('dark')
+const theme = ref(localStorage.getItem('theme') ?? 'dark')
 
 function onClick() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  localStorage.setItem('theme', theme.value)
 }
 </script>
 
