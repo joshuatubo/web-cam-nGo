@@ -1,3 +1,4 @@
+z
 <script setup>
 import AppLayout from '@/components/layout/AppLayout.vue'
 import '@/assets/login_style.css'
@@ -25,7 +26,7 @@ const visible = ref(false)
     <template #content>
       <v-row>
         <v-col cols="12" md="6" class="mx-auto">
-          <v-card class="mx-auto" width="100%" elevation="24" style="margin-top: 3%">
+          <v-card class="mx-auto" width="100%" elevation="24" style="margin-gittop: 3%">
             <v-card-title class="text-center">
               <v-img
                 src="/images/logo.png"

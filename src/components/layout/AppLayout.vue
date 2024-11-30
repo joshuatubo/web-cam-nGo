@@ -1,10 +1,18 @@
 <script setup>
-import { ref } from 'vue'
-const theme = ref('dark')
+import { ref, onMounted } from 'vue'
 
+const theme = ref(localStorage.getItem('theme') || 'dark') // Get the stored theme or default to 'dark'
+
+// Function to toggle theme when switch is clicked
 function onClick() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  localStorage.setItem('theme', theme.value) // Store the theme preference in localStorage
 }
+
+// On mount, apply the theme from localStorage if available
+onMounted(() => {
+  document.body.setAttribute('data-theme', theme.value)
+})
 </script>
 
 <template>
@@ -13,7 +21,12 @@ function onClick() {
       <v-app-bar class="px-7" :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'">
         <v-spacer></v-spacer>
 
-        <v-switch color="primary" slim @click="onClick" variant="elevated"> </v-switch>
+        <!-- Theme switch button -->
+        <v-btn
+          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          slim
+          @click="onClick"
+        ></v-btn>
       </v-app-bar>
 
       <v-main>
