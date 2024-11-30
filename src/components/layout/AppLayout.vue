@@ -23,8 +23,7 @@ onMounted(() => {
 
         <!-- Theme switch button -->
         <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          slim
+          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="onClick"
         ></v-btn>
       </v-app-bar>
