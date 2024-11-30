@@ -5,15 +5,30 @@ import { ref } from 'vue'
 
 const visible = ref(false)
 const refVForm = ref()
+
+const onLogin = () => {
+  alert(formData.value.email)
+}
+
 const onFormSubmit = () => {
   refVForm.value?.validate().then(({ valid }) => {
-    //if (valid) onSubmit()
+    if (valid) onLogin()
   })
 }
+
+const formDataDefault = {
+  email: '',
+  password: '',
+}
+
+const formData = ref({
+  ...formDataDefault,
+})
 </script>
 <template>
-  <v-form ref="refVForm" fast-fail @submit.prevent="onFormSubmit">
+  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
     <v-text-field
+      v-model="formData.email"
       clearable
       label="User Name"
       placeholder="Enter your User Name"
@@ -23,6 +38,7 @@ const onFormSubmit = () => {
     ></v-text-field>
 
     <v-text-field
+      v-model="formData.password"
       label="Password"
       :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
       :type="visible ? 'text' : 'password'"
