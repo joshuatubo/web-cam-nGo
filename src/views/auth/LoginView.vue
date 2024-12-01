@@ -27,6 +27,8 @@ const visible = ref(false)
                   alt="Logo"
                   :width="mobile ? '75%' : '45%'"
                   class="d-block mx-auto"
+                  draggable="false"
+                  style="user-select: none"
                 ></v-img>
                 <p id="cam_font" class="text-center">CAM'N GO</p>
                 <small>Login</small>
