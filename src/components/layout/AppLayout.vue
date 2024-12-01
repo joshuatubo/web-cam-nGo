@@ -1,5 +1,7 @@
 <script setup>
 import ProfileHeader from './ProfileHeader.vue'
+import '@/assets/theme_style.css'
+
 //import { useAuthUserStore } from '@/stores/authUser'
 import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
@@ -58,7 +60,15 @@ onMounted(() => {
           slim
           @click="onClick"
         ></v-btn>
+
+        <v-btn class="ml-4 button" variant="elevated" slim>
+          <RouterLink to="/" style="text-decoration: none"><h6>Home</h6></RouterLink>
+        </v-btn>
+
         <ProfileHeader v-if="isLoggedIn"></ProfileHeader>
+        <v-btn class="ml-4 button" variant="elevated" slim>
+          <RouterLink to="/login" style="text-decoration: none"><h6>Login</h6></RouterLink>
+        </v-btn>
       </v-app-bar>
 
       <slot name="navigation"></slot>
