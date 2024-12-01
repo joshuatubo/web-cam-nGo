@@ -11,6 +11,10 @@ import {
 
 import AlertNotification from '@/components/common/AlertNotification.vue'
 import { supabase, formActionDefault } from '@/utilities/supabase.js'
+import { useRouter } from 'vue-router'
+
+//load pre-defined functions
+const router = useRouter()
 
 const formDataDefault = {
   firstname: '',
@@ -29,8 +33,11 @@ const formAction = ref({
   ...formActionDefault,
 })
 
+//Register Function
 const onSubmit = async () => {
+  //Reset form Action Units
   formAction.value = { ...formActionDefault }
+  //Turn On Processing
   formAction.value.formProcess = true
 
   const { data, error } = await supabase.auth.signUp({
@@ -44,25 +51,33 @@ const onSubmit = async () => {
         phone: formData.value.phone,
         password: formData.value.password,
         password_confirmation: formData.value.password_confirmation,
+        is_admin: false, //make sure to turn off after signing up as an admin
+        //or you can use role based
+        //role: 'Administrator'
       },
     },
   })
 
-  /*for data*/
+  //for data
   if (error) {
+    //to add error message and status code
     console.log(error)
     formAction.value.formErrorMessage = error.message
     formAction.value.formStatus = error.status
   } else if (data) {
     console.log(data)
+    //Add success message
     formAction.value.formSuccessMessage = 'Successfully Registered Account'
     //Add more action
-    refVForm.value?.reset()
+    router.replace('/')
   }
-
+  //Reset Form
+  refVForm.value?.reset()
+  //Turn Off Processing
   formAction.value.formProcess = false
 }
 
+//This is to Trigger Validators
 const onFormSubmit = () => {
   refVForm.value?.validate().then(({ valid }) => {
     if (valid) onSubmit()
