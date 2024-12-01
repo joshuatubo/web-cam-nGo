@@ -1,100 +1,167 @@
-.circular-toggle-btn {
+/* Login Button Animation */
+.button {
   position: relative;
-  width: 50px; /* Adjust the size as needed */
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%; /* Ensures the circular design */
-  padding: 0;
-  background-color: #f5f5f5; /* Button background */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.toggleSwitch {
-  position: relative;
-  width: 40px;
-  height: 20px;
-  background-color: grey;
-  border-radius: 15px;
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
+  background-color: #7d2ae8;
+  transition: all 0.2s ease;
 }
 
-.toggleSwitch .speaker,
-.toggleSwitch .mute-speaker {
+.button h6 {
+  color: #fff;
+}
+
+.button:active {
+  transform: scale(0.96);
+}
+
+.button:before,
+.button:after {
   position: absolute;
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  border-radius: 50%;
-  transition: all 0.3s ease-in-out;
+  content: '';
+  width: 150%;
+  left: 50%;
+  height: 100%;
+  transform: translateX(-50%);
+  z-index: -1000;
+  background-repeat: no-repeat;
 }
 
-.toggleSwitch .speaker {
-  left: 3px;
-  background-color: yellow; /* Sunny theme */
+.button:hover:before {
+  top: -70%;
+  background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, transparent 20%, #7d2ae8 20%, transparent 30%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+  background-size:
+    10% 10%,
+    20% 20%,
+    15% 15%,
+    20% 20%,
+    18% 18%,
+    10% 10%,
+    15% 15%,
+    10% 10%,
+    18% 18%;
+  background-position: 50% 120%;
+  animation: greentopBubbles 0.6s ease;
 }
 
-.toggleSwitch .mute-speaker {
-  right: 3px;
-  background-color: blue; /* Night theme */
-  opacity: 0;
+@keyframes greentopBubbles {
+  0% {
+    background-position:
+      5% 90%,
+      10% 90%,
+      10% 90%,
+      15% 90%,
+      25% 90%,
+      25% 90%,
+      40% 90%,
+      55% 90%,
+      70% 90%;
+  }
+
+  50% {
+    background-position:
+      0% 80%,
+      0% 20%,
+      10% 40%,
+      20% 0%,
+      30% 30%,
+      22% 50%,
+      50% 50%,
+      65% 20%,
+      90% 30%;
+  }
+
+  100% {
+    background-position:
+      0% 70%,
+      0% 10%,
+      10% 30%,
+      20% -10%,
+      30% 20%,
+      22% 40%,
+      50% 40%,
+      65% 10%,
+      90% 20%;
+    background-size:
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%;
+  }
 }
 
-input[type='checkbox']:checked + .toggleSwitch {
-  background-color: darkgrey;
+.button:hover::after {
+  bottom: -70%;
+  background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, transparent 10%, #7d2ae8 15%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%),
+    radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+  background-size:
+    15% 15%,
+    20% 20%,
+    18% 18%,
+    20% 20%,
+    15% 15%,
+    20% 20%,
+    18% 18%;
+  background-position: 50% 0%;
+  animation: greenbottomBubbles 0.6s ease;
 }
 
-input[type='checkbox']:checked + .toggleSwitch .speaker {
-  opacity: 0;
-}
+@keyframes greenbottomBubbles {
+  0% {
+    background-position:
+      10% -10%,
+      30% 10%,
+      55% -10%,
+      70% -10%,
+      85% -10%,
+      70% -10%,
+      70% 0%;
+  }
 
-input[type='checkbox']:checked + .toggleSwitch .mute-speaker {
-  opacity: 1;
-}
+  50% {
+    background-position:
+      0% 80%,
+      20% 80%,
+      45% 60%,
+      60% 100%,
+      75% 70%,
+      95% 60%,
+      105% 0%;
+  }
 
-/* another style */
-
-.toggle {
-  background-color: transparent;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  box-shadow: 0 0 50px 20px rgba(0, 0, 0, 0.1);
-  line-height: 1;
-}
-
-.input {
-  display: none;
-}
-
-.icon {
-  grid-column: 1 / 1;
-  grid-row: 1 / 1;
-  transition: transform 500ms;
-}
-
-.icon--moon {
-  transition-delay: 200ms;
-}
-
-.icon--sun {
-  transform: scale(0);
-}
-
-#switch:checked + .icon--moon {
-  transform: rotate(360deg) scale(0);
-}
-
-#switch:checked ~ .icon--sun {
-  transition-delay: 200ms;
-  transform: scale(1) rotate(360deg);
-}
-
-.w-8 {
-  width: 2rem /* 32px */;
+  100% {
+    background-position:
+      0% 90%,
+      20% 90%,
+      45% 70%,
+      60% 110%,
+      75% 80%,
+      95% 70%,
+      110% 10%;
+    background-size:
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%;
+  }
 }

@@ -185,7 +185,7 @@ const visible = ref(false)
 
     <h6 class="my-3 text-center">
       Already have an account?
-      <RouterLink to="/" class="text-primary" style="text-decoration: none"
+      <RouterLink to="/login" class="text-primary" style="text-decoration: none"
         >Back to Login<v-icon icon="mdi-chevron-right"></v-icon
       ></RouterLink>
     </h6>
