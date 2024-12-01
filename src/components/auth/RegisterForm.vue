@@ -9,6 +9,9 @@ import {
   integerValidator,
 } from '@/utilities/validators'
 
+import AlertNotification from '@/components/common/AlertNotification.vue'
+import { supabase, formActionDefault } from '@/utilities/supabase.js'
+
 const formDataDefault = {
   firstname: '',
   lastname: '',
@@ -21,10 +24,43 @@ const formDataDefault = {
 const formData = ref({
   ...formDataDefault,
 })
-const refVForm = ref()
 
-const onSubmit = () => {
-  alert(formData.value.email)
+const formAction = ref({
+  ...formActionDefault,
+})
+
+const onSubmit = async () => {
+  formAction.value = { ...formActionDefault }
+  formAction.value.formProcess = true
+
+  const { data, error } = await supabase.auth.signUp({
+    email: formData.value.email,
+    password: formData.value.password,
+    options: {
+      data: {
+        firstname: formData.value.firstname,
+        lastname: formData.value.lastname,
+        email: formData.value.email,
+        phone: formData.value.phone,
+        password: formData.value.password,
+        password_confirmation: formData.value.password_confirmation,
+      },
+    },
+  })
+
+  /*for data*/
+  if (error) {
+    console.log(error)
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formStatus = error.status
+  } else if (data) {
+    console.log(data)
+    formAction.value.formSuccessMessage = 'Successfully Registered Account'
+    //Add more action
+    refVForm.value?.reset()
+  }
+
+  formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {
@@ -35,6 +71,7 @@ const onFormSubmit = () => {
 
 const isPasswordVisible = ref(false)
 const isPasswordConfirmVisible = ref(false)
+const refVForm = ref()
 
 //for eye
 
@@ -42,7 +79,13 @@ const visible = ref(false)
 </script>
 
 <template>
-  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
+  <v-divider class="my-4"></v-divider>
+  <AlertNotification
+    :formSuccessMessage="formAction.formSuccessMessage"
+    :formErrorMessage="formAction.formErrorMessage"
+  ></AlertNotification>
+
+  <v-form class="mt-5" ref="refVForm" @submit.prevent="onFormSubmit">
     <v-row dense>
       <v-col cols="12" md="6">
         <v-text-field
@@ -81,7 +124,7 @@ const visible = ref(false)
       <v-col cols="12" md="6">
         <v-text-field
           prepend-inner-icon="mdi-phone-outline"
-          placeholder="+63"
+          placeholder="e.g 09123445678"
           v-model="formData.phone"
           clearable
           :rules="[requiredValidator, integerValidator]"
@@ -115,7 +158,15 @@ const visible = ref(false)
       ]"
     ></v-text-field>
 
-    <v-btn class="my-4" type="submit" append-icon="mdi-account-plus-outline" block>Register</v-btn>
+    <v-btn
+      class="my-4"
+      type="submit"
+      append-icon="mdi-account-plus-outline"
+      block
+      :disabled="formAction.formProcess"
+      :loading="formAction.formProcess"
+      >Register</v-btn
+    >
 
     <h6 class="my-3 text-center">
       Already have an account?

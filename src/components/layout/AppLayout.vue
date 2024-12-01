@@ -31,7 +31,7 @@ onMounted(() => {
       </v-main>
 
       <v-footer
-        class="text-center d-flex flex-column"
+        class="text-center d-flex flex-column font-weight-medium"
         :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
         border
         app
