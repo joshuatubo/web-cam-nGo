@@ -51,40 +51,106 @@ onMounted(() => {
 
 <template>
   <v-responsive>
-    <v-app :theme="theme">
-      <v-app-bar class="px-7" :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'">
-        <v-spacer></v-spacer>
-        <v-btn
-          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          variant="elevated"
-          slim
-          @click="onClick"
-        ></v-btn>
+    <v-card :theme="theme">
+      <v-layout>
+        <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
+          <v-list>
+            <v-list-item
+              prepend-avatar="https://discover.therookies.co/content/images/size/w1000/2024/08/11-2.jpg"
+              subtitle="isha4jinx@gmail.com"
+              title="You're a Jinx!"
+            >
+              <template v-slot:append>
+                <v-btn size="small" icon>
+                  <v-icon icon="mdi-menu-down"></v-icon>
+                  <v-menu activator="parent" location="bottom end" transition="fade-transition">
+                    <v-list density="compact" min-width="250" rounded="lg" slim>
+                      <v-list-item prepend-icon="mdi-link" title="Copy link" link></v-list-item>
 
-        <v-btn class="ml-4 button" variant="elevated" slim>
-          <RouterLink to="/" style="text-decoration: none"><h6>Home</h6></RouterLink>
-        </v-btn>
+                      <v-divider class="my-2"></v-divider>
 
-        <ProfileHeader v-if="isLoggedIn"></ProfileHeader>
-        <v-btn class="ml-4 button" variant="elevated" slim>
-          <RouterLink to="/login" style="text-decoration: none"><h6>Login</h6></RouterLink>
-        </v-btn>
-      </v-app-bar>
+                      <v-list-item min-height="24">
+                        <template v-slot:subtitle>
+                          <div class="text-caption">Share with Vander + 1 more</div>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-btn>
+              </template>
+            </v-list-item>
+          </v-list>
 
-      <slot name="navigation"></slot>
+          <v-divider></v-divider>
 
-      <v-main>
-        <slot name="content"></slot>
-      </v-main>
+          <v-list density="compact" nav>
+            <v-list-item
+              prepend-icon="mdi-bookmark-multiple"
+              title="Saved Items"
+              value="saved"
+            ></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-account-multiple"
+              title="Shared with me"
+              value="shared"
+            ></v-list-item>
+            <v-list-item prepend-icon="mdi-star" title="Starred" value="starred"></v-list-item>
+          </v-list>
 
-      <v-footer
-        class="text-center d-flex flex-column font-weight-medium"
-        :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
-        border
-        app
-        elevation="24"
-        >2024 - Copyright</v-footer
-      >
-    </v-app>
+          <!--Logout Dialog-->
+          <v-divider style="margin-top: 61vh"></v-divider>
+          <v-list density="compact" nav>
+            <v-list-item
+              prepend-icon="mdi mdi-theme-light-dark"
+              title="Change Theme"
+              value="theme"
+              :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+              @click="onClick"
+            ></v-list-item>
+          </v-list>
+
+          <v-dialog max-width="500" persistent>
+            <template v-slot:activator="{ props: activatorProps }">
+              <v-list density="comfortable" nav>
+                <v-list-item
+                  prepend-icon="mdi-account-cog"
+                  v-bind="activatorProps"
+                  color="surface-variant"
+                  text="Login"
+                  variant="flat"
+                  title="Logout"
+                ></v-list-item>
+              </v-list>
+            </template>
+
+            <!--Logout function-->
+            <template v-slot:default="{ isActive }">
+              <v-card title="Leaving Now?">
+                <v-card-text> Logging out will require you to login again. </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text="Nevermind" @click="isActive.value = false"></v-btn>
+                  <RouterLink to="/"
+                    ><v-btn text="Proceed" @click="isActive.value = false"></v-btn
+                  ></RouterLink>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
+        </v-navigation-drawer>
+
+        <v-main style="height: 100vh">
+          <slot name="content"> </slot>
+        </v-main>
+        <v-footer
+          class="text-center d-flex flex-column font-weight-medium"
+          :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
+          border
+          app
+          elevation="24"
+          >2024 - Copyright</v-footer
+        >
+      </v-layout>
+    </v-card>
   </v-responsive>
 </template>
