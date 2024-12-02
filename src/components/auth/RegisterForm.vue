@@ -69,7 +69,7 @@ const onSubmit = async () => {
     //Add success message
     formAction.value.formSuccessMessage = 'Successfully Registered Account'
     //Add more action
-    router.replace('/')
+    router.replace('/dashboard')
   }
   //Reset Form
   refVForm.value?.reset()
@@ -94,13 +94,12 @@ const visible = ref(false)
 </script>
 
 <template>
-  <v-divider class="my-4"></v-divider>
   <AlertNotification
     :formSuccessMessage="formAction.formSuccessMessage"
     :formErrorMessage="formAction.formErrorMessage"
   ></AlertNotification>
 
-  <v-form class="mt-5" ref="refVForm" @submit.prevent="onFormSubmit">
+  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
     <v-row dense>
       <v-col cols="12" md="6">
         <v-text-field
@@ -110,6 +109,7 @@ const visible = ref(false)
           placeholder="Your First Name"
           persistent-clear
           :rules="[requiredValidator]"
+          variant="outlined"
         ></v-text-field>
       </v-col>
 
@@ -121,6 +121,7 @@ const visible = ref(false)
           placeholder="Your Last Name"
           persistent-clear
           :rules="[requiredValidator]"
+          variant="outlined"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -133,6 +134,7 @@ const visible = ref(false)
           clearable
           :rules="[requiredValidator, emailValidator]"
           label="Email"
+          variant="outlined"
         ></v-text-field>
       </v-col>
 
@@ -143,7 +145,8 @@ const visible = ref(false)
           v-model="formData.phone"
           clearable
           :rules="[requiredValidator, integerValidator]"
-          label="Phone Number"
+          label="Phone"
+          variant="outlined"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -157,6 +160,7 @@ const visible = ref(false)
       :append-inner-icon="isPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
       @click:append-inner="isPasswordVisible = !isPasswordVisible"
       :rules="[requiredValidator, passwordValidator]"
+      variant="outlined"
     ></v-text-field>
 
     <v-text-field
@@ -171,10 +175,11 @@ const visible = ref(false)
         requiredValidator,
         confirmedValidator(formData.password_confirmation, formData.password),
       ]"
+      variant="outlined"
     ></v-text-field>
 
     <v-btn
-      class="my-4"
+      class="my-4 bg-grey-darken-1"
       type="submit"
       append-icon="mdi-account-plus-outline"
       block
@@ -182,12 +187,5 @@ const visible = ref(false)
       :loading="formAction.formProcess"
       >Register</v-btn
     >
-
-    <h6 class="my-3 text-center">
-      Already have an account?
-      <RouterLink to="/login" class="text-primary" style="text-decoration: none"
-        >Back to Login<v-icon icon="mdi-chevron-right"></v-icon
-      ></RouterLink>
-    </h6>
   </v-form>
 </template>

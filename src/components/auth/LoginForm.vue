@@ -7,7 +7,8 @@ const visible = ref(false)
 const refVForm = ref()
 
 const onLogin = () => {
-  alert(formData.value.email)
+  //alert(formData.value.email)
+  alert('gi ayo pa nako oi')
 }
 
 const onFormSubmit = () => {
@@ -35,6 +36,7 @@ const formData = ref({
       persistent-clear
       prepend-inner-icon="mdi-email-outline"
       :rules="[requiredValidator, emailValidator]"
+      variant="outlined"
     ></v-text-field>
 
     <v-text-field
@@ -46,6 +48,7 @@ const formData = ref({
       prepend-inner-icon="mdi-lock-outline"
       @click:append-inner="visible = !visible"
       :rules="[requiredValidator]"
+      variant="outlined"
     ></v-text-field>
 
     <v-class class="d-flex justify-space-between">
@@ -57,6 +60,6 @@ const formData = ref({
       <h6 class="text-right">Forgot Password?</h6>
     </v-class>
 
-    <v-btn class="mt-2" type="submit" prepend-icon="mdi-login" block>Login</v-btn>
+    <v-btn class="mt-2 bg-grey-darken-1" type="submit" prepend-icon="mdi-login" block>Login</v-btn>
   </v-form>
 </template>
