@@ -43,7 +43,6 @@ onMounted(() => {
     </v-app>
   </v-responsive>
 </template> -->
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
@@ -61,9 +60,6 @@ onMounted(() => {
   document.body.setAttribute('data-theme', theme.value)
 })
 
-// Drawer state
-const drawer = ref(false)
-
 // Check if we are on the login page to prevent layout change
 const isLoginPage = route.path === '/auth/login'
 </script>
@@ -78,9 +74,6 @@ const isLoginPage = route.path === '/auth/login'
         flat
         elevate-on-scroll
       >
-        <!-- Burger Menu -->
-        <v-app-bar-nav-icon @click="drawer = !drawer" v-if="!isLoginPage" />
-
         <v-toolbar-title class="ml-2">Cam'N Go</v-toolbar-title>
 
         <!-- Spacer to push right-side icons -->
@@ -133,41 +126,7 @@ const isLoginPage = route.path === '/auth/login'
         ></v-btn>
       </v-app-bar>
 
-      <!-- Sidebar Drawer (Only shown if not on the Login page) -->
-      <v-navigation-drawer v-model="drawer" app :temporary="isLoginPage">
-        <v-list>
-          <v-list-item-group>
-            <!-- Home Link -->
-            <v-list-item @click="$router.push('/dashboard')">
-              <v-list-item-icon>
-                <v-icon>mdi-home</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>Home</v-list-item-title>
-            </v-list-item>
-            <!-- Other items -->
-            <v-list-item @click="$router.push('/camerasection')">
-              <v-list-item-icon>
-                <v-icon>mdi-camera</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>Browse Cameras</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-icon>
-                <v-icon>mdi-account</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>My Rentals</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-icon>
-                <v-icon>mdi-settings</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>Settings</v-list-item-title>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-navigation-drawer>
-
-      <!-- Main Content (Make sure LoginView doesn't change layout) -->
+      <!-- Main Content -->
       <v-main>
         <slot name="content"></slot>
       </v-main>
