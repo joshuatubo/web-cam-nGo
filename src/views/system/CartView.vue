@@ -1,4 +1,5 @@
 <script setup>
+import AppLayout from '@/components/layout/AppLayout.vue'
 import { ref } from 'vue'
 
 // Sample cart data
@@ -47,44 +48,52 @@ const proceedToCheckout = () => {
 </script>
 
 <template>
-  <div class="cart">
-    <h1>Your Cart</h1>
+  <AppLayout>
+    <template #content>
+      <div class="cart">
+        <h1>Your Cart</h1>
 
-    <div v-if="cartItems.length > 0" class="cart-items">
-      <div v-for="item in cartItems" :key="item.id" class="cart-item">
-        <img :src="item.image" :alt="item.name" class="cart-item-image" />
-        <div class="cart-item-details">
-          <h3>{{ item.name }}</h3>
-          <p>Price: ₱{{ item.price }}</p>
-          <p>Subtotal: ₱{{ item.price * item.quantity }}</p>
+        <div v-if="cartItems.length > 0" class="cart-items">
+          <div v-for="item in cartItems" :key="item.id" class="cart-item">
+            <img :src="item.image" :alt="item.name" class="cart-item-image" />
+            <div class="cart-item-details">
+              <h3>{{ item.name }}</h3>
+              <p>Price: ₱{{ item.price }}</p>
+              <p>Subtotal: ₱{{ item.price * item.quantity }}</p>
 
-          <div class="quantity-controls">
-            <button
-              @click="updateQuantity(item.id, item.quantity - 1)"
-              :disabled="item.quantity <= 1"
-            >
-              -
-            </button>
-            <span>{{ item.quantity }}</span>
-            <button @click="updateQuantity(item.id, item.quantity + 1)">+</button>
+              <div class="quantity-controls">
+                <button
+                  @click="updateQuantity(item.id, item.quantity - 1)"
+                  :disabled="item.quantity <= 1"
+                >
+                  -
+                </button>
+                <span>{{ item.quantity }}</span>
+                <button @click="updateQuantity(item.id, item.quantity + 1)">+</button>
+              </div>
+
+              <button @click="removeItem(item.id)" class="remove-item-btn">Remove</button>
+            </div>
           </div>
+        </div>
 
-          <button @click="removeItem(item.id)" class="remove-item-btn">Remove</button>
+        <div v-else>
+          <p>Your cart is empty.</p>
+        </div>
+
+        <div class="cart-summary">
+          <h3>Total: ₱{{ calculateTotal() }}</h3>
+          <button
+            @click="proceedToCheckout"
+            class="checkout-btn"
+            :disabled="cartItems.length === 0"
+          >
+            Proceed to Checkout
+          </button>
         </div>
       </div>
-    </div>
-
-    <div v-else>
-      <p>Your cart is empty.</p>
-    </div>
-
-    <div class="cart-summary">
-      <h3>Total: ₱{{ calculateTotal() }}</h3>
-      <button @click="proceedToCheckout" class="checkout-btn" :disabled="cartItems.length === 0">
-        Proceed to Checkout
-      </button>
-    </div>
-  </div>
+    </template>
+  </AppLayout>
 </template>
 
 <style scoped>
