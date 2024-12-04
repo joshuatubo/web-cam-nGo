@@ -1,57 +1,45 @@
-<!-- <script setup>
+<script setup>
+import ProfileHeader from './ProfileHeader.vue'
+import '@/assets/theme_style.css'
+
+//import { useAuthUserStore } from '@/stores/authUser'
 import { ref, onMounted } from 'vue'
+import { useDisplay } from 'vuetify'
+import { isAuthenticated } from '@/utilities/supabase'
 
-const theme = ref(localStorage.getItem('theme') || 'dark') // Get the stored theme or default to 'dark'
+// For drawer
+//const props = defineProps(['isWithAppBarNavIcon'])
 
-// Function to toggle theme when switch is clicked
-function onClick() {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-  localStorage.setItem('theme', theme.value) // Store the theme preference in localStorage
+//const emit = defineEmits(['isDrawerVisible', 'theme'])
+
+// Utilize pre-defined vue functions
+//const { xs, sm, mobile } = useDisplay()
+
+// Use Pinia Store
+//const authStore = useAuthUserStore()
+
+// Load Variables
+const isLoggedIn = ref(false)
+//const isMobileLogged = ref(false)
+//const isDesktop = ref(false)
+
+// Get Authentication status from supabase (needed for loading)
+const getLoggedStatus = async () => {
+  isLoggedIn.value = await isAuthenticated()
 }
 
-// On mount, apply the theme from localStorage if available
-onMounted(() => {
-  document.body.setAttribute('data-theme', theme.value)
-})
-</script>
+//isMobileLogged.value = mobile.value && isLoggedIn.value
+//isDesktop.value = !mobile.value && (isLoggedIn.value || !isLoggedIn.value)
+//}
 
-<template>
-  <v-responsive>
-    <v-app :theme="theme">
-      <v-app-bar class="px-7" :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'">
-        <v-spacer></v-spacer>
+// Load Functions during component rendering
+//onMounted(() => {
+//getLoggedStatus()
+//})
 
-    
-        <v-btn
-          :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          @click="onClick"
-        ></v-btn>
-      </v-app-bar>
-
-      <v-main>
-        <slot name="content"></slot>
-      </v-main>
-
-      <v-footer
-        class="text-center d-flex flex-column"
-        :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
-        border
-        app
-        elevation="24"
-        >2024 - Copyright</v-footer
-      >
-    </v-app>
-  </v-responsive>
-</template> -->
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-
-// Theme setup
-const theme = ref(localStorage.getItem('theme') || 'dark')
-const route = useRoute()
-
-function toggleTheme() {
+// For theme toggle
+const theme = ref(localStorage.getItem('theme') ?? 'light')
+function onClick() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
   localStorage.setItem('theme', theme.value)
 }
@@ -59,15 +47,12 @@ function toggleTheme() {
 onMounted(() => {
   document.body.setAttribute('data-theme', theme.value)
 })
-
-// Check if we are on the login page to prevent layout change
-const isLoginPage = route.path === '/auth/login'
 </script>
 
 <template>
   <v-responsive>
-    <v-app :theme="theme">
-      <!-- Navigation Bar -->
+    <v-card :theme="theme"
+       <!-- Navigation Bar -->
       <v-app-bar
         app
         :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
@@ -126,19 +111,19 @@ const isLoginPage = route.path === '/auth/login'
         ></v-btn>
       </v-app-bar>
 
-      <!-- Main Content -->
-      <v-main>
-        <slot name="content"></slot>
-      </v-main>
-
-      <!-- Footer -->
-      <v-footer
-        class="text-center"
-        :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
-        app
-      >
-        2024 - Copyright
-      </v-footer>
-    </v-app>
+        <v-main style="height: 100vh">
+          <slot name="content"> </slot>
+        </v-main>
+        <v-footer
+          class="text-center d-flex flex-column font-weight-medium"
+          :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
+          border
+          app
+          elevation="24"
+          >2024 - Copyright</v-footer
+        >
+      </v-layout>
+    </v-card>
   </v-responsive>
 </template>
+
