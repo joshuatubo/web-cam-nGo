@@ -7,6 +7,7 @@ const filteredCameras = ref([]) // Filtered list of cameras based on availabilit
 const cameraFilter = ref('all') // Track the current filter state
 const page = ref(1) // Current page for pagination
 const totalPages = ref(1) // Total number of pages for pagination
+const cart = ref([]) // Cart array to store added cameras
 
 // Mock camera data (can be fetched from an API)
 const mockCameras = [
@@ -42,11 +43,9 @@ const mockCameras = [
     price: 70,
     isAvailable: false,
   },
-  // Add more camera objects as necessary
 ]
 
 const fetchCameras = () => {
-  // Simulate fetching data from an API with pagination
   const camerasPerPage = 4
   filteredCameras.value = mockCameras.slice(
     (page.value - 1) * camerasPerPage,
@@ -67,16 +66,18 @@ const filterCameras = (filter) => {
 }
 
 const viewCamera = (id) => {
-  // Navigate to the detailed camera page (you can use Vue Router here)
   console.log('Viewing camera details for camera ID:', id)
 }
 
-const addToCart = (id) => {
-  // Handle adding the camera to the cart (you may want to use a Vuex store or local state)
-  console.log('Added camera ID to cart:', id)
+const addToCart = (camera) => {
+  // Check if the camera is already in the cart
+  const existingCamera = cart.value.find((item) => item.id === camera.id)
+  if (!existingCamera) {
+    cart.value.push(camera)
+  }
+  console.log('Camera added to cart:', camera)
 }
 
-// Fetch initial camera data when the component is mounted
 onMounted(() => {
   fetchCameras()
   filterCameras(cameraFilter.value) // Apply the initial filter
@@ -126,7 +127,6 @@ onMounted(() => {
 
         <!-- Camera Cards -->
         <v-row>
-          <!-- Iterate through the filtered camera list and display them as cards -->
           <v-col v-for="camera in filteredCameras" :key="camera.id" cols="12" sm="6" md="4">
             <v-card>
               <v-img :src="camera.image" height="200px" alt="Camera Image" />
@@ -141,13 +141,13 @@ onMounted(() => {
 
               <v-card-actions>
                 <v-btn color="primary" @click="viewCamera(camera.id)">View Details</v-btn>
-                <v-btn color="success" @click="addToCart(camera.id)" :disabled="!camera.isAvailable"
-                  >Rent Now</v-btn
-                >
+                <v-btn color="success" @click="addToCart(camera)" :disabled="!camera.isAvailable">
+                  Add to Cart
+                </v-btn>
               </v-card-actions>
 
               <v-card-footer>
-                <span class="text-h6">${{ camera.price }} / day</span>
+                <span class="text-h6">₱{{ camera.price }} / day</span>
                 <v-chip :color="camera.isAvailable ? 'green' : 'red'" text-color="white">
                   {{ camera.isAvailable ? 'Available' : 'Unavailable' }}
                 </v-chip>

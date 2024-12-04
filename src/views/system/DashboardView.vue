@@ -1,11 +1,11 @@
 <script setup>
-import AppLayout from '@/components/layout/AppLayout.vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import AppLayout from '@/components/layout/AppLayout.vue'
 import SideNavigation from '@/components/layout/SideNavigation.vue'
 
 const isDrawerVisible = ref(true)
 
-// Sample data for cameras available for rent
 const camerasAvailable = ref([
   {
     name: 'Canon EOS R5',
@@ -22,23 +22,32 @@ const camerasAvailable = ref([
   { name: 'Nikon Z7 II', price: '₱2,800/day', location: 'Pasig', image: '/images/nikon-z7.jpg' },
 ])
 
-// Sample data for active rentals
 const activeRentals = ref([{ name: 'Canon EOS R5', dueDate: '2024-12-08', status: 'On Time' }])
-
-// Sample data for rental history
 const rentalHistory = ref([
   { name: 'Sony Alpha 7 III', returnDate: '2024-11-28', status: 'Completed' },
   { name: 'Fujifilm X-T4', returnDate: '2024-11-15', status: 'Completed' },
 ])
-</script>
 
+// Cart state
+const cart = ref([])
+
+// Router for navigating to CartView
+const router = useRouter()
+
+// Add to Cart function
+function addToCart(camera) {
+  cart.value.push(camera)
+  // Optional: Navigate to CartView after adding item
+  router.push({ name: 'CartView', query: { cart: JSON.stringify(cart.value) } })
+}
+</script>
 <template>
   <AppLayout
     :is-with-app-bar-nav-icon="true"
     @is-drawer-visible="isDrawerVisible = !isDrawerVisible"
   >
     <template #navigation>
-      <SideNavigation :is-drawer-visible="isDrawerVisible"> </SideNavigation>
+      <SideNavigation :is-drawer-visible="isDrawerVisible" />
     </template>
 
     <template #content>
@@ -58,7 +67,7 @@ const rentalHistory = ref([
               <h3>{{ camera.name }}</h3>
               <p>Price: {{ camera.price }}</p>
               <p>Location: {{ camera.location }}</p>
-              <button class="rent-button">Rent Now</button>
+              <button class="rent-button" @click="addToCart(camera)">Add to Cart</button>
             </div>
           </div>
         </section>
@@ -96,7 +105,6 @@ const rentalHistory = ref([
     </template>
   </AppLayout>
 </template>
-
 <style scoped>
 .dashboard {
   padding: 20px;
