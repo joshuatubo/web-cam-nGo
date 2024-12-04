@@ -1,11 +1,65 @@
 <script setup>
-import ProfileHeader from './ProfileHeader.vue'
 import '@/assets/theme_style.css'
 
 //import { useAuthUserStore } from '@/stores/authUser'
 import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import { isAuthenticated } from '@/utilities/supabase'
+
+// test
+import { supabase, formActionDefault } from '@/utilities/supabase'
+import { getAvatarText } from '@/utilities/helpers'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+//end test
+
+// script test
+
+//load variables
+const userData = ref({
+  initials: '',
+  email: '',
+  fullname: '',
+})
+const formAction = ref({
+  ...formActionDefault,
+})
+
+//Logout functionality
+const onLogout = async () => {
+  formAction.value = { ...formActionDefault }
+  formAction.value.formProcess = true
+
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    console.error('Error signing out:', error.message)
+    return
+  }
+
+  //Rediret to login page
+  formAction.value.formProess = false
+  router.replace('/')
+}
+
+//getting the user information funtionality
+const getUser = async () => {
+  const {
+    data: {
+      user: { user_metadata: metadata },
+    },
+  } = await supabase.auth.getUser()
+
+  userData.value.email = metadata.email
+  userData.value.fullname = metadata.firstname + ' ' + metadata.lastname
+  userData.value.initials = getAvatarText(userData.value.fullname)
+}
+
+// Load funtions during component rendering
+onMounted(() => {
+  getUser()
+})
+
+//end test script
 
 // For drawer
 //const props = defineProps(['isWithAppBarNavIcon'])
@@ -38,7 +92,7 @@ const getLoggedStatus = async () => {
 //})
 
 // For theme toggle
-const theme = ref(localStorage.getItem('theme') ?? 'light')
+const theme = ref(localStorage.getItem('theme') ?? 'dark')
 function onClick() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
   localStorage.setItem('theme', theme.value)
@@ -54,33 +108,14 @@ onMounted(() => {
     <v-card :theme="theme">
       <v-layout>
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
-          <v-list>
+          <!--Profile Header-->
+          <v-list density="compact" nav>
             <v-list-item
-              prepend-avatar="https://discover.therookies.co/content/images/size/w1000/2024/08/11-2.jpg"
-              subtitle="isha4jinx@gmail.com"
-              title="You're a Jinx!"
-            >
-              <template v-slot:append>
-                <v-btn size="small" icon>
-                  <v-icon icon="mdi-menu-down"></v-icon>
-                  <v-menu activator="parent" location="bottom end" transition="fade-transition">
-                    <v-list density="compact" min-width="250" rounded="lg" slim>
-                      <v-list-item prepend-icon="mdi-link" title="Copy link" link></v-list-item>
-
-                      <v-divider class="my-2"></v-divider>
-
-                      <v-list-item min-height="24">
-                        <template v-slot:subtitle>
-                          <div class="text-caption">Share with Vander + 1 more</div>
-                        </template>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-btn>
-              </template>
-            </v-list-item>
+              prepend-icon="mdi-home-outline"
+              title="Home"
+              value="homepage"
+            ></v-list-item>
           </v-list>
-
           <v-divider></v-divider>
 
           <v-list density="compact" nav>
@@ -98,7 +133,7 @@ onMounted(() => {
           </v-list>
 
           <!--Logout Dialog-->
-          <v-divider style="margin-top: 61vh"></v-divider>
+          <v-divider style="margin-top: 60vh"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi mdi-theme-light-dark"
@@ -111,15 +146,37 @@ onMounted(() => {
 
           <v-dialog max-width="500" persistent>
             <template v-slot:activator="{ props: activatorProps }">
-              <v-list density="comfortable" nav>
+              <v-list>
                 <v-list-item
-                  prepend-icon="mdi-account-cog"
-                  v-bind="activatorProps"
-                  color="surface-variant"
-                  text="Login"
-                  variant="flat"
-                  title="Logout"
-                ></v-list-item>
+                  prepend-icon="mdi-account-circle-outline"
+                  :subtitle="userData.email"
+                  :title="userData.fullname"
+                >
+                  <template v-slot:append>
+                    <v-btn size="small" icon>
+                      <v-icon icon="mdi-menu-up"></v-icon>
+                      <v-menu activator="parent" location="bottom end" transition="fade-transition">
+                        <v-list density="compact" min-width="250" rounded="lg" slim>
+                          <v-list-item
+                            :title="userData.fullname"
+                            :subtitle="userData.email"
+                          ></v-list-item>
+                          <v-divider class="my-2"></v-divider>
+                          <v-list density="comfortable" nav>
+                            <v-list-item
+                              prepend-icon="mdi-account-cog"
+                              v-bind="activatorProps"
+                              color="surface-variant"
+                              text="Logout"
+                              variant="flat"
+                              title="Logout"
+                            ></v-list-item>
+                          </v-list>
+                        </v-list>
+                      </v-menu>
+                    </v-btn>
+                  </template>
+                </v-list-item>
               </v-list>
             </template>
 
@@ -130,9 +187,13 @@ onMounted(() => {
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Nevermind" @click="isActive.value = false"></v-btn>
-                  <RouterLink to="/"
-                    ><v-btn text="Proceed" @click="isActive.value = false"></v-btn
-                  ></RouterLink>
+
+                  <v-btn
+                    text="Proceed"
+                    @click="onLogout"
+                    :loading="formAction.formProcess"
+                    :disabled="formAction.formProcess"
+                  ></v-btn>
                 </v-card-actions>
               </v-card>
             </template>
@@ -140,7 +201,7 @@ onMounted(() => {
         </v-navigation-drawer>
 
         <v-main style="height: 100vh">
-          <slot name="content"> </slot>
+          <slot name="content"></slot>
         </v-main>
         <v-footer
           class="text-center d-flex flex-column font-weight-medium"
