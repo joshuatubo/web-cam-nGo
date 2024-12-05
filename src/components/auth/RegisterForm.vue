@@ -69,7 +69,7 @@ const onSubmit = async () => {
     //Add success message
     formAction.value.formSuccessMessage = 'Successfully Registered Account'
     //Add more action
-    router.replace('/dashboard')
+    router.replace('system/dashboard')
   }
   //Reset Form
   refVForm.value?.reset()
@@ -83,14 +83,12 @@ const onFormSubmit = () => {
     if (valid) onSubmit()
   })
 }
+const refVForm = ref(null)
 
-const isPasswordVisible = ref(false)
-const isPasswordConfirmVisible = ref(false)
-const refVForm = ref()
+const show1 = ref(false)
+const show2 = ref(false)
 
 //for eye
-
-//const visible = ref(false)
 </script>
 
 <template>
@@ -152,29 +150,29 @@ const refVForm = ref()
     </v-row>
 
     <v-text-field
+      prepend-inner-icon="mdi-lock-outline"
       dense
       v-model="formData.password"
-      label="Password"
-      prepend-inner-icon="mdi-lock-outline"
-      :type="isPasswordVisible ? 'text' : 'password'"
-      :append-inner-icon="isPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
-      @click:append-inner="isPasswordVisible = !isPasswordVisible"
+      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
       :rules="[requiredValidator, passwordValidator]"
+      :type="show1 ? 'text' : 'password'"
+      label="Password"
+      @click:append="show1 = !show1"
       variant="outlined"
     ></v-text-field>
 
     <v-text-field
+      prepend-inner-icon="mdi-lock-outline"
       dense
       v-model="formData.password_confirmation"
-      label="Password Confirmation"
-      prepend-inner-icon="mdi-lock-outline"
-      :type="isPasswordConfirmVisible ? 'text' : 'password'"
-      :append-inner-icon="isPasswordConfirmVisible ? 'mdi-eye-off' : 'mdi-eye'"
-      @click:append-inner="isPasswordConfirmVisible = !isPasswordConfirmVisible"
+      :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
       :rules="[
         requiredValidator,
         confirmedValidator(formData.password_confirmation, formData.password),
       ]"
+      :type="show2 ? 'text' : 'password'"
+      label="Password Confirmation"
+      @click:append="show2 = !show2"
       variant="outlined"
     ></v-text-field>
 
