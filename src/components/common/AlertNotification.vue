@@ -20,7 +20,7 @@ const props = defineProps(['formSuccessMessage', 'formErrorMessage'])
     dense
     v-if="props.formErrorMessage"
     :text="props.formErrorMessage"
-    title="haha tala!"
+    title="Error!"
     type="error"
     variant="outlined"
     density="compact"

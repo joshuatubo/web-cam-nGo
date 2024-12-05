@@ -1,33 +1,67 @@
 <script setup>
+import AlertNotification from '@/components/common/AlertNotification.vue'
+
+import { formActionDefault, supabase } from '@/utilities/supabase'
 import { requiredValidator, emailValidator } from '@/utilities/validators'
-
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const visible = ref(false)
-const refVForm = ref()
+// Utilize pre-defined vue functions
+const router = useRouter()
 
-const onLogin = () => {
-  //alert(formData.value.email)
-  alert('gi ayo pa nako oi')
-}
-
-const onFormSubmit = () => {
-  refVForm.value?.validate().then(({ valid }) => {
-    if (valid) onLogin()
-  })
-}
-
+// Load Variables
 const formDataDefault = {
   email: '',
   password: '',
 }
-
 const formData = ref({
   ...formDataDefault,
 })
+const formAction = ref({
+  ...formActionDefault,
+})
+const visible = ref(false)
+const refVForm = ref()
+
+const onSubmit = async () => {
+  // Reset Form Action utils; Turn on processing at the same time
+  formAction.value = { ...formActionDefault, formProcess: true }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: formData.value.email,
+    password: formData.value.password,
+  })
+
+  if (error) {
+    // Add Error Message and Status Code
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formStatus = error.status
+  } else if (data) {
+    // Add Success Message
+    formAction.value.formSuccessMessage = 'Successfully Logged Account.'
+    // Redirect Acct to Dashboard
+    router.replace('system/dashboard')
+  }
+
+  // Reset Form
+  refVForm.value?.reset()
+  // Turn off processing
+  formAction.value.formProcess = false
+}
+
+const onFormSubmit = () => {
+  refVForm.value?.validate().then(({ valid }) => {
+    if (valid) onSubmit()
+  })
+}
 </script>
 <template>
-  <v-form ref="refVForm" @submit.prevent="onFormSubmit">
+  <v-divider class="my-3 border-opacity-25"></v-divider>
+  <AlertNotification
+    :formSuccessMessage="formAction.formSuccessMessage"
+    :formErrorMessage="formAction.formErrorMessage"
+  ></AlertNotification>
+  <v-form class="mt-5" ref="refVForm" @submit.prevent="onFormSubmit">
     <v-text-field
       v-model="formData.email"
       clearable
