@@ -278,17 +278,17 @@ onMounted(() => {
           </v-dialog>
         </v-navigation-drawer>
 
-        <v-main style="height: 100vh" class="mt-10">
+        <v-main class="mt-10">
           <slot name="content"></slot>
         </v-main>
-        <v-footer
+        <!-- <v-footer
           class="text-center d-flex flex-column font-weight-medium"
           :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
           border
           app
           elevation="24"
           >2024 - Copyright</v-footer
-        >
+        > -->
       </v-layout>
     </v-card>
   </v-responsive>

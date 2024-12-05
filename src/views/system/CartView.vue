@@ -104,7 +104,7 @@ const proceedToCheckout = () => {
               class="checkout-btn"
               :disabled="cartItems.length === 0"
             >
-              Proceed to Checkout
+              Checkout
             </button>
           </div>
         </div>
