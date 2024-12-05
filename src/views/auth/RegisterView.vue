@@ -11,14 +11,9 @@ import { ref } from 'vue'
 <template #content>
   <v-responsive>
     <v-container-fluid>
-      <v-row style="height: 100vh; margin: 0; padding: 0"
+      <v-row style="height: 100%; margin: 0; padding: 0"
         ><v-col class="container">
-          <v-card
-            elevation="24"
-            class="mx-auto rounded-xl bg-grey-darken-4"
-            style="margin: 10vh"
-            width="70%"
-          >
+          <v-card elevation="24" class="mx-auto rounded-xl bg-grey-darken-4 my-10" width="70%">
             <v-row>
               <v-col>
                 <v-card
