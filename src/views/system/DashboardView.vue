@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import '@/assets/dashboard_style.css'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import SideNavigation from '@/components/layout/SideNavigation.vue'
 
@@ -105,95 +106,3 @@ function addToCart(camera) {
     </template>
   </AppLayout>
 </template>
-<style scoped>
-.dashboard {
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-.dashboard-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.dashboard-header h1 {
-  font-size: 24px;
-}
-
-.dashboard-header p {
-  font-size: 16px;
-  color: #666;
-}
-
-.browse-cameras {
-  margin-bottom: 30px;
-}
-
-.browse-cameras h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.camera-grid {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.camera-card {
-  flex: 1 1 calc(33.333% - 20px);
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  padding: 15px;
-}
-
-.camera-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.rent-button {
-  margin-top: 10px;
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.rent-button:hover {
-  background-color: #0056b3;
-}
-
-.active-rentals,
-.rental-history {
-  margin-bottom: 30px;
-}
-
-.rentals-list,
-.history-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.rental-card,
-.history-card {
-  flex: 1 1 calc(50% - 20px);
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.status {
-  font-weight: bold;
-  color: green;
-}
-</style>
