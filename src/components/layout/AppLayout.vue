@@ -13,6 +13,10 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 //end profile header libraries
 
+// Navigate to a specific route
+const navigateTo = (route) => {
+  router.push({ name: route }) // Make sure you have the corresponding routes defined in your router
+}
 // Profile Header section
 
 //load variables
@@ -115,22 +119,31 @@ onMounted(() => {
               prepend-icon="mdi-home-outline"
               title="Home"
               value="homepage"
+              @click="navigateTo('dashboard')"
             ></v-list-item>
-            <v-list-item prepend-icon="mdi-cart-outline" title="Cart" value="cart"></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-cart-outline"
+              title="Cart"
+              value="cart"
+              @click="navigateTo('cart')"
+            ></v-list-item>
             <v-list-item
               prepend-icon="mdi-bookmark-multiple"
               title="Saved Items"
               value="saved"
+              @click="navigateTo('')"
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-history"
               title="Rental History"
               value="rental-history"
+              @click="navigateTo('')"
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-camera-outline"
               title="Browse Cameras"
               value="browse-cameras"
+              @click="navigateTo('browse')"
             ></v-list-item>
           </v-list>
 

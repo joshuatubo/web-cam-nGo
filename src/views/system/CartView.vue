@@ -18,6 +18,49 @@ const cartItems = ref([
     quantity: 2,
     image: '/images/sony-alpha-7.jpg',
   },
+  {
+    id: 3,
+    name: 'Canon EOS R5',
+    price: 3000,
+    quantity: 1,
+    image: '/images/canon-eos-r5.jpg',
+  },
+  {
+    id: 4,
+    name: 'Sony Alpha 7 IV',
+    price: 2500,
+    quantity: 2,
+    image: '/images/sony-alpha-7.jpg',
+  },
+  {
+    id: 5,
+    name: 'Canon EOS R5',
+    price: 3000,
+    quantity: 1,
+    image: '/images/canon-eos-r5.jpg',
+  },
+  {
+    id: 6,
+    name: 'Sony Alpha 7 IV',
+    price: 2500,
+    quantity: 2,
+    image: '/images/sony-alpha-7.jpg',
+  },
+  {
+    id: 7,
+    name: 'Canon EOS R5',
+    price: 3000,
+    quantity: 1,
+    image: '/images/canon-eos-r5.jpg',
+  },
+  {
+    id: 8,
+    name: 'Sony Alpha 7 IV',
+    price: 2500,
+    quantity: 2,
+    image: '/images/sony-alpha-7.jpg',
+  },
+  // Add more items as needed
 ])
 
 // Total calculation
@@ -50,9 +93,24 @@ const proceedToCheckout = () => {
 <template>
   <AppLayout>
     <template #content>
-      <div class="cart">
-        <h1>Your Cart</h1>
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+        <div class="cart-header">
+          <h1>Your Cart</h1>
+          <div class="cart-summary">
+            <h3>Total: ₱{{ calculateTotal() }}</h3>
+            <button
+              @click="proceedToCheckout"
+              class="checkout-btn"
+              :disabled="cartItems.length === 0"
+            >
+              Proceed to Checkout
+            </button>
+          </div>
+        </div>
+      </nav>
 
+      <div class="cart">
         <div v-if="cartItems.length > 0" class="cart-items">
           <div v-for="item in cartItems" :key="item.id" class="cart-item">
             <img :src="item.image" :alt="item.name" class="cart-item-image" />
@@ -80,17 +138,6 @@ const proceedToCheckout = () => {
         <div v-else>
           <p>Your cart is empty.</p>
         </div>
-
-        <div class="cart-summary">
-          <h3>Total: ₱{{ calculateTotal() }}</h3>
-          <button
-            @click="proceedToCheckout"
-            class="checkout-btn"
-            :disabled="cartItems.length === 0"
-          >
-            Proceed to Checkout
-          </button>
-        </div>
       </div>
     </template>
   </AppLayout>
@@ -102,19 +149,28 @@ const proceedToCheckout = () => {
   font-family: Arial, sans-serif;
 }
 
-.cart h1 {
-  font-size: 24px;
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
+.cart h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
 .cart-items {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  margin-bottom: 20px;
 }
 
 .cart-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   border: 1px solid #ddd;
   padding: 15px;
@@ -123,14 +179,14 @@ const proceedToCheckout = () => {
 }
 
 .cart-item-image {
-  max-width: 100px;
+  max-width: 100%;
   height: auto;
-  margin-right: 20px;
+  margin-bottom: 10px;
   border-radius: 8px;
 }
 
 .cart-item-details {
-  flex: 1;
+  text-align: center;
 }
 
 .quantity-controls {
@@ -169,7 +225,7 @@ const proceedToCheckout = () => {
 }
 
 .cart-summary {
-  margin-top: 30px;
+  margin-left: auto;
   text-align: right;
 }
 
@@ -185,5 +241,12 @@ const proceedToCheckout = () => {
 .checkout-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+/* Navigation Styles */
+.navbar {
+  background-color: #ffffff;
+  padding: 10px;
+  text-align: center;
 }
 </style>
