@@ -7,7 +7,7 @@ import { ref, onMounted } from 'vue'
 //import { isAuthenticated } from '@/utilities/supabase'
 
 // Profile Header section libraries
-import { supabase, formActionDefault, getUserInformation } from '@/utilities/supabase'
+import { supabase, formActionDefault } from '@/utilities/supabase'
 import { getAvatarText } from '@/utilities/helpers'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -46,12 +46,15 @@ const onLogout = async () => {
 }
 
 //getting the user information funtionality
-//getting the user information funtionality
 const getUser = async () => {
-  const userMetaData = await getUserInformation()
+  const {
+    data: {
+      user: { user_metadata: metadata },
+    },
+  } = await supabase.auth.getUser()
 
-  userData.value.email = userMetaData.email
-  userData.value.fullname = userMetaData.firstname + ' ' + userMetaData.lastname
+  userData.value.email = metadata.email
+  userData.value.fullname = metadata.firstname + ' ' + metadata.lastname
   userData.value.initials = getAvatarText(userData.value.fullname)
 }
 
@@ -104,6 +107,7 @@ onMounted(() => {
   document.body.setAttribute('data-theme', theme.value)
 })
 </script>
+
 <template>
   <v-responsive>
     <v-card :theme="theme">
@@ -118,17 +122,17 @@ onMounted(() => {
           </v-btn>
         </div>
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
-          <!--Home Button must be isolated from the list-->
+          <!-- Profile Header -->
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi-home-outline"
               title="Home"
               value="homepage"
+              @click="navigateTo('dashboard')"
             ></v-list-item>
-            <v-divider></v-divider>
             <v-list-item
-              prepend-icon="mdi-cart"
-              title="Your Cart"
+              prepend-icon="mdi-cart-outline"
+              title="Cart"
               value="cart"
               @click="navigateTo('cart')"
             ></v-list-item>
@@ -145,7 +149,7 @@ onMounted(() => {
               @click="navigateTo('')"
             ></v-list-item>
             <v-list-item
-              prepend-icon="mdi-camera"
+              prepend-icon="mdi-camera-outline"
               title="Browse Cameras"
               value="browse-cameras"
               @click="navigateTo('browse')"
@@ -153,7 +157,7 @@ onMounted(() => {
           </v-list>
 
           <!-- Logout Dialog -->
-          <v-divider style="margin-top: 485px"></v-divider>
+          <v-divider style="margin-top: 40vh"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi mdi-theme-light-dark"
