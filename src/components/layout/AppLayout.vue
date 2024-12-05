@@ -173,17 +173,17 @@ onMounted(() => {
           </v-btn>
         </div>
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
-          <!-- Profile Header -->
+          <!--Home Button must be isolated from the list-->
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi-home-outline"
               title="Home"
               value="homepage"
-              @click="navigateTo('dashboard')"
             ></v-list-item>
+            <v-divider></v-divider>
             <v-list-item
-              prepend-icon="mdi-cart-outline"
-              title="Cart"
+              prepend-icon="mdi-cart"
+              title="Your Cart"
               value="cart"
               @click="navigateTo('cart')"
             ></v-list-item>
@@ -200,7 +200,7 @@ onMounted(() => {
               @click="navigateTo('')"
             ></v-list-item>
             <v-list-item
-              prepend-icon="mdi-camera-outline"
+              prepend-icon="mdi-camera"
               title="Browse Cameras"
               value="browse-cameras"
               @click="navigateTo('browse')"
