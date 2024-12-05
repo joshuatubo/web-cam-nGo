@@ -95,22 +95,28 @@ const proceedToCheckout = () => {
   <AppLayout>
     <template #content>
       <!-- Navigation Bar -->
-      <nav class="navbar">
-        <div class="cart-header">
-          <h1>Your Cart</h1>
-          <div class="cart-summary">
-            <h3>Total: ₱{{ calculateTotal() }}</h3>
-            <button
-              @click="proceedToCheckout"
-              class="checkout-btn"
-              :disabled="cartItems.length === 0"
-            >
-              Checkout
-            </button>
-          </div>
-        </div>
-      </nav>
+      <nav>
+        <v-container>
+          <v-row align="center" justify="space-between">
+            <!-- Left: Your Cart -->
+            <v-col cols="auto">
+              <h1>Your Cart</h1>
+            </v-col>
 
+            <!-- Right: Total Summary -->
+            <v-col cols="auto" class="text-right">
+              <h3>Total: ₱{{ calculateTotal() }}</h3>
+              <v-btn
+                class="checkout-btn"
+                @click="proceedToCheckout"
+                :disabled="cartItems.length === 0"
+              >
+                Checkout
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </nav>
       <div class="cart">
         <div v-if="cartItems.length > 0" class="cart-items">
           <div v-for="item in cartItems" :key="item.id" class="cart-item">
