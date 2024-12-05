@@ -208,7 +208,7 @@ onMounted(() => {
           </v-list>
 
           <!-- Logout Dialog -->
-          <v-divider style="margin-top: 40vh"></v-divider>
+          <v-divider style="margin-top: 485px"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi mdi-theme-light-dark"
