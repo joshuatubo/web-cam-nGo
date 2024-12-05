@@ -16,7 +16,7 @@ import { ref } from 'vue'
           <v-card
             elevation="24"
             class="mx-auto rounded-xl bg-grey-darken-4"
-            style="margin-top: 15vh"
+            style="margin: 10vh"
             width="70%"
           >
             <v-row>

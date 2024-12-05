@@ -61,7 +61,7 @@ const onFormSubmit = () => {
     :formSuccessMessage="formAction.formSuccessMessage"
     :formErrorMessage="formAction.formErrorMessage"
   ></AlertNotification>
-  <v-form class="mt-5" ref="refVForm" @submit.prevent="onFormSubmit">
+  <v-form class="m-5" ref="refVForm" @submit.prevent="onFormSubmit">
     <v-text-field
       v-model="formData.email"
       clearable
