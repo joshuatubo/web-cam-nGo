@@ -210,8 +210,8 @@ onMounted(() => {
             ></v-list-item>
           </v-list>
 
-          <!--Logout Dialog-->
-          <v-divider style="margin-top: 60vh"></v-divider>
+          <!-- Logout Dialog -->
+          <v-divider style="margin-top: 40vh"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi mdi-theme-light-dark"
@@ -258,14 +258,13 @@ onMounted(() => {
               </v-list>
             </template>
 
-            <!--Logout function-->
+            <!-- Logout function -->
             <template v-slot:default="{ isActive }">
               <v-card title="Leaving Now?">
-                <v-card-text> Logging out will require you to login again. </v-card-text>
+                <v-card-text>Logging out will require you to login again.</v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Nevermind" @click="isActive.value = false"></v-btn>
-
                   <v-btn
                     text="Proceed"
                     @click="onLogout"

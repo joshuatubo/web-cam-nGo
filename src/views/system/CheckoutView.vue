@@ -95,15 +95,16 @@ function completeBooking() {
           </v-col>
         </v-row>
 
-        <!-- User Information Section -->
         <v-row>
+          <!-- Form Card -->
           <v-col cols="12">
             <v-card>
               <v-card-title>
-                <v-typography variant="h2">Personal Information</v-typography>
+                <v-typography variant="h2">Booking Information</v-typography>
               </v-card-title>
               <v-card-text>
                 <v-form>
+                  <!-- Personal Information Section -->
                   <v-row>
                     <v-col cols="12" md="6">
                       <v-text-field v-model="user.name" label="Full Name" required></v-text-field>
@@ -130,109 +131,80 @@ function completeBooking() {
                       <v-text-field v-model="user.address" label="Delivery Address"></v-text-field>
                     </v-col>
                   </v-row>
+
+                  <!-- Pickup and Delivery Section -->
+                  <v-row>
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="pickupLocation"
+                        :items="pickupLocations"
+                        label="Select Pickup Location"
+                        required
+                      ></v-select>
+                      <v-text-field
+                        v-model="pickupDate"
+                        label="Select Pickup Date"
+                        type="date"
+                        required
+                      ></v-text-field>
+                    </v-col>
+
+                    <!-- Payment Information Section -->
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="paymentMethod"
+                        :items="paymentMethods"
+                        label="Select Payment Method"
+                        required
+                      ></v-select>
+
+                      <v-text-field
+                        v-if="paymentMethod === 'creditCard'"
+                        v-model="cardNumber"
+                        label="Card Number"
+                        type="text"
+                        required
+                      ></v-text-field>
+
+                      <v-text-field
+                        v-if="paymentMethod === 'creditCard'"
+                        v-model="expiryDate"
+                        label="Expiry Date"
+                        type="text"
+                        required
+                      ></v-text-field>
+
+                      <v-text-field
+                        v-if="paymentMethod === 'creditCard'"
+                        v-model="cvv"
+                        label="CVV"
+                        type="text"
+                        required
+                      ></v-text-field>
+
+                      <v-typography variant="h6">Total: ₱{{ totalCost }}</v-typography>
+                    </v-col>
+                  </v-row>
+
+                  <!-- Terms and Conditions Section -->
+                  <v-row>
+                    <v-col cols="6">
+                      <v-checkbox
+                        v-model="termsAccepted"
+                        label="I agree to the Terms & Conditions and Privacy Policy."
+                        required
+                      ></v-checkbox>
+                    </v-col>
+                    <!-- Final Confirmation Section -->
+                    <v-col cols="6">
+                      <v-btn :disabled="!termsAccepted" color="primary" @click="completeBooking">
+                        Complete Booking
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </v-form>
               </v-card-text>
             </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- Pickup and Delivery Section and Payment Information Section in one row -->
-        <v-row>
-          <!-- Pickup and Delivery Section -->
-          <v-col cols="12" sm="6">
-            <v-card>
-              <v-card-title>
-                <v-typography variant="h2">Pickup and Delivery Options</v-typography>
-              </v-card-title>
-              <v-card-text>
-                <v-select
-                  v-model="pickupLocation"
-                  :items="pickupLocations"
-                  label="Select Pickup Location"
-                  required
-                ></v-select>
-                <v-text-field
-                  v-model="pickupDate"
-                  label="Select Pickup Date"
-                  type="date"
-                  required
-                ></v-text-field>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <!-- Payment Information Section -->
-          <v-col cols="12" sm="6">
-            <v-card>
-              <v-card-title>
-                <v-typography variant="h2">Payment Information</v-typography>
-              </v-card-title>
-              <v-card-text>
-                <v-select
-                  v-model="paymentMethod"
-                  :items="paymentMethods"
-                  label="Select Payment Method"
-                  required
-                ></v-select>
-
-                <v-text-field
-                  v-if="paymentMethod === 'creditCard'"
-                  v-model="cardNumber"
-                  label="Card Number"
-                  type="text"
-                  required
-                ></v-text-field>
-
-                <v-text-field
-                  v-if="paymentMethod === 'creditCard'"
-                  v-model="expiryDate"
-                  label="Expiry Date"
-                  type="text"
-                  required
-                ></v-text-field>
-
-                <v-text-field
-                  v-if="paymentMethod === 'creditCard'"
-                  v-model="cvv"
-                  label="CVV"
-                  type="text"
-                  required
-                ></v-text-field>
-
-                <v-typography variant="h6">Total: ₱{{ totalCost }}</v-typography>
-                <br />
-                <br />
-                <br />
-                <br />
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- Terms and Conditions Section -->
-        <v-row>
-          <v-col cols="12">
-            <v-card>
-              <v-card-title>
-                <v-typography variant="h2">Terms & Conditions</v-typography>
-              </v-card-title>
-              <v-card-text>
-                <v-checkbox
-                  v-model="termsAccepted"
-                  label="I agree to the Terms & Conditions and Privacy Policy."
-                  required
-                ></v-checkbox>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- Final Confirmation Section -->
-        <v-row>
-          <v-col cols="12">
-            <v-btn :disabled="!termsAccepted" color="primary" @click="completeBooking">
-              Complete Booking
-            </v-btn>
           </v-col>
         </v-row>
       </v-container>
