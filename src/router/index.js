@@ -4,6 +4,7 @@ import RegisterView from '../views/auth/RegisterView.vue'
 import DashboardView from '../views/system/DashboardView.vue'
 import CartView from '@/views/system/CartView.vue'
 import BrowseCamerasView from '@/views/system/BrowseCamerasView.vue'
+import CheckoutView from '@/views/system/CheckoutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/browse',
       name: 'browse',
       component: BrowseCamerasView,
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
     },
   ],
 })

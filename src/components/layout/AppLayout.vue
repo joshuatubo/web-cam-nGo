@@ -108,6 +108,11 @@ onMounted(() => {
 })
 </script>
 
+<style scoped>
+.me-2 {
+  margin-right: 0.5rem;
+}
+</style>
 <template>
   <v-responsive>
     <v-card :theme="theme">
