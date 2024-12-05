@@ -109,14 +109,72 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.me-2 {
-  margin-right: 0.5rem;
+/* Styles for the horizontal navigation bar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--v-theme-background);
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  border-radius: 0 0 15px 15px;
+}
+
+.search-bar {
+  border-radius: 20px;
+  padding: 5px 15px;
+  width: 300px;
+  border: 1px solid #ccc;
+  transition: width 0.3s ease;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.v-navigation-drawer {
+  width: 100%;
+  max-width: 300px;
+  flex-shrink: 0;
+}
+
+.navbar .menu-icon {
+  display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .search-bar {
+    display: none; /* Hide search bar */
+  }
+
+  .navbar .menu-icon {
+    display: block; /* Show menu icon on small screens */
+  }
+
+  .navbar .logo {
+    font-size: 20px; /* Adjust logo size for small screens */
+  }
 }
 </style>
 <template>
   <v-responsive>
     <v-card :theme="theme">
       <v-layout>
+        <!-- Horizontal Navigation Bar -->
+        <div class="navbar">
+          <div class="logo ml-10" @click="navigateTo('home')">Cam 'n Go</div>
+          <input type="text" class="search-bar" placeholder="Search..." />
+          <!-- Menu icon for small screens -->
+          <v-btn class="menu-icon" @click="isDrawerOpen = !isDrawerOpen" icon>
+            <v-icon>mdi-menu</v-icon>
+          </v-btn>
+        </div>
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
           <!-- Profile Header -->
           <v-list density="compact" nav>
@@ -220,7 +278,7 @@ onMounted(() => {
           </v-dialog>
         </v-navigation-drawer>
 
-        <v-main style="height: 100vh">
+        <v-main style="height: 100vh" class="mt-10">
           <slot name="content"></slot>
         </v-main>
         <v-footer
