@@ -1,17 +1,17 @@
 <script setup>
-import AppLayout from '@/components/layout/AppLayout.vue'
+//import AppLayout from '@/components/layout/AppLayout.vue'
 import '@/assets/login_style.css'
 import RegisterForm from '@/components/auth/RegisterForm.vue'
 import '@/assets/theme_style.css'
 
 //For pass verification
-import { ref } from 'vue'
+//import { ref } from 'vue'
 </script>
 
-<template #content>
+<template>
   <v-responsive>
     <v-container-fluid>
-      <v-row style="height: 100%; margin: 0; padding: 0"
+      <v-row style="height: 100vh; margin: 0; padding: 0"
         ><v-col class="container">
           <v-card elevation="24" class="mx-auto rounded-xl bg-grey-darken-4 my-10" width="70%">
             <v-row>
