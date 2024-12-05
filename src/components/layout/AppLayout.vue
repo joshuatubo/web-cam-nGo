@@ -136,7 +136,7 @@ onMounted(() => {
               prepend-icon="mdi-bookmark-multiple"
               title="Saved Items"
               value="saved"
-              @click="navigateTo('')"
+              @click="navigateTo('checkout')"
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-history"
