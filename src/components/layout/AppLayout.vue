@@ -109,28 +109,29 @@ onMounted(() => {
     <v-card :theme="theme">
       <v-layout>
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
-          <!--Profile Header-->
+          <!-- Profile Header -->
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi-home-outline"
               title="Home"
               value="homepage"
             ></v-list-item>
-          </v-list>
-          <v-divider></v-divider>
-
-          <v-list density="compact" nav>
+            <v-list-item prepend-icon="mdi-cart-outline" title="Cart" value="cart"></v-list-item>
             <v-list-item
               prepend-icon="mdi-bookmark-multiple"
               title="Saved Items"
               value="saved"
             ></v-list-item>
             <v-list-item
-              prepend-icon="mdi-account-multiple"
-              title="Shared with me"
-              value="shared"
+              prepend-icon="mdi-history"
+              title="Rental History"
+              value="rental-history"
             ></v-list-item>
-            <v-list-item prepend-icon="mdi-star" title="Starred" value="starred"></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-camera-outline"
+              title="Browse Cameras"
+              value="browse-cameras"
+            ></v-list-item>
           </v-list>
 
           <!--Logout Dialog-->
