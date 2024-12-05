@@ -3,17 +3,17 @@ import '@/assets/theme_style.css'
 
 //import { useAuthUserStore } from '@/stores/authUser'
 import { ref, onMounted } from 'vue'
-import { useDisplay } from 'vuetify'
-import { isAuthenticated } from '@/utilities/supabase'
+//import { useDisplay } from 'vuetify'
+//import { isAuthenticated } from '@/utilities/supabase'
 
-// test
+// Profile Header section libraries
 import { supabase, formActionDefault } from '@/utilities/supabase'
 import { getAvatarText } from '@/utilities/helpers'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-//end test
+//end profile header libraries
 
-// script test
+// Profile Header section
 
 //load variables
 const userData = ref({
@@ -59,7 +59,7 @@ onMounted(() => {
   getUser()
 })
 
-//end test script
+// End Profile Header section
 
 // For drawer
 //const props = defineProps(['isWithAppBarNavIcon'])
@@ -73,15 +73,16 @@ onMounted(() => {
 //const authStore = useAuthUserStore()
 
 // Load Variables
-const isLoggedIn = ref(false)
+//const isLoggedIn = ref(false)
 //const isMobileLogged = ref(false)
 //const isDesktop = ref(false)
 
 // Get Authentication status from supabase (needed for loading)
+/*
 const getLoggedStatus = async () => {
   isLoggedIn.value = await isAuthenticated()
 }
-
+*/
 //isMobileLogged.value = mobile.value && isLoggedIn.value
 //isDesktop.value = !mobile.value && (isLoggedIn.value || !isLoggedIn.value)
 //}
