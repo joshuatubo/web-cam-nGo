@@ -7,7 +7,7 @@ import { ref, onMounted } from 'vue'
 //import { isAuthenticated } from '@/utilities/supabase'
 
 // Profile Header section libraries
-import { supabase, formActionDefault } from '@/utilities/supabase'
+import { supabase, formActionDefault, getUserInformation } from '@/utilities/supabase'
 import { getAvatarText } from '@/utilities/helpers'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -46,15 +46,12 @@ const onLogout = async () => {
 }
 
 //getting the user information funtionality
+//getting the user information funtionality
 const getUser = async () => {
-  const {
-    data: {
-      user: { user_metadata: metadata },
-    },
-  } = await supabase.auth.getUser()
+  const userMetaData = await getUserInformation()
 
-  userData.value.email = metadata.email
-  userData.value.fullname = metadata.firstname + ' ' + metadata.lastname
+  userData.value.email = userMetaData.email
+  userData.value.fullname = userMetaData.firstname + ' ' + userMetaData.lastname
   userData.value.initials = getAvatarText(userData.value.fullname)
 }
 
