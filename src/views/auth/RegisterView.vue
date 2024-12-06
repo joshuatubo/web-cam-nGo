@@ -13,21 +13,21 @@ import '@/assets/theme_style.css'
     <v-container-fluid>
       <v-row style="height: 100vh; margin: 0; padding: 0"
         ><v-col class="container">
-          <v-card elevation="24" class="mx-auto rounded-xl bg-grey-darken-4 my-10" width="70%">
+          <v-card
+            elevation="24"
+            class="mx-auto rounded-xl bg-grey-darken-4"
+            style="margin-top: 15vh"
+            width="70%"
+          >
             <v-row>
               <v-col>
-<<<<<<< HEAD
-                <v-card cols="12" sm="10" md="8" class="bg-grey-darken-4 custom-card-container">
-=======
                 <v-card
                   cols="12"
                   sm="10"
                   md="8"
-                  height="100%"
                   class="bg-grey-darken-4 custom-card-container"
                   width="100%"
                 >
->>>>>>> f9246f8f5e8c41beb31d2e0286bad696d6429368
                   <v-card-title>
                     <v-container>
                       <h2 class="font-weight-medium ml-2">Come with us!</h2>

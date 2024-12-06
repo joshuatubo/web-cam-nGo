@@ -121,7 +121,12 @@ onMounted(() => {
             <v-icon>mdi-menu</v-icon>
           </v-btn>
         </div>
-        <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
+        <v-navigation-drawer
+          expand-on-hover
+          rail
+          class="d-flex flex-column"
+          style="overflow-y: auto"
+        >
           <!-- Profile Header -->
           <v-list density="compact" nav>
             <v-list-item
@@ -130,6 +135,9 @@ onMounted(() => {
               value="homepage"
               @click="navigateTo('dashboard')"
             ></v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi-cart-outline"
               title="Cart"
@@ -157,77 +165,80 @@ onMounted(() => {
           </v-list>
 
           <!-- Logout Dialog -->
-          <v-divider style="margin-top: 60vh"></v-divider>
-          <v-list density="compact" nav>
-            <v-list-item
-              prepend-icon="mdi mdi-theme-light-dark"
-              title="Change Theme"
-              value="theme"
-              :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-              @click="onClick"
-            ></v-list-item>
-          </v-list>
-
-          <v-dialog max-width="500" persistent>
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-list>
+          <template v-slot:append>
+            <div>
+              <v-divider></v-divider>
+              <!--Theme Toggle-->
+              <v-list density="compact" nav>
                 <v-list-item
-                  prepend-icon="mdi-account-circle-outline"
-                  :subtitle="userData.email"
-                  :title="userData.fullname"
-                >
-                  <template v-slot:append>
-                    <v-btn size="small" icon>
-                      <v-icon icon="mdi-menu-up"></v-icon>
-                      <v-menu activator="parent" location="bottom end" transition="fade-transition">
-                        <v-list density="compact" min-width="250" rounded="lg" slim>
-                          <v-list-item
-                            :title="userData.fullname"
-                            :subtitle="userData.email"
-                          ></v-list-item>
-                          <v-divider class="my-2"></v-divider>
-                          <v-list density="comfortable" nav>
-                            <v-list-item
-                              prepend-icon="mdi-account-cog"
-                              v-bind="activatorProps"
-                              color="surface-variant"
-                              text="Logout"
-                              variant="flat"
-                              title="Logout"
-                            ></v-list-item>
-                          </v-list>
-                        </v-list>
-                      </v-menu>
-                    </v-btn>
-                  </template>
-                </v-list-item>
+                  prepend-icon="mdi mdi-theme-light-dark"
+                  title="Change Theme"
+                  value="theme"
+                  :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+                  @click="onClick"
+                ></v-list-item>
               </v-list>
-            </template>
+              <!--Dialogue Logout-->
+              <v-dialog max-width="500" persistent>
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-list>
+                    <v-list-item
+                      prepend-icon="mdi-account-circle-outline"
+                      :subtitle="userData.email"
+                      :title="userData.fullname"
+                    >
+                      <template v-slot:append>
+                        <v-btn size="small" icon>
+                          <v-icon icon="mdi-menu-up"></v-icon>
+                          <v-menu
+                            activator="parent"
+                            location="bottom end"
+                            transition="fade-transition"
+                          >
+                            <v-list density="compact" min-width="250" rounded="lg" slim>
+                              <v-list-item
+                                :title="userData.fullname"
+                                :subtitle="userData.email"
+                              ></v-list-item>
+                              <v-divider class="my-2"></v-divider>
+                              <v-list density="comfortable" nav>
+                                <v-list-item
+                                  prepend-icon="mdi-account-cog"
+                                  v-bind="activatorProps"
+                                  color="surface-variant"
+                                  text="Logout"
+                                  variant="flat"
+                                  title="Logout"
+                                ></v-list-item>
+                              </v-list>
+                            </v-list>
+                          </v-menu>
+                        </v-btn>
+                      </template>
+                    </v-list-item>
+                  </v-list>
+                </template>
 
-            <!-- Logout function -->
-            <template v-slot:default="{ isActive }">
-              <v-card title="Leaving Now?">
-                <v-card-text>Logging out will require you to login again.</v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text="Nevermind"
-                    style="width: 40%"
-                    class="ma-5 pa-0"
-                    @click="isActive.value = false"
-                  ></v-btn>
-                  <v-btn
-                    text="Proceed"
-                    style="width: 40%"
-                    class="mr-8 pa-0"
-                    @click="onLogout"
-                    :loading="formAction.formProcess"
-                    :disabled="formAction.formProcess"
-                  ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+                <!--Logout function-->
+                <template v-slot:default="{ isActive }">
+                  <v-card title="Leaving Now?" v-if="isActive.value">
+                    <v-card-text>Logging out will require you to login again.</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn text="Nevermind" @click="isActive.value = false"></v-btn>
+
+                      <v-btn
+                        text="Proceed"
+                        @click="onLogout"
+                        :loading="formAction.formProcess"
+                        :disabled="formAction.formProcess"
+                      ></v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
+            </div>
+          </template>
         </v-navigation-drawer>
 
         <v-main class="mt-10">

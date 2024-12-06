@@ -190,20 +190,8 @@
   color: #e0dddd;
 }
 
-/*video*/
-.video {
-  z-index: -1;
-  padding: 0;
-  margin: 0;
-  width: 150%;
-  object-fit: cover;
-  margin-left: -20vh;
-  overflow: none;
-}
-
 /*for card */
 .custom-card-container {
-  height: 100%;
   width: 75%; /* Default for larger screens */
   max-width: 1200px; /* Optional to prevent over-expansion */
 }
