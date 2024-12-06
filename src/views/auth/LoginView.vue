@@ -25,7 +25,13 @@ const visible = ref(false)
           >
             <v-row>
               <v-col>
-                <v-card cols="12" sm="10" md="8" class="bg-grey-darken-4 custom-card-container">
+                <v-card
+                  cols="12"
+                  sm="10"
+                  md="8"
+                  height="100%"
+                  class="bg-grey-darken-4 custom-card-container"
+                >
                   <v-card-title>
                     <v-container>
                       <h2 class="font-weight-medium">Welcome Back!</h2>

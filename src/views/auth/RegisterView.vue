@@ -20,6 +20,7 @@ import '@/assets/theme_style.css'
                   cols="12"
                   sm="10"
                   md="8"
+                  height="100%"
                   class="bg-grey-darken-4 custom-card-container"
                   width="100%"
                 >
