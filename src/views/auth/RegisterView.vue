@@ -16,13 +16,7 @@ import '@/assets/theme_style.css'
           <v-card elevation="24" class="mx-auto rounded-xl bg-grey-darken-4 my-10" width="70%">
             <v-row>
               <v-col>
-                <v-card
-                  cols="12"
-                  sm="10"
-                  md="8"
-                  class="bg-grey-darken-4 custom-card-container"
-                  width="100%"
-                >
+                <v-card cols="12" sm="10" md="8" class="bg-grey-darken-4 custom-card-container">
                   <v-card-title>
                     <v-container>
                       <h2 class="font-weight-medium ml-2">Come with us!</h2>

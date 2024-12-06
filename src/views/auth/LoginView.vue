@@ -20,7 +20,7 @@ const visible = ref(false)
           <v-card
             elevation="24"
             class="mx-auto rounded-xl bg-grey-darken-4"
-            style="margin: 10vh"
+            style="margin-top: 15vh"
             width="70%"
           >
             <v-row>
