@@ -8,6 +8,8 @@ const cameraFilter = ref('all') // Track the current filter state
 const page = ref(1) // Current page for pagination
 const totalPages = ref(1) // Total number of pages for pagination
 const cart = ref([]) // Cart array to store added cameras
+const selectedCamera = ref(null) // To store the camera details for the modal
+const dialog = ref(false) // To control the visibility of the dialog
 
 // Mock camera data (can be fetched from an API)
 const mockCameras = [
@@ -15,7 +17,7 @@ const mockCameras = [
     id: 1,
     name: 'Canon EOS R5',
     description: 'High-end mirrorless camera',
-    image: 'https://example.com/canon.jpg',
+    image: '/public/images/sample-camera.jpg',
     price: 100,
     isAvailable: true,
   },
@@ -23,7 +25,7 @@ const mockCameras = [
     id: 2,
     name: 'Nikon D850',
     description: 'Full-frame DSLR',
-    image: 'https://example.com/nikon.jpg',
+    image: '/public/images/sample-camera.jpg',
     price: 80,
     isAvailable: false,
   },
@@ -31,7 +33,7 @@ const mockCameras = [
     id: 3,
     name: 'Sony A7 III',
     description: 'Popular mirrorless camera',
-    image: 'https://example.com/sony.jpg',
+    image: '/public/images/sample-camera.jpg',
     price: 90,
     isAvailable: true,
   },
@@ -39,7 +41,23 @@ const mockCameras = [
     id: 4,
     name: 'Fujifilm X-T4',
     description: 'Compact mirrorless camera',
-    image: 'https://example.com/fuji.jpg',
+    image: '/public/images/sample-camera.jpg',
+    price: 70,
+    isAvailable: false,
+  },
+  {
+    id: 5,
+    name: 'Fujifilm X-T4',
+    description: 'Compact mirrorless camera',
+    image: '/public/images/sample-camera.jpg',
+    price: 70,
+    isAvailable: false,
+  },
+  {
+    id: 6,
+    name: 'Fujifilm X-T4',
+    description: 'Compact mirrorless camera',
+    image: '/public/images/sample-camera.jpg',
     price: 70,
     isAvailable: false,
   },
@@ -66,7 +84,8 @@ const filterCameras = (filter) => {
 }
 
 const viewCamera = (id) => {
-  console.log('Viewing camera details for camera ID:', id)
+  selectedCamera.value = mockCameras.find((camera) => camera.id === id) // Set the selected camera
+  dialog.value = true // Open the dialog
 }
 
 const addToCart = (camera) => {
@@ -84,12 +103,6 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-/* You can add custom styles for the page here */
-.v-img {
-  border-radius: 8px;
-}
-</style>
 <template>
   <AppLayout>
     <template #content>
@@ -129,24 +142,38 @@ onMounted(() => {
         <v-row>
           <v-col v-for="camera in filteredCameras" :key="camera.id" cols="12" sm="6" md="4">
             <v-card>
-              <v-img :src="camera.image" height="200px" alt="Camera Image" />
+              <!-- Camera Image -->
+              <v-img
+                :src="camera.image"
+                height="200px"
+                alt="Camera Image"
+                class="white--text align-end"
+              >
+                <v-card-title>{{ camera.name }}</v-card-title>
+              </v-img>
 
-              <v-card-title>
-                <span>{{ camera.name }}</span>
-              </v-card-title>
-
+              <!-- Camera Description -->
               <v-card-subtitle>
                 <span>{{ camera.description }}</span>
               </v-card-subtitle>
 
-              <v-card-actions>
-                <v-btn color="primary" @click="viewCamera(camera.id)">View Details</v-btn>
-                <v-btn color="success" @click="addToCart(camera)" :disabled="!camera.isAvailable">
+              <!-- Card Actions (Buttons) -->
+              <v-card-actions class="d-flex justify-space-between ma-3">
+                <v-btn color="primary" class="w-50" @click="viewCamera(camera.id)">
+                  View Details
+                </v-btn>
+                <v-btn
+                  color="success"
+                  class="w-50"
+                  @click="addToCart(camera)"
+                  :disabled="!camera.isAvailable"
+                >
                   Add to Cart
                 </v-btn>
               </v-card-actions>
 
-              <v-card-footer>
+              <!-- Camera Price and Availability -->
+              <v-card-footer class="d-flex justify-space-between ma-5">
                 <span class="text-h6">₱{{ camera.price }} / day</span>
                 <v-chip :color="camera.isAvailable ? 'green' : 'red'" text-color="white">
                   {{ camera.isAvailable ? 'Available' : 'Unavailable' }}
@@ -156,6 +183,18 @@ onMounted(() => {
           </v-col>
         </v-row>
 
+        <!-- Camera Details Modal -->
+        <v-dialog v-model="dialog" max-width="600px">
+          <v-card>
+            <v-card-title class="d-flex justify-space-between">
+              <span class="text-h5">{{ selectedCamera?.name }}</span>
+            </v-card-title>
+            <v-card-subtitle>
+              <span>{{ selectedCamera?.description }}</span>
+            </v-card-subtitle>
+            <v-card-actions> </v-card-actions>
+          </v-card>
+        </v-dialog>
         <!-- Pagination -->
         <v-pagination
           v-if="filteredCameras.length > 0"
