@@ -157,7 +157,7 @@ onMounted(() => {
           </v-list>
 
           <!-- Logout Dialog -->
-          <v-divider style="margin-top: 40vh"></v-divider>
+          <v-divider style="margin-top: 60vh"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi mdi-theme-light-dark"
@@ -210,9 +210,16 @@ onMounted(() => {
                 <v-card-text>Logging out will require you to login again.</v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn text="Nevermind" @click="isActive.value = false"></v-btn>
+                  <v-btn
+                    text="Nevermind"
+                    style="width: 40%"
+                    class="ma-5 pa-0"
+                    @click="isActive.value = false"
+                  ></v-btn>
                   <v-btn
                     text="Proceed"
+                    style="width: 40%"
+                    class="mr-8 pa-0"
                     @click="onLogout"
                     :loading="formAction.formProcess"
                     :disabled="formAction.formProcess"
