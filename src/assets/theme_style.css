@@ -194,17 +194,63 @@
 .custom-card-container {
   width: 75%; /* Default for larger screens */
   max-width: 1200px; /* Optional to prevent over-expansion */
+  right: 105%;
 }
 
 @media screen and (max-width: 600px) {
   .custom-card-container {
     width: 100%; /* Adjusts for mobile devices */
     max-width: unset; /* Remove desktop limits */
+    left: 0%;
   }
 }
 
-/*logo position */
+@media (max-width: 600px) {
+  .container {
+    margin: 50;
+    padding: 0 15px;
+  }
+}
+/*logo position for login */
 .logo-position {
-  margin-right: 15vh;
-  padding-top: 5vh;
+  position: absolute;
+  bottom: 30%; /* Adjust as necessary to place it in the right position */
+  left: 70%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: -1;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-weight-medium {
+  font-size: 1.5rem;
+}
+
+.footer-text {
+  font-size: 0.75rem;
+}
+
+/* FOR REGISTER VIEW */
+.logo-position-register {
+  position: absolute;
+  bottom: 30%; /* Adjust as necessary to place it in the right position */
+  left: 75%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: -1;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-weight-medium {
+  font-size: 1.5rem;
+}
+
+.footer-text {
+  font-size: 0.75rem;
 }

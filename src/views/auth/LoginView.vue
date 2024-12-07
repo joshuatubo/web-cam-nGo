@@ -1,15 +1,13 @@
 <!--Programming naming conventions-->
 <script setup>
-import { useDisplay } from 'vuetify'
+//import { useDisplay } from 'vuetify'
 import '@/assets/login_style.css'
 import LoginForm from '@/components/auth/LoginForm.vue'
 import '@/assets/theme_style.css'
 
-const { mobile } = useDisplay()
+//const { mobile } = useDisplay()
 
 //import { ref } from 'vue'
-
-//const visible = ref(false)
 </script>
 
 <template>
@@ -25,10 +23,23 @@ const { mobile } = useDisplay()
           >
             <v-row>
               <v-col>
-                <v-card cols="12" sm="10" md="8" class="bg-grey-darken-4 custom-card-container">
+                <v-container>
+                  <video
+                    class="background-video"
+                    autoplay
+                    loop
+                    muted
+                    :src="'/template-video/girl2.mp4'"
+                  ></video>
+                  <v-row class="fill-height"></v-row>
+                </v-container>
+              </v-col>
+
+              <v-col>
+                <v-card class="bg-grey-darken-4 custom-card-container">
                   <v-card-title>
                     <v-container>
-                      <h2 class="font-weight-medium">Welcome Back!</h2>
+                      <h2 id="font_welcome" class="font-weight-medium">Welcome Back!</h2>
                       <small>Sign in to your account</small>
                     </v-container>
                   </v-card-title>
@@ -48,9 +59,9 @@ const { mobile } = useDisplay()
                     >2024 @Copyright. All rights reserved</v-footer
                   >
                 </v-card>
-              </v-col>
 
-              <v-col style="margin: 0%">
+                <!--logo-Title-->
+
                 <v-card-title class="text-center logo-position">
                   <v-img
                     src="/images/logo.png"
