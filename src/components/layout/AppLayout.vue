@@ -106,6 +106,8 @@ function onClick() {
 onMounted(() => {
   document.body.setAttribute('data-theme', theme.value)
 })
+
+/*For Drawer Expansion animation*/
 </script>
 
 <template>
