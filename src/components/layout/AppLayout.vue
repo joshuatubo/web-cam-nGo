@@ -133,7 +133,7 @@ onMounted(() => {
               prepend-icon="mdi-home-outline"
               title="Home"
               value="homepage"
-              @click="navigateTo('dashboard')"
+              :to="{ name: 'dashboard' }"
             ></v-list-item>
           </v-list>
           <v-divider></v-divider>
@@ -142,25 +142,26 @@ onMounted(() => {
               prepend-icon="mdi-cart-outline"
               title="Cart"
               value="cart"
-              @click="navigateTo('cart')"
+              :to="{ name: 'cart' }"
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-bookmark-multiple"
               title="Saved Items"
               value="saved"
-              @click="navigateTo('checkout')"
+              :to="{ name: 'checkout' }"
             ></v-list-item>
+            <!--When declaring a path use this '  :to="{ name: '' }" ' -->
+            <!--Instead of using @click, as it will bug the nav drawer-->
             <v-list-item
               prepend-icon="mdi-history"
               title="Rental History"
               value="rental-history"
-              @click="navigateTo('')"
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-camera-outline"
               title="Browse Cameras"
               value="browse-cameras"
-              @click="navigateTo('browse')"
+              :to="{ name: 'browse' }"
             ></v-list-item>
           </v-list>
 
