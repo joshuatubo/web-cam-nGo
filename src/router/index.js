@@ -5,7 +5,6 @@ import DashboardView from '../views/system/DashboardView.vue'
 import ForbiddenView from '../views/errors/ForbiddenView.vue'
 import NotFoundView from '../views/errors/NotFoundView.vue'
 import { getUserInformation, isAuthenticated, isAdmin } from '@/utilities/supabase'
-import CartView from '@/views/system/CartView.vue'
 import BrowseCamerasView from '@/views/system/BrowseCamerasView.vue'
 import CheckoutView from '@/views/system/CheckoutView.vue'
 import ProductManagementView from '@/views/admin/ProductManagementView.vue'
@@ -31,45 +30,39 @@ const router = createRouter({
       path: '/system/dashboard',
       name: 'dashboard',
       component: DashboardView,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/cart',
-      name: 'cart',
-      component: CartView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/browse',
       name: 'browse',
       component: BrowseCamerasView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/checkout',
       name: 'checkout',
       component: CheckoutView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     // Admin Routes
     {
       path: '/admin/rentals',
       name: 'admin-rentals',
       component: () => import('@/views/admin/RentalManagementView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/products',
       name: 'product-management',
       component: ProductManagementView,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     // User Routes
     {
       path: '/my-rentals',
       name: 'my-rentals',
       component: () => import('@/views/user/MyRentalsView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     //Error Pages
     {

@@ -32,46 +32,46 @@ const adminItems = [
   {
     title: 'Dashboard',
     icon: 'mdi-view-dashboard',
-    to: '/system/dashboard'
+    to: '/system/dashboard',
   },
   {
     title: 'Browse Cameras',
     icon: 'mdi-camera',
-    to: '/browse'
+    to: '/browse',
   },
   {
     title: 'Rental Management',
     icon: 'mdi-clipboard-list',
-    to: '/admin/rentals'
+    to: '/admin/rentals',
   },
   {
     title: 'Provider',
     icon: 'mdi-account-group',
-    to: '/provider'
-  }
+    to: '/provider',
+  },
 ]
 
 const userItems = [
   {
     title: 'Dashboard',
     icon: 'mdi-view-dashboard',
-    to: '/system/dashboard'
+    to: '/system/dashboard',
   },
   {
     title: 'Browse Cameras',
     icon: 'mdi-camera',
-    to: '/browse'
+    to: '/browse',
   },
   {
     title: 'My Rentals',
     icon: 'mdi-camera-timer',
-    to: '/my-rentals'
+    to: '/my-rentals',
   },
   {
     title: 'Saved Items',
     icon: 'mdi-bookmark-multiple',
-    to: '/checkout'
-  }
+    to: '/checkout',
+  },
 ]
 </script>
 
@@ -89,11 +89,7 @@ const userItems = [
       :subtitle="isAdmin ? 'Administrator' : 'User'"
     >
       <template v-slot:append>
-        <v-btn
-          variant="text"
-          icon="mdi-chevron-left"
-          @click.stop="drawer = !drawer"
-        ></v-btn>
+        <v-btn variant="text" icon="mdi-chevron-left" @click.stop="drawer = !drawer"></v-btn>
       </template>
     </v-list-item>
 
@@ -123,11 +119,7 @@ const userItems = [
     <!-- Bottom Status -->
     <template v-slot:bottom>
       <div class="pa-2">
-        <v-chip
-          :color="isAdmin ? 'success' : 'primary'"
-          size="small"
-          class="mb-2"
-        >
+        <v-chip :color="isAdmin ? 'success' : 'primary'" size="small" class="mb-2">
           {{ isAdmin ? 'Admin Mode' : 'User Mode' }}
         </v-chip>
       </div>

@@ -1,6 +1,4 @@
 <script setup>
-import '@/assets/theme_style.css'
-
 //import { useAuthUserStore } from '@/stores/authUser'
 import { ref, onMounted } from 'vue'
 //import { useDisplay } from 'vuetify'
@@ -24,7 +22,7 @@ const userData = ref({
   initials: '',
   email: '',
   fullname: '',
-  isAdmin: false
+  isAdmin: false,
 })
 const formAction = ref({
   ...formActionDefault,
@@ -62,7 +60,7 @@ const getUser = async () => {
     email: user.user_metadata.email,
     fullname: user.user_metadata.firstname + ' ' + user.user_metadata.lastname,
     initials: getAvatarText(user.user_metadata.firstname + ' ' + user.user_metadata.lastname),
-    isAdmin: userMetadata?.is_admin || false
+    isAdmin: userMetadata?.is_admin || false,
   }
 }
 
@@ -123,7 +121,6 @@ onMounted(() => {
         <!-- Horizontal Navigation Bar -->
         <div class="navbar">
           <div class="logo ml-10" @click="navigateTo('home')">Cam 'n Go</div>
-          <input type="text" class="search-bar" placeholder="Search..." />
           <v-btn class="menu-icon" @click="isDrawerOpen = !isDrawerOpen" icon>
             <v-icon>mdi-menu</v-icon>
           </v-btn>
@@ -138,7 +135,7 @@ onMounted(() => {
               value="homepage"
               @click="navigateTo('dashboard')"
             ></v-list-item>
-            
+
             <!-- Common Items for All Users -->
             <v-list-item
               prepend-icon="mdi-camera-outline"
@@ -204,15 +201,9 @@ onMounted(() => {
                   <v-icon icon="mdi-menu-up"></v-icon>
                   <v-menu activator="parent" location="bottom end" transition="fade-transition">
                     <v-list density="compact" min-width="250" rounded="lg" slim>
-                      <v-list-item
-                        :title="userData.fullname"
-                        :subtitle="userData.email"
-                      >
+                      <v-list-item :title="userData.fullname" :subtitle="userData.email">
                         <template v-slot:prepend>
-                          <v-chip
-                            :color="userData.isAdmin ? 'success' : 'primary'"
-                            size="small"
-                          >
+                          <v-chip :color="userData.isAdmin ? 'success' : 'primary'" size="small">
                             {{ userData.isAdmin ? 'Admin' : 'User' }}
                           </v-chip>
                         </template>
