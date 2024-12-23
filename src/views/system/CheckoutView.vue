@@ -13,15 +13,16 @@ const form = ref(null)
 const isBooking = ref(false)
 
 const bookingDetails = reactive({
-  customerName: '',
-  customerEmail: '',
-  customerPhone: '',
+  F_name: '',
+  L_name: '',
+  email: '',
+  phone_number: '',
   address: '',
-  rentalDuration: 1,
   paymentDetails: {
     method: 'Credit Card',
     status: 'Pending',
   },
+  rentalDuration: 1,
 })
 
 const calculateTotalAmount = computed(() => {
@@ -31,10 +32,11 @@ const calculateTotalAmount = computed(() => {
 
 const validateBooking = computed(() => {
   return (
-    bookingDetails.customerName &&
-    bookingDetails.customerEmail &&
-    bookingDetails.customerPhone &&
+    bookingDetails.F_name &&
+    bookingDetails.L_name &&
+    bookingDetails.email &&
     bookingDetails.address &&
+    bookingDetails.phone_number &&
     bookingDetails.rentalDuration > 0
   )
 })
@@ -52,31 +54,29 @@ const submitBooking = async () => {
 
   isBooking.value = true
   try {
-    // Check if customer exists, if not create new customer
-    const { data: existingCustomer, error: customerCheckError } = await supabase
+    // Get current user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+    if (userError) throw userError
+
+    // Update customer record
+    const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .select('id')
-      .eq('email', bookingDetails.customerEmail)
+      .upsert({
+        user_id: user.id,
+        email: bookingDetails.email,
+        F_name: bookingDetails.F_name,
+        L_name: bookingDetails.L_name,
+        address: bookingDetails.address,
+        phone_number: bookingDetails.phone_number,
+        status: 'Active',
+      })
+      .select()
       .single()
 
-    let customerId
-    if (!existingCustomer) {
-      const { data: newCustomer, error: createCustomerError } = await supabase
-        .from('customers')
-        .insert({
-          email: bookingDetails.customerEmail,
-          address: bookingDetails.address,
-          registration_date: new Date().toISOString(),
-          status: 'Active',
-        })
-        .select('id')
-        .single()
-
-      if (createCustomerError) throw createCustomerError
-      customerId = newCustomer.id
-    } else {
-      customerId = existingCustomer.id
-    }
+    if (customerError) throw customerError
 
     // Create rental transaction
     const rentalDate = new Date()
@@ -86,6 +86,7 @@ const submitBooking = async () => {
     const { data: transaction, error: transactionError } = await supabase
       .from('rental_transactions')
       .insert({
+        customer_id: customer.id,
         rental_date: rentalDate.toISOString(),
         return_date: returnDate.toISOString(),
         total_amount: calculateTotalAmount.value,
@@ -212,21 +213,38 @@ const submitBooking = async () => {
         <!-- Booking Dialog -->
         <v-dialog v-model="bookingDialog" max-width="500">
           <v-card v-if="selectedItem">
-            <v-card-title> Book {{ selectedItem.brand }} {{ selectedItem.model }} </v-card-title>
+            <v-card-title>Book {{ selectedItem.brand }} {{ selectedItem.model }}</v-card-title>
             <v-card-text>
               <v-form ref="form" v-model="validForm">
                 <v-row>
-                  <v-col cols="12">
+                  <v-col cols="12" md="6">
                     <v-text-field
-                      v-model="bookingDetails.customerName"
-                      label="Your Name"
-                      :rules="[(v) => !!v || 'Name is required']"
+                      v-model="bookingDetails.F_name"
+                      label="First Name"
+                      :rules="[(v) => !!v || 'First name is required']"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="12" md="6">
                     <v-text-field
-                      v-model="bookingDetails.customerEmail"
+                      v-model="bookingDetails.L_name"
+                      label="Last Name"
+                      :rules="[(v) => !!v || 'Last name is required']"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      v-model="bookingDetails.address"
+                      label="Address"
+                      type="address"
+                      :rules="[(v) => !!v || 'Address is required']"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      v-model="bookingDetails.email"
                       label="Email"
                       type="email"
                       :rules="[
@@ -236,23 +254,15 @@ const submitBooking = async () => {
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <v-text-field
-                      v-model="bookingDetails.customerPhone"
+                      v-model="bookingDetails.phone_number"
                       label="Phone Number"
                       :rules="[(v) => !!v || 'Phone number is required']"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
-                    <v-textarea
-                      v-model="bookingDetails.address"
-                      label="Delivery Address"
-                      :rules="[(v) => !!v || 'Address is required']"
-                      required
-                    ></v-textarea>
-                  </v-col>
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <v-text-field
                       v-model.number="bookingDetails.rentalDuration"
                       label="Rental Duration (Days)"
@@ -265,7 +275,7 @@ const submitBooking = async () => {
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <v-select
                       v-model="bookingDetails.paymentDetails.method"
                       :items="['Credit Card', 'Cash', 'Bank Transfer']"
@@ -273,7 +283,7 @@ const submitBooking = async () => {
                       required
                     ></v-select>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col cols="6">
                     <div class="text-h6">Total Amount: ${{ calculateTotalAmount.toFixed(2) }}</div>
                     <div class="text-caption">
                       Late return penalty: ${{
@@ -284,6 +294,7 @@ const submitBooking = async () => {
                 </v-row>
               </v-form>
             </v-card-text>
+
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="error" variant="text" @click="bookingDialog = false">Cancel</v-btn>

@@ -37,50 +37,38 @@ const fetchCurrentAdmin = async () => {
 const fetchRentals = async () => {
   loading.value = true
   try {
-    // First get all rental transactions
     const { data, error } = await supabase
       .from('rental_transactions')
       .select(`
-        id,
-        rental_date,
-        return_date,
-        total_amount,
-        payment_status,
-        penalty_per_day,
-        user_id,
-        customers!inner (
+        *,
+        customers (
           id,
-          user_id,
+          name,
           email,
-          status
+          phone_number,
+          address
         ),
-        rental_details!inner (
+        rental_details (
           id,
           rental_duration,
           late_fee,
-          return_date,
-          item_id,
-          items!inner (
+          items (
             id,
             brand,
             model,
-            status,
+            specification,
             rental_price_perday,
-            image
+            image,
+            status
           )
         )
       `)
       .order('rental_date', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching rentals:', error)
-      throw error
-    }
-    
-    rentals.value = data.map(rental => ({
-      ...rental,
-      isUpdating: false
-    }))
+    if (error) throw error
+
+    console.log('Fetched rentals:', data)
+    rentals.value = data || []
   } catch (error) {
     console.error('Error fetching rentals:', error)
     snackbarMessage.value = 'Error loading rentals'

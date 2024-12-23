@@ -11,7 +11,7 @@ const feedbackDialog = ref(false)
 const selectedRental = ref(null)
 
 const feedback = ref({
-  rating: 5,
+  rating: 0,
   comment: '',
 })
 
@@ -26,54 +26,44 @@ const fetchUserRentals = async () => {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
+    console.log('Current user:', user)
 
     // Find the customer record for the authenticated user
     const { data: customerData, error: customerError } = await supabase
       .from('customers')
-      .select('id')
+      .select('*')
       .eq('user_id', user.id)
       .single()
 
-    if (customerError) throw customerError
+    if (customerError) {
+      console.error('Customer error:', customerError)
+      throw customerError
+    }
+    console.log('Customer data:', customerData)
 
     // Fetch all rentals for the customer
-    const { data, error } = await supabase
+    const { data: rentalData, error: rentalError } = await supabase
       .from('rental_transactions')
       .select(`
-        id,
-        rental_date,
-        return_date,
-        total_amount,
-        payment_status,
-        penalty_per_day,
-        user_id,
-        rental_details!inner (
-          id,
-          rental_duration,
-          late_fee,
-          return_date,
-          item_id,
-          items!inner (
-            id,
-            brand,
-            model,
-            status,
-            image
+        *,
+        rental_details (
+          *,
+          items (
+            *
           )
-        ),
-        feedbacks (
-          rating,
-          comment
         )
       `)
-      .eq('customers.id', customerData.id)
-      .order('rental_date', { ascending: false })
+      .eq('customer_id', customerData.id)
 
-    if (error) throw error
+    if (rentalError) {
+      console.error('Rental error:', rentalError)
+      throw rentalError
+    }
+    console.log('Rental data:', rentalData)
 
-    rentals.value = data
+    rentals.value = rentalData
   } catch (error) {
-    console.error('Error fetching rentals:', error)
+    console.error('Error in fetchUserRentals:', error)
     snackbarMessage.value = 'Error loading rentals'
     snackbar.value = true
   } finally {
@@ -84,7 +74,7 @@ const fetchUserRentals = async () => {
 const openFeedbackDialog = (rental) => {
   selectedRental.value = rental
   feedback.value = {
-    rating: 5,
+    rating: 0,
     comment: '',
   }
   feedbackDialog.value = true
@@ -94,31 +84,25 @@ const submitFeedback = async () => {
   if (!selectedRental.value) return
 
   try {
+    loading.value = true
     // Create feedback record
     const { data: feedbackData, error: feedbackError } = await supabase
       .from('feedbacks')
       .insert({
+        rental_transaction_id: selectedRental.value.id,
         item_id: selectedRental.value.rental_details.items.id,
-        feedback_date: new Date().toISOString(),
         rating: feedback.value.rating,
-        comment: feedback.value.comment
+        comment: feedback.value.comment,
+        feedback_date: new Date().toISOString()
       })
       .select('id')
       .single()
 
     if (feedbackError) throw feedbackError
 
-    // Update rental transaction with feedback ID
-    const { error: transactionError } = await supabase
-      .from('rental_transactions')
-      .update({
-        feedbacks_id: feedbackData.id
-      })
-      .eq('id', selectedRental.value.id)
-
-    if (transactionError) throw transactionError
-
     feedbackDialog.value = false
+    feedback.value = { rating: 0, comment: '' }
+    selectedRental.value = null
     snackbarMessage.value = 'Thank you for your feedback!'
     snackbar.value = true
     await fetchUserRentals()
@@ -126,6 +110,8 @@ const submitFeedback = async () => {
     console.error('Error submitting feedback:', error)
     snackbarMessage.value = 'Error submitting feedback'
     snackbar.value = true
+  } finally {
+    loading.value = false
   }
 }
 
@@ -151,120 +137,115 @@ onMounted(() => {
   <AppLayout>
     <template #content>
       <v-container>
-        <v-card>
-          <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-camera" class="me-2"></v-icon>
-            My Rentals
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :loading="loading"
-              @click="fetchUserRentals"
-              icon="mdi-refresh"
-            ></v-btn>
-          </v-card-title>
+        <h1 class="text-h4 mb-4">My Rentals</h1>
 
-          <v-card-text>
-            <v-row>
-              <v-col v-for="rental in rentals" :key="rental.id" cols="12" md="6">
-                <v-card>
-                  <v-img :src="rental.rental_details.items.image" height="200" cover></v-img>
+        <div v-if="loading" class="d-flex justify-center align-center" style="height: 200px">
+          <v-progress-circular indeterminate></v-progress-circular>
+        </div>
 
-                  <v-card-title>
-                    {{ rental.rental_details.items.brand }} 
-                    {{ rental.rental_details.items.model }}
-                  </v-card-title>
+        <div v-else-if="!rentals || rentals.length === 0" class="text-center pa-4">
+          <p class="text-h6">No rentals found</p>
+          <v-btn color="primary" to="/browse" class="mt-4">Browse Cameras</v-btn>
+        </div>
 
-                  <v-card-text>
-                    <v-row>
-                      <v-col cols="6">
-                        <div class="text-caption">Rental Date</div>
-                        <div>
-                          {{ new Date(rental.rental_date).toLocaleDateString() }}
-                        </div>
-                      </v-col>
-                      <v-col cols="6">
-                        <div class="text-caption">Return Date</div>
-                        <div>
-                          {{ new Date(rental.return_date).toLocaleDateString() }}
-                        </div>
-                      </v-col>
-                      <v-col cols="6">
-                        <div class="text-caption">Duration</div>
-                        <div>{{ rental.rental_details.rental_duration }} days</div>
-                      </v-col>
-                      <v-col cols="6">
-                        <div class="text-caption">Total Amount</div>
-                        <div>${{ rental.total_amount.toFixed(2) }}</div>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-chip :color="getRentalStatus(rental).color">
-                          {{ getRentalStatus(rental).text }}
-                        </v-chip>
+        <v-row v-else>
+          <v-col v-for="rental in rentals" :key="rental.id" cols="12" md="6" lg="4">
+            <v-card>
+              <v-img
+                v-if="rental.rental_details && rental.rental_details[0]?.items?.image"
+                :src="rental.rental_details[0].items.image"
+                height="200"
+                cover
+              ></v-img>
 
-                        <v-chip 
-                          v-if="rental.rental_details.late_fee > 0" 
-                          color="error" 
-                          class="ms-2"
-                        >
-                          Late Fee: ${{ rental.rental_details.late_fee.toFixed(2) }}
-                        </v-chip>
-                      </v-col>
-                    </v-row>
+              <v-card-title>
+                {{ rental.rental_details && rental.rental_details[0]?.items?.brand }} 
+                {{ rental.rental_details && rental.rental_details[0]?.items?.model }}
+              </v-card-title>
 
-                    <!-- Feedback Section -->
-                    <v-row v-if="rental.feedbacks" class="mt-4">
-                      <v-col cols="12">
-                        <div class="text-caption">Your Feedback</div>
-                        <v-rating
-                          v-model="rental.feedbacks.rating"
-                          readonly
-                          density="compact"
-                        ></v-rating>
-                        <div class="text-body-2">{{ rental.feedbacks.comment }}</div>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="6">
+                    <div class="text-caption">Rental Date</div>
+                    <div>{{ rental.rental_date ? new Date(rental.rental_date).toLocaleDateString() : 'N/A' }}</div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption">Return Date</div>
+                    <div>{{ rental.return_date ? new Date(rental.return_date).toLocaleDateString() : 'N/A' }}</div>
+                  </v-col>
+                </v-row>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      v-if="rental.rental_details.items.status === 'Returned' && !rental.feedbacks"
-                      color="primary"
-                      @click="openFeedbackDialog(rental)"
+                <v-row class="mt-2">
+                  <v-col cols="6">
+                    <div class="text-caption">Duration</div>
+                    <div>{{ rental.rental_details && rental.rental_details[0]?.rental_duration }} days</div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption">Status</div>
+                    <v-chip
+                      :color="rental.rental_details && rental.rental_details[0]?.items?.status === 'Rented' ? 'warning' : 'success'"
+                      size="small"
                     >
-                      Leave Feedback
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+                      {{ rental.rental_details && rental.rental_details[0]?.items?.status || 'N/A' }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
+
+                <v-row class="mt-2">
+                  <v-col cols="6">
+                    <div class="text-caption">Total Amount</div>
+                    <div>${{ rental.total_amount || '0.00' }}</div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption">Late Fee</div>
+                    <div>${{ rental.rental_details && rental.rental_details[0]?.late_fee || '0.00' }}</div>
+                  </v-col>
+                </v-row>
+
+                <v-row class="mt-2">
+                  <v-col cols="12">
+                    <div class="text-caption">Specifications</div>
+                    <div>{{ rental.rental_details && rental.rental_details[0]?.items?.specification || 'N/A' }}</div>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  v-if="rental.rental_details && rental.rental_details[0]?.items?.status === 'Returned'"
+                  color="primary"
+                  @click="openFeedbackDialog(rental)"
+                >
+                  Add Feedback
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
 
         <!-- Feedback Dialog -->
-        <v-dialog v-model="feedbackDialog" max-width="500">
+        <v-dialog v-model="feedbackDialog" max-width="500px">
           <v-card>
-            <v-card-title>Leave Feedback</v-card-title>
+            <v-card-title>Add Feedback</v-card-title>
             <v-card-text>
-              <v-row>
-                <v-col cols="12">
-                  <div class="text-subtitle-1 mb-2">Rate your experience</div>
-                  <v-rating v-model="feedback.rating" color="warning"></v-rating>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="feedback.comment"
-                    label="Your Comments"
-                    rows="3"
-                  ></v-textarea>
-                </v-col>
-              </v-row>
+              <v-rating v-model="feedback.rating" hover></v-rating>
+              <v-textarea
+                v-model="feedback.comment"
+                label="Your feedback"
+                rows="3"
+              ></v-textarea>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="error" variant="text" @click="feedbackDialog = false"> Cancel </v-btn>
-              <v-btn color="primary" @click="submitFeedback"> Submit Feedback </v-btn>
+              <v-btn color="error" @click="feedbackDialog = false">Cancel</v-btn>
+              <v-btn
+                color="primary"
+                @click="submitFeedback"
+                :disabled="!feedback.rating || !feedback.comment"
+              >
+                Submit
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -272,7 +253,7 @@ onMounted(() => {
         <v-snackbar v-model="snackbar" :timeout="3000">
           {{ snackbarMessage }}
           <template v-slot:actions>
-            <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
+            <v-btn color="primary" variant="text" @click="snackbar = false">Close</v-btn>
           </template>
         </v-snackbar>
       </v-container>
