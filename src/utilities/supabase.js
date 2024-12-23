@@ -28,11 +28,43 @@ export const isAuthenticated = async () => {
 
 //Retrieve User Information
 export const getUserInformation = async () => {
-  const {
-    data: {
-      user: { user_metadata },
-    },
-  } = await supabase.auth.getUser()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
 
-  return user_metadata
+    // Get admin status from admin_users table
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single()
+
+    return {
+      ...user.user_metadata,
+      id: user.id,
+      isAdmin: adminData?.is_admin || false
+    }
+  } catch (error) {
+    console.error('Error getting user information:', error)
+    return null
+  }
+}
+
+// Check if user is admin
+export const isAdmin = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single()
+
+    return adminData?.is_admin || false
+  } catch (error) {
+    console.error('Error checking admin status:', error)
+    return false
+  }
 }

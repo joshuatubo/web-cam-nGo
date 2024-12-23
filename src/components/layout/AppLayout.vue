@@ -24,6 +24,7 @@ const userData = ref({
   initials: '',
   email: '',
   fullname: '',
+  isAdmin: false
 })
 const formAction = ref({
   ...formActionDefault,
@@ -41,21 +42,28 @@ const onLogout = async () => {
   }
 
   //Rediret to login page
-  formAction.value.formProess = false
+  formAction.value.formProcess = false
   router.replace('/')
 }
 
 //getting the user information funtionality
 const getUser = async () => {
   const {
-    data: {
-      user: { user_metadata: metadata },
-    },
+    data: { user },
   } = await supabase.auth.getUser()
 
-  userData.value.email = metadata.email
-  userData.value.fullname = metadata.firstname + ' ' + metadata.lastname
-  userData.value.initials = getAvatarText(userData.value.fullname)
+  const { data: userMetadata } = await supabase
+    .from('admin_users')
+    .select('is_admin')
+    .eq('user_id', user.id)
+    .single()
+
+  userData.value = {
+    email: user.user_metadata.email,
+    fullname: user.user_metadata.firstname + ' ' + user.user_metadata.lastname,
+    initials: getAvatarText(user.user_metadata.firstname + ' ' + user.user_metadata.lastname),
+    isAdmin: userMetadata?.is_admin || false
+  }
 }
 
 // Load funtions during component rendering
@@ -116,13 +124,13 @@ onMounted(() => {
         <div class="navbar">
           <div class="logo ml-10" @click="navigateTo('home')">Cam 'n Go</div>
           <input type="text" class="search-bar" placeholder="Search..." />
-          <!-- Menu icon for small screens -->
           <v-btn class="menu-icon" @click="isDrawerOpen = !isDrawerOpen" icon>
             <v-icon>mdi-menu</v-icon>
           </v-btn>
         </div>
+
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
-          <!-- Profile Header -->
+          <!-- Navigation Items -->
           <v-list density="compact" nav>
             <v-list-item
               prepend-icon="mdi-home-outline"
@@ -130,33 +138,49 @@ onMounted(() => {
               value="homepage"
               @click="navigateTo('dashboard')"
             ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-cart-outline"
-              title="Cart"
-              value="cart"
-              @click="navigateTo('cart')"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-bookmark-multiple"
-              title="Saved Items"
-              value="saved"
-              @click="navigateTo('checkout')"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-history"
-              title="Rental History"
-              value="rental-history"
-              @click="navigateTo('')"
-            ></v-list-item>
+            
+            <!-- Common Items for All Users -->
             <v-list-item
               prepend-icon="mdi-camera-outline"
               title="Browse Cameras"
               value="browse-cameras"
               @click="navigateTo('browse')"
             ></v-list-item>
+
+            <!-- Admin Only Items -->
+            <template v-if="userData.isAdmin">
+              <v-list-item
+                prepend-icon="mdi-clipboard-list"
+                title="Rental Management"
+                value="rental-management"
+                @click="navigateTo('admin-rentals')"
+              ></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-camera-plus"
+                title="Product Management"
+                value="product-management"
+                @click="navigateTo('product-management')"
+              ></v-list-item>
+            </template>
+
+            <!-- Regular User Items -->
+            <template v-else>
+              <v-list-item
+                prepend-icon="mdi-bookmark-multiple"
+                title="Saved Items"
+                value="saved"
+                @click="navigateTo('checkout')"
+              ></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-history"
+                title="My Rentals"
+                value="rental-history"
+                @click="navigateTo('my-rentals')"
+              ></v-list-item>
+            </template>
           </v-list>
 
-          <!-- Logout Dialog -->
+          <!-- Theme and Profile Section -->
           <v-divider style="margin-top: 60vh"></v-divider>
           <v-list density="compact" nav>
             <v-list-item
@@ -168,79 +192,52 @@ onMounted(() => {
             ></v-list-item>
           </v-list>
 
-          <v-dialog max-width="500" persistent>
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-list>
-                <v-list-item
-                  prepend-icon="mdi-account-circle-outline"
-                  :subtitle="userData.email"
-                  :title="userData.fullname"
-                >
-                  <template v-slot:append>
-                    <v-btn size="small" icon>
-                      <v-icon icon="mdi-menu-up"></v-icon>
-                      <v-menu activator="parent" location="bottom end" transition="fade-transition">
-                        <v-list density="compact" min-width="250" rounded="lg" slim>
-                          <v-list-item
-                            :title="userData.fullname"
-                            :subtitle="userData.email"
-                          ></v-list-item>
-                          <v-divider class="my-2"></v-divider>
-                          <v-list density="comfortable" nav>
-                            <v-list-item
-                              prepend-icon="mdi-account-cog"
-                              v-bind="activatorProps"
-                              color="surface-variant"
-                              text="Logout"
-                              variant="flat"
-                              title="Logout"
-                            ></v-list-item>
-                          </v-list>
-                        </v-list>
-                      </v-menu>
-                    </v-btn>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </template>
-
-            <!-- Logout function -->
-            <template v-slot:default="{ isActive }">
-              <v-card title="Leaving Now?">
-                <v-card-text>Logging out will require you to login again.</v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text="Nevermind"
-                    style="width: 40%"
-                    class="ma-5 pa-0"
-                    @click="isActive.value = false"
-                  ></v-btn>
-                  <v-btn
-                    text="Proceed"
-                    style="width: 40%"
-                    class="mr-8 pa-0"
-                    @click="onLogout"
-                    :loading="formAction.formProcess"
-                    :disabled="formAction.formProcess"
-                  ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+          <!-- Profile and Logout Section -->
+          <v-list>
+            <v-list-item
+              :prepend-icon="userData.isAdmin ? 'mdi-shield-account' : 'mdi-account-circle-outline'"
+              :subtitle="userData.email"
+              :title="userData.fullname"
+            >
+              <template v-slot:append>
+                <v-btn size="small" icon>
+                  <v-icon icon="mdi-menu-up"></v-icon>
+                  <v-menu activator="parent" location="bottom end" transition="fade-transition">
+                    <v-list density="compact" min-width="250" rounded="lg" slim>
+                      <v-list-item
+                        :title="userData.fullname"
+                        :subtitle="userData.email"
+                      >
+                        <template v-slot:prepend>
+                          <v-chip
+                            :color="userData.isAdmin ? 'success' : 'primary'"
+                            size="small"
+                          >
+                            {{ userData.isAdmin ? 'Admin' : 'User' }}
+                          </v-chip>
+                        </template>
+                      </v-list-item>
+                      <v-divider class="my-2"></v-divider>
+                      <v-list-item
+                        prepend-icon="mdi-logout"
+                        color="error"
+                        @click="onLogout"
+                        :loading="formAction.formProcess"
+                        :disabled="formAction.formProcess"
+                      >
+                        Logout
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-btn>
+              </template>
+            </v-list-item>
+          </v-list>
         </v-navigation-drawer>
 
         <v-main class="mt-10">
           <slot name="content"></slot>
         </v-main>
-        <!-- <v-footer
-          class="text-center d-flex flex-column font-weight-medium"
-          :color="theme === 'dark' ? 'grey-darken-5' : 'grey-lighten-1'"
-          border
-          app
-          elevation="24"
-          >2024 - Copyright</v-footer
-        > -->
       </v-layout>
     </v-card>
   </v-responsive>

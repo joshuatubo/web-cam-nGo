@@ -97,14 +97,12 @@
   cursor: not-allowed;
 }
 
-/* Navigation Styles */
 .navbar {
   background-color: #ffffff;
   padding: 10px;
   text-align: center;
 }
 
-/* Styles for the horizontal navigation bar */
 .navbar {
   display: flex;
   align-items: center;
@@ -142,17 +140,16 @@
   display: none;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
   .search-bar {
-    display: none; /* Hide search bar */
+    display: none;
   }
 
   .navbar .menu-icon {
-    display: block; /* Show menu icon on small screens */
+    display: block;
   }
 
   .navbar .logo {
-    font-size: 20px; /* Adjust logo size for small screens */
+    font-size: 20px;
   }
 }

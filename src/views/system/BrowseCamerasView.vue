@@ -1,208 +1,133 @@
-<script setup>
-import AppLayout from '@/components/layout/AppLayout.vue'
-import { ref, onMounted } from 'vue'
-
-const cameras = ref([]) // Full list of cameras
-const filteredCameras = ref([]) // Filtered list of cameras based on availability
-const cameraFilter = ref('all') // Track the current filter state
-const page = ref(1) // Current page for pagination
-const totalPages = ref(1) // Total number of pages for pagination
-const cart = ref([]) // Cart array to store added cameras
-const selectedCamera = ref(null) // To store the camera details for the modal
-const dialog = ref(false) // To control the visibility of the dialog
-
-// Mock camera data (can be fetched from an API)
-const mockCameras = [
-  {
-    id: 1,
-    name: 'Canon EOS R5',
-    description: 'High-end mirrorless camera',
-    image: '/public/images/sample-camera.jpg',
-    price: 100,
-    isAvailable: true,
-  },
-  {
-    id: 2,
-    name: 'Nikon D850',
-    description: 'Full-frame DSLR',
-    image: '/public/images/sample-camera.jpg',
-    price: 80,
-    isAvailable: false,
-  },
-  {
-    id: 3,
-    name: 'Sony A7 III',
-    description: 'Popular mirrorless camera',
-    image: '/public/images/sample-camera.jpg',
-    price: 90,
-    isAvailable: true,
-  },
-  {
-    id: 4,
-    name: 'Fujifilm X-T4',
-    description: 'Compact mirrorless camera',
-    image: '/public/images/sample-camera.jpg',
-    price: 70,
-    isAvailable: false,
-  },
-  {
-    id: 5,
-    name: 'Fujifilm X-T4',
-    description: 'Compact mirrorless camera',
-    image: '/public/images/sample-camera.jpg',
-    price: 70,
-    isAvailable: false,
-  },
-  {
-    id: 6,
-    name: 'Fujifilm X-T4',
-    description: 'Compact mirrorless camera',
-    image: '/public/images/sample-camera.jpg',
-    price: 70,
-    isAvailable: false,
-  },
-]
-
-const fetchCameras = () => {
-  const camerasPerPage = 4
-  filteredCameras.value = mockCameras.slice(
-    (page.value - 1) * camerasPerPage,
-    page.value * camerasPerPage,
-  )
-  totalPages.value = Math.ceil(mockCameras.length / camerasPerPage)
-}
-
-const filterCameras = (filter) => {
-  cameraFilter.value = filter
-  if (filter === 'available') {
-    filteredCameras.value = mockCameras.filter((camera) => camera.isAvailable)
-  } else if (filter === 'unavailable') {
-    filteredCameras.value = mockCameras.filter((camera) => !camera.isAvailable)
-  } else {
-    filteredCameras.value = mockCameras
-  }
-}
-
-const viewCamera = (id) => {
-  selectedCamera.value = mockCameras.find((camera) => camera.id === id) // Set the selected camera
-  dialog.value = true // Open the dialog
-}
-
-const addToCart = (camera) => {
-  // Check if the camera is already in the cart
-  const existingCamera = cart.value.find((item) => item.id === camera.id)
-  if (!existingCamera) {
-    cart.value.push(camera)
-  }
-  console.log('Camera added to cart:', camera)
-}
-
-onMounted(() => {
-  fetchCameras()
-  filterCameras(cameraFilter.value) // Apply the initial filter
-})
-</script>
-
 <template>
-  <AppLayout>
-    <template #content>
+  <div>
+    <v-card flat>
+      <!-- Title and Search -->
+      <v-card-title class="d-flex align-center pe-2">
+        <v-icon icon="mdi-video-input-component"></v-icon>&nbsp; Browse Cameras
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          density="compact"
+          label="Search"
+          prepend-inner-icon="mdi-magnify"
+          variant="solo-filled"
+          flat
+          hide-details
+          single-line
+        ></v-text-field>
+      </v-card-title>
+
+      <v-divider></v-divider>
+
+      <!-- Filter Buttons -->
+      <v-row justify="center" class="my-4" align="center">
+        <v-btn :variant="filter === 'All' ? 'tonal' : 'plain'" @click="filter = 'All'">All</v-btn>
+        <v-btn :variant="filter === 'Available' ? 'tonal' : 'plain'" @click="filter = 'Available'" color="green">Available</v-btn>
+        <v-btn :variant="filter === 'Rented' ? 'tonal' : 'plain'" @click="filter = 'Rented'" color="blue">Rented</v-btn>
+        <v-btn :variant="filter === 'Out of Stock' ? 'tonal' : 'plain'" @click="filter = 'Out of Stock'" color="red">Out of Stock</v-btn>
+      </v-row>
+
+      <!-- Camera Cards -->
       <v-container>
-        <!-- Filter Buttons -->
-        <v-row class="mb-4">
-          <v-col>
-            <v-btn
-              color="primary"
-              @click="filterCameras('available')"
-              :class="{ 'v-btn--active': cameraFilter === 'available' }"
-            >
-              Show Available Cameras
-            </v-btn>
-          </v-col>
-          <v-col>
-            <v-btn
-              color="error"
-              @click="filterCameras('unavailable')"
-              :class="{ 'v-btn--active': cameraFilter === 'unavailable' }"
-            >
-              Show Unavailable Cameras
-            </v-btn>
-          </v-col>
-          <v-col>
-            <v-btn
-              color="default"
-              @click="filterCameras('all')"
-              :class="{ 'v-btn--active': cameraFilter === 'all' }"
-            >
-              Show All Cameras
-            </v-btn>
-          </v-col>
-        </v-row>
-
-        <!-- Camera Cards -->
         <v-row>
-          <v-col v-for="camera in filteredCameras" :key="camera.id" cols="12" sm="6" md="4">
-            <v-card>
-              <!-- Camera Image -->
-              <v-img
-                :src="camera.image"
-                height="200px"
-                alt="Camera Image"
-                class="white--text align-end"
-              >
-                <v-card-title>{{ camera.name }}</v-card-title>
-              </v-img>
-
-              <!-- Camera Description -->
-              <v-card-subtitle>
-                <span>{{ camera.description }}</span>
-              </v-card-subtitle>
-
-              <!-- Card Actions (Buttons) -->
-              <v-card-actions class="d-flex justify-space-between ma-3">
-                <v-btn color="primary" class="w-50" @click="viewCamera(camera.id)">
-                  View Details
-                </v-btn>
+          <v-col v-for="item in filteredCameras" :key="item.id" cols="12" sm="6" md="4">
+            <v-card class="my-2" elevation="2">
+              <v-img :src="item.image" height="200" cover></v-img>
+              <v-card-title class="text-truncate">{{ item.brand }} {{ item.model }}</v-card-title>
+              <v-card-subtitle class="text-truncate">{{ item.specification }}</v-card-subtitle>
+              <v-card-text>
+                <div class="d-flex align-center mb-2">
+                  <span class="text-h6">${{ item.rental_price_per_day.toFixed(2) }}</span>
+                  <span class="text-subtitle-1 ms-1">/day</span>
+                </div>
+                <v-chip
+                  :color="item.status === 'Available' ? 'success' : item.status === 'Rented' ? 'info' : 'error'"
+                  :text="item.status"
+                  size="small"
+                  variant="tonal"
+                ></v-chip>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
                 <v-btn
-                  color="success"
-                  class="w-50"
-                  @click="addToCart(camera)"
-                  :disabled="!camera.isAvailable"
+                  :disabled="item.status !== 'Available'"
+                  :loading="item.isLoading"
+                  color="primary"
+                  variant="tonal"
+                  @click="saveItem(item)"
                 >
-                  Add to Cart
+                  <v-icon start>mdi-bookmark</v-icon>
+                  Save Item
                 </v-btn>
               </v-card-actions>
-
-              <!-- Camera Price and Availability -->
-              <v-card-footer class="d-flex justify-space-between ma-5">
-                <span class="text-h6">₱{{ camera.price }} / day</span>
-                <v-chip :color="camera.isAvailable ? 'green' : 'red'" text-color="white">
-                  {{ camera.isAvailable ? 'Available' : 'Unavailable' }}
-                </v-chip>
-              </v-card-footer>
             </v-card>
           </v-col>
         </v-row>
-
-        <!-- Camera Details Modal -->
-        <v-dialog v-model="dialog" max-width="600px">
-          <v-card>
-            <v-card-title class="d-flex justify-space-between">
-              <span class="text-h5">{{ selectedCamera?.name }}</span>
-            </v-card-title>
-            <v-card-subtitle>
-              <span>{{ selectedCamera?.description }}</span>
-            </v-card-subtitle>
-            <v-card-actions> </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <!-- Pagination -->
-        <v-pagination
-          v-if="filteredCameras.length > 0"
-          v-model="page"
-          :length="totalPages"
-          @input="fetchCameras"
-        />
       </v-container>
-    </template>
-  </AppLayout>
+    </v-card>
+  </div>
 </template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { supabase } from '@/utilities/supabaseClient'
+import { useSavedItemsStore } from '@/stores/savedItems'
+
+const savedItemsStore = useSavedItemsStore()
+const search = ref('')
+const filter = ref('All')
+const cameras = ref([])
+
+// Fetch cameras from Supabase
+const fetchCameras = async () => {
+  try {
+    const { data, error } = await supabase.from('items').select('*')
+    if (error) throw error
+
+    cameras.value = data.map((item) => ({
+      id: item.id,
+      brand: item.brand,
+      model: item.model,
+      specification: item.specification,
+      rental_price_per_day: item.rental_price_per_day || 0.0,
+      status: item.status || 'Out of Stock',
+      image: item.image,
+      isLoading: false,
+    }))
+  } catch (error) {
+    console.error('Error fetching cameras:', error)
+  }
+}
+
+// Filtered cameras based on search and filter
+const filteredCameras = computed(() => {
+  return cameras.value.filter((camera) => {
+    const matchesSearch =
+      camera.brand.toLowerCase().includes(search.value.toLowerCase()) ||
+      camera.model.toLowerCase().includes(search.value.toLowerCase()) ||
+      camera.specification.toLowerCase().includes(search.value.toLowerCase())
+    const matchesFilter = filter.value === 'All' || camera.status === filter.value
+
+    return matchesSearch && matchesFilter
+  })
+})
+
+// Save item for later booking
+const saveItem = (item) => {
+  item.isLoading = true
+  setTimeout(() => {
+    savedItemsStore.saveItem({
+      id: item.id,
+      brand: item.brand,
+      model: item.model,
+      specification: item.specification,
+      rental_price_per_day: item.rental_price_per_day,
+      status: item.status,
+      image: item.image
+    })
+    item.isLoading = false
+  }, 500)
+}
+
+onMounted(fetchCameras)
+</script>
