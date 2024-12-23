@@ -15,66 +15,63 @@ const feedback = ref({
   comment: '',
 })
 
+/**
+ * Fetch all rentals for the authenticated user.
+ */
 const fetchUserRentals = async () => {
   loading.value = true
   try {
+    // Get the authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
+    // Find the customer record for the authenticated user
     const { data: customerData, error: customerError } = await supabase
       .from('customers')
       .select('id')
-      .eq('users.id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (customerError) throw customerError
 
+    // Fetch all rentals for the customer
     const { data, error } = await supabase
-      .from('rental_details')
-      .select(
-        `
-        *,
-        rental_transactions (
+      .from('rental_transactions')
+      .select(`
+        id,
+        rental_date,
+        return_date,
+        total_amount,
+        payment_status,
+        penalty_per_day,
+        user_id,
+        rental_details!inner (
           id,
-          rental_date,
+          rental_duration,
+          late_fee,
           return_date,
-          total_amount,
-          payment_status,
-          penalty_per_day,
-          feedbacks_id
+          item_id,
+          items!inner (
+            id,
+            brand,
+            model,
+            status,
+            image
+          )
         ),
-        items (
-          id,
-          brand,
-          model,
-          status,
-          image
+        feedbacks (
+          rating,
+          comment
         )
-      `,
-      )
-      .order('id', { ascending: false })
+      `)
+      .eq('customers.id', customerData.id)
+      .order('rental_date', { ascending: false })
 
     if (error) throw error
 
-    // Fetch feedback for each rental that has one
-    const rentalsWithFeedback = await Promise.all(
-      data.map(async (rental) => {
-        if (rental.rental_transactions.feedbacks_id) {
-          const { data: feedbackData } = await supabase
-            .from('feedbacks')
-            .select('*')
-            .eq('id', rental.rental_transactions.feedbacks_id)
-            .single()
-
-          return { ...rental, feedback: feedbackData }
-        }
-        return rental
-      }),
-    )
-
-    rentals.value = rentalsWithFeedback
+    rentals.value = data
   } catch (error) {
     console.error('Error fetching rentals:', error)
     snackbarMessage.value = 'Error loading rentals'
@@ -101,10 +98,10 @@ const submitFeedback = async () => {
     const { data: feedbackData, error: feedbackError } = await supabase
       .from('feedbacks')
       .insert({
-        feedbacks_date: new Date().toISOString(),
+        item_id: selectedRental.value.rental_details.items.id,
+        feedback_date: new Date().toISOString(),
         rating: feedback.value.rating,
-        comment: feedback.value.comment,
-        rental_details_id: selectedRental.value.id,
+        comment: feedback.value.comment
       })
       .select('id')
       .single()
@@ -115,9 +112,9 @@ const submitFeedback = async () => {
     const { error: transactionError } = await supabase
       .from('rental_transactions')
       .update({
-        feedbacks_id: feedbackData.id,
+        feedbacks_id: feedbackData.id
       })
-      .eq('id', selectedRental.value.rental_transactions.id)
+      .eq('id', selectedRental.value.id)
 
     if (transactionError) throw transactionError
 
@@ -133,10 +130,10 @@ const submitFeedback = async () => {
 }
 
 const getRentalStatus = (rental) => {
-  const returnDate = new Date(rental.rental_transactions.return_date)
+  const returnDate = new Date(rental.return_date)
   const today = new Date()
 
-  if (rental.items.status === 'Returned') {
+  if (rental.rental_details.items.status === 'Returned') {
     return { text: 'Completed', color: 'success' }
   } else if (today > returnDate) {
     return { text: 'Overdue', color: 'error' }
@@ -171,57 +168,60 @@ onMounted(() => {
             <v-row>
               <v-col v-for="rental in rentals" :key="rental.id" cols="12" md="6">
                 <v-card>
-                  <v-img :src="rental.items.image" height="200" cover></v-img>
+                  <v-img :src="rental.rental_details.items.image" height="200" cover></v-img>
 
-                  <v-card-title>{{ rental.items.brand }} {{ rental.items.model }}</v-card-title>
+                  <v-card-title>
+                    {{ rental.rental_details.items.brand }} 
+                    {{ rental.rental_details.items.model }}
+                  </v-card-title>
 
                   <v-card-text>
                     <v-row>
                       <v-col cols="6">
                         <div class="text-caption">Rental Date</div>
                         <div>
-                          {{
-                            new Date(rental.rental_transactions.rental_date).toLocaleDateString()
-                          }}
+                          {{ new Date(rental.rental_date).toLocaleDateString() }}
                         </div>
                       </v-col>
                       <v-col cols="6">
                         <div class="text-caption">Return Date</div>
                         <div>
-                          {{
-                            new Date(rental.rental_transactions.return_date).toLocaleDateString()
-                          }}
+                          {{ new Date(rental.return_date).toLocaleDateString() }}
                         </div>
                       </v-col>
                       <v-col cols="6">
                         <div class="text-caption">Duration</div>
-                        <div>{{ rental.rental_duration }} days</div>
+                        <div>{{ rental.rental_details.rental_duration }} days</div>
                       </v-col>
                       <v-col cols="6">
                         <div class="text-caption">Total Amount</div>
-                        <div>${{ rental.rental_transactions.total_amount.toFixed(2) }}</div>
+                        <div>${{ rental.total_amount.toFixed(2) }}</div>
                       </v-col>
                       <v-col cols="12">
                         <v-chip :color="getRentalStatus(rental).color">
                           {{ getRentalStatus(rental).text }}
                         </v-chip>
 
-                        <v-chip v-if="rental.late_fee > 0" color="error" class="ms-2">
-                          Late Fee: ${{ rental.late_fee.toFixed(2) }}
+                        <v-chip 
+                          v-if="rental.rental_details.late_fee > 0" 
+                          color="error" 
+                          class="ms-2"
+                        >
+                          Late Fee: ${{ rental.rental_details.late_fee.toFixed(2) }}
                         </v-chip>
                       </v-col>
                     </v-row>
 
                     <!-- Feedback Section -->
-                    <v-row v-if="rental.feedback" class="mt-4">
+                    <v-row v-if="rental.feedbacks" class="mt-4">
                       <v-col cols="12">
                         <div class="text-caption">Your Feedback</div>
                         <v-rating
-                          v-model="rental.feedback.rating"
+                          v-model="rental.feedbacks.rating"
                           readonly
                           density="compact"
                         ></v-rating>
-                        <div class="text-body-2">{{ rental.feedback.comment }}</div>
+                        <div class="text-body-2">{{ rental.feedbacks.comment }}</div>
                       </v-col>
                     </v-row>
                   </v-card-text>
@@ -229,7 +229,7 @@ onMounted(() => {
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
-                      v-if="rental.items.status === 'Returned' && !rental.feedback"
+                      v-if="rental.rental_details.items.status === 'Returned' && !rental.feedbacks"
                       color="primary"
                       @click="openFeedbackDialog(rental)"
                     >

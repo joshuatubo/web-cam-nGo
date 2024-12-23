@@ -123,7 +123,6 @@ onMounted(() => {
         <!-- Horizontal Navigation Bar -->
         <div class="navbar">
           <div class="logo ml-10" @click="navigateTo('home')">Cam 'n Go</div>
-          <input type="text" class="search-bar" placeholder="Search..." />
           <v-btn class="menu-icon" @click="isDrawerOpen = !isDrawerOpen" icon>
             <v-icon>mdi-menu</v-icon>
           </v-btn>

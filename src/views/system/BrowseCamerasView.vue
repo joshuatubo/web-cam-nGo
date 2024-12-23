@@ -11,6 +11,7 @@
               v-model="search"
               density="compact"
               label="Search"
+              rounded=""
               prepend-inner-icon="mdi-magnify"
               variant="solo-filled"
               flat

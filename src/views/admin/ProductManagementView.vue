@@ -21,7 +21,7 @@ const newItem = ref({
   serial_number: '', // Added serial_number
 })
 const formErrors = ref({})
-const statusOptions = ['Available', 'Rented', 'Out of Stock']
+const statusOptions = ['Available', 'Rented', 'Out of Stock'] // Removed 'Archived'
 
 // Get all items
 const getItems = async () => {
@@ -30,7 +30,7 @@ const getItems = async () => {
     const { data, error } = await supabase
       .from('items')
       .select('*')
-      .order('id', { ascending: true })
+      .order('id', { ascending: true }) // Removed not('status', 'eq', 'Archived')
 
     if (error) throw error
     items.value = data
@@ -207,11 +207,20 @@ const openEditDialog = (item) => {
   showEditDialog.value = true
 }
 
-// Delete item
+// Delete item and related records
 const deleteItem = async (item) => {
   try {
     loading.value = true
 
+    // First delete related rental_details
+    const { error: rentalDetailsError } = await supabase
+      .from('rental_details')
+      .delete()
+      .eq('item_id', item.id)
+
+    if (rentalDetailsError) throw rentalDetailsError
+
+    // Then delete the item image from storage
     if (item.image) {
       const imagePath = item.image.split('/').pop()
       const { error: deleteImageError } = await supabase.storage
@@ -221,7 +230,11 @@ const deleteItem = async (item) => {
       if (deleteImageError) throw deleteImageError
     }
 
-    const { error: deleteItemError } = await supabase.from('items').delete().eq('id', item.id)
+    // Finally delete the item itself
+    const { error: deleteItemError } = await supabase
+      .from('items')
+      .delete()
+      .eq('id', item.id)
 
     if (deleteItemError) throw deleteItemError
 

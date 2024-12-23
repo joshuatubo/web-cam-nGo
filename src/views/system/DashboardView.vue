@@ -1,47 +1,144 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import '@/assets/dashboard_style.css'
+import { supabase } from '@/utilities/supabaseClient'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import SideNavigation from '@/components/layout/SideNavigation.vue'
 
 const isDrawerVisible = ref(true)
+const loading = ref(true)
+const camerasAvailable = ref([])
+const activeRentals = ref([])
+const rentalHistory = ref([])
+const currentCustomerId = ref(null)
 
-const camerasAvailable = ref([
-  {
-    name: 'Canon EOS R5',
-    price: '₱3,000/day',
-    location: 'Makati',
-    image: '/images/canon-eos-r5.jpg',
-  },
-  {
-    name: 'Sony Alpha 7 IV',
-    price: '₱2,500/day',
-    location: 'Quezon City',
-    image: '/images/sony-alpha-7.jpg',
-  },
-  { name: 'Nikon Z7 II', price: '₱2,800/day', location: 'Pasig', image: '/images/nikon-z7.jpg' },
-])
+// Fetch current customer ID
+const fetchCurrentCustomer = async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data: customerData } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (customerData) {
+      currentCustomerId.value = customerData.id
+    }
+  }
+}
 
-const activeRentals = ref([{ name: 'Canon EOS R5', dueDate: '2024-12-08', status: 'On Time' }])
-const rentalHistory = ref([
-  { name: 'Sony Alpha 7 III', returnDate: '2024-11-28', status: 'Completed' },
-  { name: 'Fujifilm X-T4', returnDate: '2024-11-15', status: 'Completed' },
-])
+// Fetch available cameras
+const fetchAvailableCameras = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('items')
+      .select('*')
+      .eq('status', 'Available')
 
-// Cart state
-const cart = ref([])
+    if (error) throw error
+    camerasAvailable.value = data
+  } catch (error) {
+    console.error('Error fetching cameras:', error)
+  }
+}
 
-// Router for navigating to CartView
+// Fetch active rentals for the current user
+const fetchActiveRentals = async () => {
+  if (!currentCustomerId.value) return
+
+  try {
+    const { data, error } = await supabase
+      .from('rental_transactions')
+      .select(`
+        id,
+        rental_date,
+        return_date,
+        total_amount,
+        payment_status,
+        rental_details (
+          rental_duration,
+          items (
+            brand,
+            model,
+            status,
+            image
+          )
+        )
+      `)
+      .eq('customers.id', currentCustomerId.value)
+      .eq('rental_details.items.status', 'Rented')
+
+    if (error) throw error
+    activeRentals.value = data
+  } catch (error) {
+    console.error('Error fetching active rentals:', error)
+  }
+}
+
+// Fetch rental history for the current user
+const fetchRentalHistory = async () => {
+  if (!currentCustomerId.value) return
+
+  try {
+    const { data, error } = await supabase
+      .from('rental_transactions')
+      .select(`
+        id,
+        rental_date,
+        return_date,
+        total_amount,
+        payment_status,
+        rental_details (
+          rental_duration,
+          late_fee,
+          items (
+            brand,
+            model,
+            status,
+            image
+          )
+        ),
+        feedbacks (
+          rating,
+          comment
+        )
+      `)
+      .eq('customers.id', currentCustomerId.value)
+      .eq('rental_details.items.status', 'Returned')
+      .order('return_date', { ascending: false })
+      .limit(5)
+
+    if (error) throw error
+    rentalHistory.value = data
+  } catch (error) {
+    console.error('Error fetching rental history:', error)
+  }
+}
+
+// Router for navigation
 const router = useRouter()
 
-// Add to Cart function
-function addToCart(camera) {
-  cart.value.push(camera)
-  // Optional: Navigate to CartView after adding item
-  router.push({ name: 'CartView', query: { cart: JSON.stringify(cart.value) } })
+// Navigate to browse page with the selected camera
+const viewCamera = (camera) => {
+  router.push({
+    name: 'browse',
+    query: { selected: camera.id }
+  })
 }
+
+onMounted(async () => {
+  loading.value = true
+  await fetchCurrentCustomer()
+  await Promise.all([
+    fetchAvailableCameras(),
+    fetchActiveRentals(),
+    fetchRentalHistory()
+  ])
+  loading.value = false
+})
 </script>
+
 <template>
   <AppLayout
     :is-with-app-bar-nav-icon="true"
@@ -52,57 +149,180 @@ function addToCart(camera) {
     </template>
 
     <template #content>
-      <div class="dashboard">
+      <v-container>
         <!-- Dashboard Header -->
-        <header class="dashboard-header">
-          <h1>Welcome to Cam'n Go</h1>
-          <p>Rent the perfect camera for your next project!</p>
-        </header>
+        <v-row>
+          <v-col cols="12">
+            <v-card class="mb-4">
+              <v-card-text class="text-center">
+                <h1 class="text-h4 mb-2">Welcome to Cam'n Go</h1>
+                <p class="text-subtitle-1">Rent the perfect camera for your next project!</p>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
 
-        <!-- Browse Cameras Section -->
-        <section class="browse-cameras">
-          <h2>Available Cameras for Rent</h2>
-          <div class="camera-grid">
-            <div v-for="camera in camerasAvailable" :key="camera.name" class="camera-card">
-              <img :src="camera.image" :alt="camera.name" class="camera-image" />
-              <h3>{{ camera.name }}</h3>
-              <p>Price: {{ camera.price }}</p>
-              <p>Location: {{ camera.location }}</p>
-              <button class="rent-button" @click="addToCart(camera)">Add to Cart</button>
-            </div>
-          </div>
-        </section>
+        <!-- Loading State -->
+        <v-row v-if="loading">
+          <v-col cols="12" class="text-center">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </v-col>
+        </v-row>
 
-        <!-- Active Rentals Section -->
-        <section class="active-rentals">
-          <h2>Your Active Rentals</h2>
-          <div v-if="activeRentals.length" class="rentals-list">
-            <div v-for="rental in activeRentals" :key="rental.name" class="rental-card">
-              <h3>{{ rental.name }}</h3>
-              <p>Due Date: {{ rental.dueDate }}</p>
-              <p>
-                Status: <span class="status">{{ rental.status }}</span>
-              </p>
-            </div>
-          </div>
-          <p v-else>No active rentals at the moment.</p>
-        </section>
+        <template v-else>
+          <!-- Available Cameras Section -->
+          <v-row>
+            <v-col cols="12">
+              <h2 class="text-h5 mb-4">Available Cameras for Rent</h2>
+              <v-row>
+                <v-col
+                  v-for="camera in camerasAvailable"
+                  :key="camera.id"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card>
+                    <v-img
+                      :src="camera.image"
+                      :alt="camera.brand"
+                      height="200"
+                      cover
+                      class="bg-grey-lighten-2"
+                    >
+                      <template v-slot:placeholder>
+                        <v-row class="fill-height ma-0" align="center" justify="center">
+                          <v-progress-circular indeterminate color="grey-lighten-5"></v-progress-circular>
+                        </v-row>
+                      </template>
+                    </v-img>
 
-        <!-- Rental History Section -->
-        <section class="rental-history">
-          <h2>Rental History</h2>
-          <div v-if="rentalHistory.length" class="history-list">
-            <div v-for="history in rentalHistory" :key="history.name" class="history-card">
-              <h3>{{ history.name }}</h3>
-              <p>Returned On: {{ history.returnDate }}</p>
-              <p>
-                Status: <span class="status">{{ history.status }}</span>
-              </p>
-            </div>
-          </div>
-          <p v-else>You haven't rented any cameras yet.</p>
-        </section>
-      </div>
+                    <v-card-title>{{ camera.brand }} {{ camera.model }}</v-card-title>
+                    <v-card-text>
+                      <p class="mb-2">Price: ${{ camera.rental_price_perday }}/day</p>
+                      <p>{{ camera.specification }}</p>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" @click="viewCamera(camera)">
+                        View Details
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+
+          <!-- Active Rentals Section -->
+          <v-row class="mt-6">
+            <v-col cols="12">
+              <h2 class="text-h5 mb-4">Your Active Rentals</h2>
+              <v-row v-if="activeRentals.length">
+                <v-col
+                  v-for="rental in activeRentals"
+                  :key="rental.id"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card>
+                    <v-img
+                      :src="rental.rental_details.items.image"
+                      height="200"
+                      cover
+                      class="bg-grey-lighten-2"
+                    ></v-img>
+
+                    <v-card-title>
+                      {{ rental.rental_details.items.brand }}
+                      {{ rental.rental_details.items.model }}
+                    </v-card-title>
+
+                    <v-card-text>
+                      <p>Due Date: {{ new Date(rental.return_date).toLocaleDateString() }}</p>
+                      <p>Duration: {{ rental.rental_details.rental_duration }} days</p>
+                      <v-chip
+                        :color="new Date() > new Date(rental.return_date) ? 'error' : 'success'"
+                      >
+                        {{ new Date() > new Date(rental.return_date) ? 'Overdue' : 'On Time' }}
+                      </v-chip>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+              <v-card v-else>
+                <v-card-text class="text-center">
+                  No active rentals at the moment.
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Rental History Section -->
+          <v-row class="mt-6">
+            <v-col cols="12">
+              <h2 class="text-h5 mb-4">Recent Rental History</h2>
+              <v-row v-if="rentalHistory.length">
+                <v-col
+                  v-for="rental in rentalHistory"
+                  :key="rental.id"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card>
+                    <v-img
+                      :src="rental.rental_details.items.image"
+                      height="200"
+                      cover
+                      class="bg-grey-lighten-2"
+                    ></v-img>
+
+                    <v-card-title>
+                      {{ rental.rental_details.items.brand }}
+                      {{ rental.rental_details.items.model }}
+                    </v-card-title>
+
+                    <v-card-text>
+                      <p>Returned: {{ new Date(rental.return_date).toLocaleDateString() }}</p>
+                      <p>Total Amount: ${{ rental.total_amount.toFixed(2) }}</p>
+                      
+                      <template v-if="rental.feedbacks">
+                        <div class="mt-2">
+                          <div class="text-subtitle-2">Your Rating</div>
+                          <v-rating
+                            v-model="rental.feedbacks.rating"
+                            readonly
+                            density="compact"
+                            color="warning"
+                          ></v-rating>
+                        </div>
+                      </template>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+              <v-card v-else>
+                <v-card-text class="text-center">
+                  No rental history available.
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </template>
+      </v-container>
     </template>
   </AppLayout>
 </template>
+
+<style scoped>
+.v-card {
+  transition: transform 0.2s;
+}
+
+.v-card:hover {
+  transform: translateY(-4px);
+}
+</style>
