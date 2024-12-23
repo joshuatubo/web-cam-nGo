@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     isAdmin: false,
-    loading: false
+    loading: false,
   }),
 
   actions: {
@@ -14,13 +14,15 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       try {
         // Get current session
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
         if (user) {
           this.user = user
-          
+
           // Check if user is admin by querying a custom field or role table
           const { data: adminData, error } = await supabase
-            .from('admin_users')  // Create this table in Supabase
+            .from('admin_users') // Create this table in Supabase
             .select('is_admin')
             .eq('user_id', user.id)
             .single()
@@ -42,8 +44,8 @@ export const useAuthStore = defineStore('auth', {
         this.user = null
         this.isAdmin = false
       }
-    }
+    },
   },
 
-  persist: true
+  persist: true,
 })
