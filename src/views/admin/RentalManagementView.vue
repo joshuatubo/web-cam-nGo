@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/utilities/supabaseClient'
+import AppLayout from '@/components/layout/AppLayout.vue'
 
 const rentals = ref([])
 const loading = ref(true)
@@ -110,84 +111,97 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container>
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
-        Rental Management
-        <v-spacer></v-spacer>
-        <v-btn color="primary" :loading="loading" @click="fetchRentals" icon="mdi-refresh"></v-btn>
-      </v-card-title>
+  <AppLayout>
+    <template #content>
+      <v-container>
+        <v-card>
+          <v-card-title class="d-flex align-center">
+            <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
+            Rental Management
+            <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              :loading="loading"
+              @click="fetchRentals"
+              icon="mdi-refresh"
+            ></v-btn>
+          </v-card-title>
 
-      <v-card-text>
-        <v-table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Item</th>
-              <th>Rental Date</th>
-              <th>Return Date</th>
-              <th>Duration</th>
-              <th>Amount</th>
-              <th>Late Fee</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="rental in rentals" :key="rental.id">
-              <td>{{ rental.id }}</td>
-              <td>{{ rental.items.brand }} {{ rental.items.model }}</td>
-              <td>{{ new Date(rental.rental_transactions.rental_date).toLocaleDateString() }}</td>
-              <td>{{ new Date(rental.rental_transactions.return_date).toLocaleDateString() }}</td>
-              <td>{{ rental.rental_duration }} days</td>
-              <td>${{ rental.rental_transactions.total_amount.toFixed(2) }}</td>
-              <td>${{ rental.late_fee?.toFixed(2) || '0.00' }}</td>
-              <td>
-                <v-chip
-                  :color="
-                    rental.items.status === 'Rented'
-                      ? 'warning'
-                      : rental.items.status === 'Returned'
-                        ? 'success'
-                        : 'error'
-                  "
-                >
-                  {{ rental.items.status }}
-                </v-chip>
-              </td>
-              <td>
-                <v-btn-group v-if="rental.items.status !== 'Returned'">
-                  <v-btn
-                    color="success"
-                    :loading="rental.isUpdating"
-                    @click="updateRentalStatus(rental, 'Returned')"
-                    size="small"
-                  >
-                    Mark Returned
-                  </v-btn>
-                  <v-btn
-                    color="error"
-                    :loading="rental.isUpdating"
-                    @click="updateRentalStatus(rental, 'Lost')"
-                    size="small"
-                  >
-                    Mark Lost
-                  </v-btn>
-                </v-btn-group>
-                <span v-else>Completed</span>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-      </v-card-text>
-    </v-card>
+          <v-card-text>
+            <v-table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Item</th>
+                  <th>Rental Date</th>
+                  <th>Return Date</th>
+                  <th>Duration</th>
+                  <th>Amount</th>
+                  <th>Late Fee</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="rental in rentals" :key="rental.id">
+                  <td>{{ rental.id }}</td>
+                  <td>{{ rental.items.brand }} {{ rental.items.model }}</td>
+                  <td>
+                    {{ new Date(rental.rental_transactions.rental_date).toLocaleDateString() }}
+                  </td>
+                  <td>
+                    {{ new Date(rental.rental_transactions.return_date).toLocaleDateString() }}
+                  </td>
+                  <td>{{ rental.rental_duration }} days</td>
+                  <td>${{ rental.rental_transactions.total_amount.toFixed(2) }}</td>
+                  <td>${{ rental.late_fee?.toFixed(2) || '0.00' }}</td>
+                  <td>
+                    <v-chip
+                      :color="
+                        rental.items.status === 'Rented'
+                          ? 'warning'
+                          : rental.items.status === 'Returned'
+                            ? 'success'
+                            : 'error'
+                      "
+                    >
+                      {{ rental.items.status }}
+                    </v-chip>
+                  </td>
+                  <td>
+                    <v-btn-group v-if="rental.items.status !== 'Returned'">
+                      <v-btn
+                        color="success"
+                        :loading="rental.isUpdating"
+                        @click="updateRentalStatus(rental, 'Returned')"
+                        size="small"
+                      >
+                        Mark Returned
+                      </v-btn>
+                      <v-btn
+                        color="error"
+                        :loading="rental.isUpdating"
+                        @click="updateRentalStatus(rental, 'Lost')"
+                        size="small"
+                      >
+                        Mark Lost
+                      </v-btn>
+                    </v-btn-group>
+                    <span v-else>Completed</span>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card-text>
+        </v-card>
 
-    <v-snackbar v-model="snackbar" :timeout="3000">
-      {{ snackbarMessage }}
-      <template v-slot:actions>
-        <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
-      </template>
-    </v-snackbar>
-  </v-container>
+        <v-snackbar v-model="snackbar" :timeout="3000">
+          {{ snackbarMessage }}
+          <template v-slot:actions>
+            <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
+          </template>
+        </v-snackbar>
+      </v-container>
+    </template>
+  </AppLayout>
 </template>

@@ -23,9 +23,9 @@ checkAuth()
 <template>
   <v-app>
     <!-- Show navigation only for authenticated users and non-public routes -->
-    <template v-if="isLoggedIn && !isPublicRoute">
+    <!-- <template v-if="isLoggedIn && !isPublicRoute">
       <AppNavigation />
-    </template>
+    </template> -->
 
     <!-- Main Content -->
     <v-main>

@@ -1,163 +1,187 @@
 <template>
-  <div>
-    <v-card flat>
-      <!-- Title and Search -->
-      <v-card-title class="d-flex align-center pe-2">
-        <v-icon icon="mdi-video-input-component"></v-icon>&nbsp; Find a Product
+  <AppLayout>
+    <template #content>
+      <div>
+        <v-card flat>
+          <!-- Title and Search -->
+          <v-card-title class="d-flex align-center pe-2">
+            <v-icon icon="mdi-video-input-component"></v-icon>&nbsp; Find a Product
 
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          density="compact"
-          label="Search"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo-filled"
-          flat
-          hide-details
-          single-line
-        ></v-text-field>
-      </v-card-title>
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="search"
+              density="compact"
+              label="Search"
+              prepend-inner-icon="mdi-magnify"
+              variant="solo-filled"
+              flat
+              hide-details
+              single-line
+            ></v-text-field>
+          </v-card-title>
 
-      <v-divider></v-divider>
+          <v-divider></v-divider>
 
-      <!-- Data Table -->
-      <v-data-table :items="filteredProducts" :headers="headers" item-key="id">
-        <!-- Product Brand -->
-        <template v-slot:item.brand="{ item }">
-          <div>{{ item.brand }}</div>
-        </template>
-
-        <!-- Product Model -->
-        <template v-slot:item.model="{ item }">
-          <div>{{ item.model }}</div>
-        </template>
-
-        <!-- Product Specification -->
-        <template v-slot:item.specification="{ item }">
-          <div>{{ item.specification }}</div>
-        </template>
-
-        <!-- Product Rental Price -->
-        <template v-slot:item.rental_price_per_day="{ item }">
-          <div>${{ item.rental_price_per_day.toFixed(2) }}</div>
-        </template>
-
-        <!-- Product Status -->
-        <template v-slot:item.status="{ item }">
-          <v-chip
-            :color="item.status === 'Available' ? 'green' : 'red'"
-            class="text-uppercase"
-            size="small"
-            label
-          >
-            {{ item.status }}
-          </v-chip>
-        </template>
-
-        <!-- Product Serial Number -->
-        <template v-slot:item.serial_number="{ item }">
-          <div>{{ item.serial_number }}</div>
-        </template>
-
-        <!-- Product Image -->
-        <template v-slot:item.image="{ item }">
-          <v-card class="my-2" elevation="2" rounded>
-            <v-img :src="item.image" height="64" cover></v-img>
-          </v-card>
-        </template>
-
-        <!-- Edit & Delete Actions -->
-        <template v-slot:item.actions="{ item }">
-          <v-btn icon size="small" color="primary" @click="editProduct(item)" title="Edit Product">
-            <v-icon icon="mdi-pencil"></v-icon>
-          </v-btn>
-          <v-btn icon size="small" color="red" @click="deleteProduct(item)" title="Delete Product">
-            <v-icon icon="mdi-trash-can"></v-icon>
-          </v-btn>
-        </template>
-      </v-data-table>
-    </v-card>
-
-    <!-- Edit Dialog -->
-    <v-dialog v-model="dialog" max-width="600">
-      <v-card>
-        <v-card-title>Edit Product</v-card-title>
-        <v-card-text>
-          <v-row dense>
+          <!-- Data Table -->
+          <v-data-table :items="filteredProducts" :headers="headers" item-key="id">
             <!-- Product Brand -->
-            <v-col cols="12" md="6">
-              <v-text-field v-model="selectedProduct.brand" label="Brand*" required></v-text-field>
-            </v-col>
+            <template v-slot:item.brand="{ item }">
+              <div>{{ item.brand }}</div>
+            </template>
 
             <!-- Product Model -->
-            <v-col cols="12" md="6">
-              <v-text-field v-model="selectedProduct.model" label="Model*" required></v-text-field>
-            </v-col>
+            <template v-slot:item.model="{ item }">
+              <div>{{ item.model }}</div>
+            </template>
 
             <!-- Product Specification -->
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="selectedProduct.specification"
-                label="Specification*"
-                required
-              ></v-text-field>
-            </v-col>
+            <template v-slot:item.specification="{ item }">
+              <div>{{ item.specification }}</div>
+            </template>
 
             <!-- Product Rental Price -->
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="selectedProduct.rental_price_per_day"
-                label="Rental Price per Day*"
-                type="number"
-                required
-              ></v-text-field>
-            </v-col>
+            <template v-slot:item.rental_price_per_day="{ item }">
+              <div>${{ item.rental_price_per_day.toFixed(2) }}</div>
+            </template>
 
             <!-- Product Status -->
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="selectedProduct.status"
-                :items="['Available', 'Rented', 'Out of Stock']"
-                label="Status"
-                required
-              ></v-select>
-            </v-col>
+            <template v-slot:item.status="{ item }">
+              <v-chip
+                :color="item.status === 'Available' ? 'green' : 'red'"
+                class="text-uppercase"
+                size="small"
+                label
+              >
+                {{ item.status }}
+              </v-chip>
+            </template>
 
             <!-- Product Serial Number -->
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="selectedProduct.serial_number"
-                label="Serial Number*"
-                required
-              ></v-text-field>
-            </v-col>
+            <template v-slot:item.serial_number="{ item }">
+              <div>{{ item.serial_number }}</div>
+            </template>
 
             <!-- Product Image -->
-            <v-col cols="12" md="6">
-              <v-file-input
-                v-model="selectedProduct.image"
-                accept="image/*"
-                label="Product Image"
-                prepend-icon="mdi-camera"
-              ></v-file-input>
-            </v-col>
-          </v-row>
-          <small class="text-caption text-medium-emphasis">*indicates required field</small>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="plain" @click="dialog = false">Cancel</v-btn>
-          <v-btn variant="tonal" color="primary" @click="saveProduct">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
-</template>
+            <template v-slot:item.image="{ item }">
+              <v-card class="my-2" elevation="2" rounded>
+                <v-img :src="item.image" height="64" cover></v-img>
+              </v-card>
+            </template>
 
+            <!-- Edit & Delete Actions -->
+            <template v-slot:item.actions="{ item }">
+              <v-btn
+                icon
+                size="small"
+                color="primary"
+                @click="editProduct(item)"
+                title="Edit Product"
+              >
+                <v-icon icon="mdi-pencil"></v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                size="small"
+                color="red"
+                @click="deleteProduct(item)"
+                title="Delete Product"
+              >
+                <v-icon icon="mdi-trash-can"></v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card>
+
+        <!-- Edit Dialog -->
+        <v-dialog v-model="dialog" max-width="600">
+          <v-card>
+            <v-card-title>Edit Product</v-card-title>
+            <v-card-text>
+              <v-row dense>
+                <!-- Product Brand -->
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="selectedProduct.brand"
+                    label="Brand*"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Product Model -->
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="selectedProduct.model"
+                    label="Model*"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Product Specification -->
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="selectedProduct.specification"
+                    label="Specification*"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Product Rental Price -->
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="selectedProduct.rental_price_per_day"
+                    label="Rental Price per Day*"
+                    type="number"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Product Status -->
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="selectedProduct.status"
+                    :items="['Available', 'Rented', 'Out of Stock']"
+                    label="Status"
+                    required
+                  ></v-select>
+                </v-col>
+
+                <!-- Product Serial Number -->
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="selectedProduct.serial_number"
+                    label="Serial Number*"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <!-- Product Image -->
+                <v-col cols="12" md="6">
+                  <v-file-input
+                    v-model="selectedProduct.image"
+                    accept="image/*"
+                    label="Product Image"
+                    prepend-icon="mdi-camera"
+                  ></v-file-input>
+                </v-col>
+              </v-row>
+              <small class="text-caption text-medium-emphasis">*indicates required field</small>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn variant="plain" @click="dialog = false">Cancel</v-btn>
+              <v-btn variant="tonal" color="primary" @click="saveProduct">Save</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
+  </AppLayout>
+</template>
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { supabase } from '@/utilities/supabaseClient'
+import AppLayout from './AppLayout.vue'
 
 const search = ref('')
 const products = ref([])

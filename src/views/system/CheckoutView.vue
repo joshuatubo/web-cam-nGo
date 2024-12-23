@@ -2,6 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useSavedItemsStore } from '@/stores/savedItems'
 import { supabase } from '@/utilities/supabaseClient'
+import AppLayout from '@/components/layout/AppLayout.vue'
 
 const savedItemsStore = useSavedItemsStore()
 const savedItems = computed(() => savedItemsStore.savedItems)
@@ -140,159 +141,164 @@ const submitBooking = async () => {
   }
 }
 </script>
+<template>
+  <AppLayout>
+    <template #content>
+      <div>
+        <v-card flat>
+          <v-card-title class="d-flex align-center">
+            <v-icon icon="mdi-bookmark-multiple" class="me-2"></v-icon>
+            Saved Items
+          </v-card-title>
+          <v-divider></v-divider>
 
-<template #content>
-  <div>
-    <v-card flat>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-bookmark-multiple" class="me-2"></v-icon>
-        Saved Items
-      </v-card-title>
-      <v-divider></v-divider>
-
-      <v-container>
-        <v-row v-if="savedItems.length > 0">
-          <v-col v-for="item in savedItems" :key="item.id" cols="12" sm="6" md="4">
-            <v-card class="my-2" elevation="2" @click="openBookingDialog(item)">
-              <v-img :src="item.image" height="200" cover></v-img>
-              <v-card-title class="text-truncate">{{ item.brand }} {{ item.model }}</v-card-title>
-              <v-card-subtitle class="text-truncate">{{ item.specification }}</v-card-subtitle>
-              <v-card-text>
-                <div class="d-flex align-center mb-2">
-                  <span class="text-h6">${{ item.rental_price_per_day.toFixed(2) }}</span>
-                  <span class="text-subtitle-1 ms-1">/day</span>
-                </div>
-                <v-chip
-                  :color="
-                    item.status === 'Available'
-                      ? 'success'
-                      : item.status === 'Rented'
-                        ? 'info'
-                        : 'error'
-                  "
-                  :text="item.status"
-                  size="small"
-                  variant="tonal"
-                ></v-chip>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="error"
-                  variant="text"
-                  @click.stop="savedItemsStore.removeItem(item.id)"
-                >
-                  <v-icon>mdi-bookmark-remove</v-icon>
-                  Remove
-                </v-btn>
-                <v-btn color="primary" variant="tonal" @click.stop="openBookingDialog(item)">
-                  <v-icon>mdi-calendar-check</v-icon>
-                  Book Now
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row v-else>
-          <v-col cols="12" class="text-center">
-            <v-icon icon="mdi-bookmark-outline" size="64" color="grey"></v-icon>
-            <p class="text-h6 mt-4">No saved items</p>
-            <p class="text-subtitle-1 text-medium-emphasis">
-              Browse cameras and save items to book them later
-            </p>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-card>
-
-    <!-- Booking Dialog -->
-    <v-dialog v-model="bookingDialog" max-width="500">
-      <v-card v-if="selectedItem">
-        <v-card-title> Book {{ selectedItem.brand }} {{ selectedItem.model }} </v-card-title>
-        <v-card-text>
-          <v-form ref="form" v-model="validForm">
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="bookingDetails.customerName"
-                  label="Your Name"
-                  :rules="[(v) => !!v || 'Name is required']"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="bookingDetails.customerEmail"
-                  label="Email"
-                  type="email"
-                  :rules="[
-                    (v) => !!v || 'Email is required',
-                    (v) => /.+@.+\..+/.test(v) || 'Email must be valid',
-                  ]"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="bookingDetails.customerPhone"
-                  label="Phone Number"
-                  :rules="[(v) => !!v || 'Phone number is required']"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-textarea
-                  v-model="bookingDetails.address"
-                  label="Delivery Address"
-                  :rules="[(v) => !!v || 'Address is required']"
-                  required
-                ></v-textarea>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model.number="bookingDetails.rentalDuration"
-                  label="Rental Duration (Days)"
-                  type="number"
-                  min="1"
-                  :rules="[
-                    (v) => !!v || 'Duration is required',
-                    (v) => v > 0 || 'Duration must be at least 1 day',
-                  ]"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-select
-                  v-model="bookingDetails.paymentDetails.method"
-                  :items="['Credit Card', 'Cash', 'Bank Transfer']"
-                  label="Payment Method"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col cols="12">
-                <div class="text-h6">Total Amount: ${{ calculateTotalAmount.toFixed(2) }}</div>
-                <div class="text-caption">
-                  Late return penalty: ${{
-                    (selectedItem.rental_price_per_day * 1.5).toFixed(2)
-                  }}/day
-                </div>
+          <v-container>
+            <v-row v-if="savedItems.length > 0">
+              <v-col v-for="item in savedItems" :key="item.id" cols="12" sm="6" md="4">
+                <v-card class="my-2" elevation="2" @click="openBookingDialog(item)">
+                  <v-img :src="item.image" height="200" cover></v-img>
+                  <v-card-title class="text-truncate"
+                    >{{ item.brand }} {{ item.model }}</v-card-title
+                  >
+                  <v-card-subtitle class="text-truncate">{{ item.specification }}</v-card-subtitle>
+                  <v-card-text>
+                    <div class="d-flex align-center mb-2">
+                      <span class="text-h6">${{ item.rental_price_per_day.toFixed(2) }}</span>
+                      <span class="text-subtitle-1 ms-1">/day</span>
+                    </div>
+                    <v-chip
+                      :color="
+                        item.status === 'Available'
+                          ? 'success'
+                          : item.status === 'Rented'
+                            ? 'info'
+                            : 'error'
+                      "
+                      :text="item.status"
+                      size="small"
+                      variant="tonal"
+                    ></v-chip>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="error"
+                      variant="text"
+                      @click.stop="savedItemsStore.removeItem(item.id)"
+                    >
+                      <v-icon>mdi-bookmark-remove</v-icon>
+                      Remove
+                    </v-btn>
+                    <v-btn color="primary" variant="tonal" @click.stop="openBookingDialog(item)">
+                      <v-icon>mdi-calendar-check</v-icon>
+                      Book Now
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
               </v-col>
             </v-row>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" variant="text" @click="bookingDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            :loading="isBooking"
-            :disabled="!validForm || !validateBooking"
-            @click="submitBooking"
-          >
-            Confirm Booking
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+            <v-row v-else>
+              <v-col cols="12" class="text-center">
+                <v-icon icon="mdi-bookmark-outline" size="64" color="grey"></v-icon>
+                <p class="text-h6 mt-4">No saved items</p>
+                <p class="text-subtitle-1 text-medium-emphasis">
+                  Browse cameras and save items to book them later
+                </p>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card>
+
+        <!-- Booking Dialog -->
+        <v-dialog v-model="bookingDialog" max-width="500">
+          <v-card v-if="selectedItem">
+            <v-card-title> Book {{ selectedItem.brand }} {{ selectedItem.model }} </v-card-title>
+            <v-card-text>
+              <v-form ref="form" v-model="validForm">
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="bookingDetails.customerName"
+                      label="Your Name"
+                      :rules="[(v) => !!v || 'Name is required']"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="bookingDetails.customerEmail"
+                      label="Email"
+                      type="email"
+                      :rules="[
+                        (v) => !!v || 'Email is required',
+                        (v) => /.+@.+\..+/.test(v) || 'Email must be valid',
+                      ]"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="bookingDetails.customerPhone"
+                      label="Phone Number"
+                      :rules="[(v) => !!v || 'Phone number is required']"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-textarea
+                      v-model="bookingDetails.address"
+                      label="Delivery Address"
+                      :rules="[(v) => !!v || 'Address is required']"
+                      required
+                    ></v-textarea>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model.number="bookingDetails.rentalDuration"
+                      label="Rental Duration (Days)"
+                      type="number"
+                      min="1"
+                      :rules="[
+                        (v) => !!v || 'Duration is required',
+                        (v) => v > 0 || 'Duration must be at least 1 day',
+                      ]"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                      v-model="bookingDetails.paymentDetails.method"
+                      :items="['Credit Card', 'Cash', 'Bank Transfer']"
+                      label="Payment Method"
+                      required
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="12">
+                    <div class="text-h6">Total Amount: ${{ calculateTotalAmount.toFixed(2) }}</div>
+                    <div class="text-caption">
+                      Late return penalty: ${{
+                        (selectedItem.rental_price_per_day * 1.5).toFixed(2)
+                      }}/day
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="error" variant="text" @click="bookingDialog = false">Cancel</v-btn>
+              <v-btn
+                color="primary"
+                :loading="isBooking"
+                :disabled="!validForm || !validateBooking"
+                @click="submitBooking"
+              >
+                Confirm Booking
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
+  </AppLayout>
 </template>
