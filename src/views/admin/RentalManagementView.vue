@@ -1,301 +1,149 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { supabase } from '@/utilities/supabaseClient'
-import AppLayout from '@/components/layout/AppLayout.vue'
+import { ref, onMounted } from 'vue';
+import { supabase } from '@/utilities/supabaseClient';
+import AppLayout from '@/components/layout/AppLayout.vue';
 
-const rentals = ref([])
-const loading = ref(true)
-const snackbar = ref(false)
-const snackbarMessage = ref('')
-const currentAdminId = ref(null)
-const totalCommission = ref(0)
+const rentals = ref([]);
+const rentalDetails = ref([]);
+const loading = ref(true);
+const snackbar = ref(false);
+const snackbarMessage = ref('');
+const currentAdminId = ref(null);
+const totalCommission = ref(0);
 
 const fetchCurrentAdmin = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     const { data: adminData } = await supabase
       .from('admin_users')
       .select('id')
       .eq('user_id', user.id)
-      .single()
-    
+      .single();
+
     if (adminData) {
-      currentAdminId.value = adminData.id
-      // Fetch total commission for the admin
+      currentAdminId.value = adminData.id;
       const { data: commissionData, error: commissionError } = await supabase
         .from('admin_commissions')
         .select('total_commission')
-        .eq('admin_id', adminData.id)
-      
+        .eq('admin_id', adminData.id);
+
       if (!commissionError && commissionData) {
-        totalCommission.value = commissionData.reduce((sum, record) => sum + record.total_commission, 0)
+        totalCommission.value = commissionData.reduce((sum, record) => sum + record.total_commission, 0);
       }
     }
   }
-}
+};
 
 const fetchRentals = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const { data, error } = await supabase
       .from('rental_transactions')
-      .select(`
-        *,
-        customers (
-          id,
-          name,
-          email,
-          phone_number,
-          address
-        ),
-        rental_details (
-          id,
-          rental_duration,
-          late_fee,
-          items (
-            id,
-            brand,
-            model,
-            specification,
-            rental_price_perday,
-            image,
-            status
-          )
-        )
-      `)
-      .order('rental_date', { ascending: false })
+      .select(`id, rental_date, return_date, total_amount, payment_status, penalty_per_day, feedbacks_id, admin_commissions_id, customer_id`)
+      .order('rental_date', { ascending: false });
 
-    if (error) throw error
+    if (error) throw error;
 
-    console.log('Fetched rentals:', data)
-    rentals.value = data || []
+    rentals.value = data.map(rental => ({
+      ...rental,
+      rental_date: new Date(rental.rental_date).toLocaleDateString(),
+      return_date: rental.return_date ? new Date(rental.return_date).toLocaleDateString() : null,
+    }));
   } catch (error) {
-    console.error('Error fetching rentals:', error)
-    snackbarMessage.value = 'Error loading rentals'
-    snackbar.value = true
+    console.error('Error fetching rentals:', error);
+    snackbarMessage.value = 'Error loading rentals';
+    snackbar.value = true;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-const deleteItem = async (itemId) => {
+const updatePaymentStatus = async (transactionId, newStatus) => {
   try {
-    // Instead of deleting, update the item status to 'Archived'
     const { error } = await supabase
-      .from('items')
-      .update({ status: 'Archived' })
-      .eq('id', itemId)
+      .from('rental_transactions')
+      .update({ payment_status: newStatus })
+      .eq('id', transactionId);
 
-    if (error) throw error
+    if (error) throw error;
 
-    snackbarMessage.value = 'Item archived successfully'
-    snackbar.value = true
-    await fetchRentals()
-  } catch (error) {
-    console.error('Error archiving item:', error)
-    snackbarMessage.value = 'Error archiving item'
-    snackbar.value = true
-  }
-}
-
-const calculateLateFee = (rental) => {
-  if (!rental.rental_details?.return_date) return 0
-  const returnDate = new Date(rental.rental_details.return_date)
-  const today = new Date()
-  const daysLate = Math.max(0, Math.floor((today - returnDate) / (1000 * 60 * 60 * 24)))
-  return daysLate * rental.penalty_per_day
-}
-
-const calculateCommission = (totalAmount) => {
-  // Calculate 10% commission from total amount
-  return totalAmount * 0.10
-}
-
-const updateRentalStatus = async (rental, newStatus) => {
-  rental.isUpdating = true
-  try {
-    // Update item status
-    const { error: itemError } = await supabase
-      .from('items')
-      .update({ status: newStatus })
-      .eq('id', rental.rental_details.item_id)
-
-    if (itemError) throw itemError
-
-    if (newStatus === 'Returned') {
-      // Calculate and update late fee
-      const lateFee = calculateLateFee(rental)
-      const totalAmount = rental.total_amount + lateFee
-
-      // Calculate and create admin commission
-      const commission = calculateCommission(totalAmount)
+    if (newStatus === 'Accepted') {
       const { error: commissionError } = await supabase
         .from('admin_commissions')
         .insert({
           admin_id: currentAdminId.value,
-          commission_date: new Date().toISOString(),
-          total_commission: commission
-        })
+          total_commission: calculateCommission(transactionId),
+        });
 
-      if (commissionError) throw commissionError
-
-      // Update rental details
-      const { error: rentalError } = await supabase
-        .from('rental_details')
-        .update({
-          late_fee: lateFee,
-          return_date: new Date().toISOString()
-        })
-        .eq('id', rental.rental_details.id)
-
-      if (rentalError) throw rentalError
-
-      // Update rental transaction
-      const { error: transactionError } = await supabase
-        .from('rental_transactions')
-        .update({
-          total_amount: totalAmount,
-          payment_status: lateFee > 0 ? 'Late Fee Pending' : 'Completed',
-          return_date: new Date().toISOString()
-        })
-        .eq('id', rental.id)
-
-      if (transactionError) throw transactionError
+      if (commissionError) throw commissionError;
     }
 
-    await fetchRentals()
-    snackbarMessage.value = `Rental status updated to ${newStatus}`
-    snackbar.value = true
+    snackbarMessage.value = `Payment status updated to "${newStatus}"`;
+    snackbar.value = true;
+    await fetchRentals();
   } catch (error) {
-    console.error('Error updating rental:', error)
-    snackbarMessage.value = 'Error updating rental status'
-    snackbar.value = true
-  } finally {
-    rental.isUpdating = false
+    console.error('Error updating payment status:', error);
+    snackbarMessage.value = 'Error updating payment status';
+    snackbar.value = true;
   }
-}
+};
+
+const calculateCommission = (transactionId) => {
+  const rental = rentals.value.find(r => r.id === transactionId);
+  if (rental) {
+    return rental.total_amount * 0.1; // 10% commission
+  }
+  return 0;
+};
 
 onMounted(async () => {
-  await fetchCurrentAdmin()
-  await fetchRentals()
-})
+  await fetchCurrentAdmin();
+  await fetchRentals();
+});
 </script>
 
 <template>
   <AppLayout>
     <template #content>
       <v-container>
-        <!-- Admin Stats -->
-        <v-row class="mb-4">
-          <v-col cols="12" md="4">
-            <v-card>
-              <v-card-text class="text-center">
-                <div class="text-h6 mb-1">Total Commission</div>
-                <div class="text-h4">${{ totalCommission.toFixed(2) }}</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card>
-              <v-card-text class="text-center">
-                <div class="text-h6 mb-1">Total Rentals</div>
-                <div class="text-h4">{{ rentals.length }}</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card>
-              <v-card-text class="text-center">
-                <div class="text-h6 mb-1">Active Rentals</div>
-                <div class="text-h4">
-                  {{ rentals.filter(r => r.rental_details?.items?.status === 'Rented').length }}
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-
+        <!-- Transaction Details -->
         <v-card>
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
-            Rental Management
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :loading="loading"
-              @click="fetchRentals"
-              icon="mdi-refresh"
-            ></v-btn>
+            Manage Transactions
           </v-card-title>
-
           <v-card-text>
-            <div v-if="loading" class="text-center pa-4">
-              <v-progress-circular indeterminate color="primary"></v-progress-circular>
-            </div>
-            <div v-else-if="rentals.length === 0" class="text-center pa-4">
-              No rentals found
-            </div>
-            <v-table v-else>
+            <v-table v-if="!loading && rentals.length > 0">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Customer</th>
-                  <th>Item</th>
+                  <th>Transaction ID</th>
                   <th>Rental Date</th>
                   <th>Return Date</th>
-                  <th>Duration</th>
-                  <th>Amount</th>
-                  <th>Late Fee</th>
-                  <th>Status</th>
+                  <th>Total Amount</th>
+                  <th>Payment Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="rental in rentals" :key="rental.id">
                   <td>{{ rental.id }}</td>
-                  <td>{{ rental.customers?.email }}</td>
+                  <td>{{ rental.rental_date }}</td>
+                  <td>{{ rental.return_date || 'Not Returned' }}</td>
+                  <td>${{ rental.total_amount }}</td>
                   <td>
-                    {{ rental.rental_details?.items?.brand }} 
-                    {{ rental.rental_details?.items?.model }}
+                    <v-select
+                      v-model="rental.payment_status"
+                      :items="['Pending', 'Accepted', 'Declined']"
+                      @change="updatePaymentStatus(rental.id, rental.payment_status)"
+                    ></v-select>
                   </td>
-                  <td>{{ new Date(rental.rental_date).toLocaleDateString() }}</td>
-                  <td>{{ new Date(rental.return_date).toLocaleDateString() }}</td>
-                  <td>{{ rental.rental_details?.rental_duration }} days</td>
-                  <td>${{ rental.total_amount.toFixed(2) }}</td>
-                  <td>${{ rental.rental_details?.late_fee?.toFixed(2) || '0.00' }}</td>
                   <td>
-                    <v-chip
-                      :color="
-                        rental.rental_details?.items?.status === 'Rented'
-                          ? 'warning'
-                          : rental.rental_details?.items?.status === 'Returned'
-                            ? 'success'
-                            : 'error'
-                      "
+                    <v-btn
+                      color="primary"
+                      @click="updatePaymentStatus(rental.id, rental.payment_status)"
                     >
-                      {{ rental.rental_details?.items?.status }}
-                    </v-chip>
-                  </td>
-                  <td>
-                    <v-btn-group v-if="rental.rental_details?.items?.status !== 'Returned'">
-                      <v-btn
-                        color="success"
-                        :loading="rental.isUpdating"
-                        @click="updateRentalStatus(rental, 'Returned')"
-                        size="small"
-                      >
-                        Mark Returned
-                      </v-btn>
-                      <v-btn
-                        color="error"
-                        :loading="rental.isUpdating"
-                        @click="updateRentalStatus(rental, 'Lost')"
-                        size="small"
-                      >
-                        Mark Lost
-                      </v-btn>
-                    </v-btn-group>
-                    <span v-else>Completed</span>
+                      Update Status
+                    </v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -303,10 +151,13 @@ onMounted(async () => {
           </v-card-text>
         </v-card>
 
+        <!-- Snackbar -->
         <v-snackbar v-model="snackbar" :timeout="3000">
           {{ snackbarMessage }}
           <template v-slot:actions>
-            <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
+            <v-btn color="primary" variant="text" @click="snackbar = false">
+              Close
+            </v-btn>
           </template>
         </v-snackbar>
       </v-container>

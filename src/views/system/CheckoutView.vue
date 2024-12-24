@@ -20,7 +20,6 @@ const bookingDetails = reactive({
   address: '',
   paymentDetails: {
     method: 'Credit Card',
-    status: 'Pending',
   },
   rentalDuration: 1,
 })
@@ -114,7 +113,7 @@ const submitBooking = async () => {
     // Update item status
     const { error: itemError } = await supabase
       .from('items')
-      .update({ status: 'Rented' })
+      .update({ status: 'Pending' })
       .eq('id', selectedItem.value.id)
 
     if (itemError) throw itemError
@@ -123,7 +122,7 @@ const submitBooking = async () => {
     savedItemsStore.removeItem(selectedItem.value.id)
 
     // Show success message
-    alert('Booking successful! Your rental transaction has been created.')
+    alert('Booking submitted successfully! Waiting for admin approval.')
 
     // Close dialog and reset form
     bookingDialog.value = false
