@@ -1,18 +1,16 @@
 <!--Programming naming conventions-->
 <script setup>
-import { useDisplay } from 'vuetify'
+//import { useDisplay } from 'vuetify'
 import '@/assets/login_style.css'
 import LoginForm from '@/components/auth/LoginForm.vue'
 import '@/assets/theme_style.css'
 
-const { mobile } = useDisplay()
+//const { mobile } = useDisplay()
 
-import { ref } from 'vue'
-
-const visible = ref(false)
+//import { ref } from 'vue'
 </script>
 
-<template #content>
+<template>
   <v-responsive>
     <v-container-fluid>
       <v-row style="height: 100vh; margin: 0; padding: 0"
@@ -20,15 +18,28 @@ const visible = ref(false)
           <v-card
             elevation="24"
             class="mx-auto rounded-xl bg-grey-darken-4"
-            style="margin: 10vh"
+            style="margin-top: 15vh"
             width="70%"
           >
             <v-row>
               <v-col>
-                <v-card cols="12" sm="10" md="8" class="bg-grey-darken-4 custom-card-container">
+                <v-container>
+                  <video
+                    class="background-video"
+                    autoplay
+                    loop
+                    muted
+                    :src="'/template-video/girl2.mp4'"
+                  ></video>
+                  <v-row class="fill-height"></v-row>
+                </v-container>
+              </v-col>
+
+              <v-col>
+                <v-card class="bg-grey-darken-4 custom-card-container">
                   <v-card-title>
                     <v-container>
-                      <h2 class="font-weight-medium">Welcome Back!</h2>
+                      <h2 id="font_welcome" class="font-weight-medium">Welcome Back!</h2>
                       <small>Sign in to your account</small>
                     </v-container>
                   </v-card-title>
@@ -45,12 +56,12 @@ const visible = ref(false)
                   </v-sheet>
 
                   <v-footer class="footer-text font-weight-light my-2"
-                    >2024 @Copyright. All rights reserved</v-footer
+                    >Copyright © 2024. All rights reserved</v-footer
                   >
                 </v-card>
-              </v-col>
 
-              <v-col style="margin: 0%">
+                <!--logo-Title-->
+
                 <v-card-title class="text-center logo-position">
                   <v-img
                     src="/images/logo.png"

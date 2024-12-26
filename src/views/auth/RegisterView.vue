@@ -13,8 +13,28 @@ import '@/assets/theme_style.css'
     <v-container-fluid>
       <v-row style="height: 100vh; margin: 0; padding: 0"
         ><v-col class="container">
-          <v-card elevation="24" class="mx-auto rounded-xl bg-grey-darken-4 my-10" width="70%">
+          <v-card
+            elevation="24"
+            class="mx-auto rounded-xl bg-grey-darken-4 register-card mb-8"
+            style="margin-top: 15vh"
+            width="70%"
+          >
             <v-row>
+              <!--Video Section-->
+              <v-col>
+                <v-container>
+                  <video
+                    class="background-video"
+                    autoplay
+                    loop
+                    muted
+                    :src="'/template-video/girl2.mp4'"
+                  ></video>
+                  <v-row class="fill-height"></v-row>
+                </v-container>
+              </v-col>
+
+              <!--Form Section-->
               <v-col>
                 <v-card
                   cols="12"
@@ -46,25 +66,23 @@ import '@/assets/theme_style.css'
                   </v-sheet>
 
                   <v-footer class="footer-text font-weight-light my-2"
-                    >2024 @Copyright. All rights reserved</v-footer
+                    >Copyright © 2024. All rights reserved</v-footer
                   >
                 </v-card>
               </v-col>
 
-              <v-col style="margin: 0%">
-                <v-card-title class="text-center logo-position">
-                  <v-img
-                    src="/images/logo.png"
-                    alt="Logo"
-                    :width="mobile ? '75%' : '45%'"
-                    class="d-block mx-auto"
-                    draggable="false"
-                    style="user-select: none"
-                  ></v-img>
-                  <p id="cam_font" class="text-center">CAM'N GO</p>
-                  <small><i>Unleash your wildest angles with Cam’n Go</i></small>
-                </v-card-title>
-              </v-col>
+              <v-card-title class="text-center logo-position-register">
+                <v-img
+                  src="/images/logo.png"
+                  alt="Logo"
+                  :width="mobile ? '75%' : '45%'"
+                  class="d-block mx-auto"
+                  draggable="false"
+                  style="user-select: none"
+                ></v-img>
+                <p id="cam_font" class="text-center">CAM'N GO</p>
+                <small><i>Unleash your wildest angles with Cam’n Go</i></small>
+              </v-card-title>
             </v-row>
           </v-card>
         </v-col></v-row
