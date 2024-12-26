@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'
-<<<<<<< HEAD
 import DashboardView from '../views/system/DashboardView.vue'
 import ForbiddenView from '../views/errors/ForbiddenView.vue'
 import NotFoundView from '../views/errors/NotFoundView.vue'
@@ -10,10 +9,6 @@ import BrowseCamerasView from '@/views/system/BrowseCamerasView.vue'
 import CheckoutView from '@/views/system/CheckoutView.vue'
 import ProductManagementView from '@/views/admin/ProductManagementView.vue'
 
-=======
-import DashboardView from '@/views/auth/DashboardView.vue'
-import CameraSectionView from '@/views/auth/CameraSectionView.vue'
->>>>>>> f97ce534e6daedd1a4147ab8481fff60f01fcb8f
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -32,7 +27,6 @@ const router = createRouter({
       component: RegisterView,
     },
     {
-<<<<<<< HEAD
       path: '/system/dashboard',
       name: 'dashboard',
       component: DashboardView,
@@ -80,16 +74,6 @@ const router = createRouter({
       path: '/not-found',
       name: 'not-found',
       component: NotFoundView,
-=======
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
-    },
-    {
-      path: '/camerasection',
-      name: 'camerasection',
-      component: CameraSectionView,
->>>>>>> f97ce534e6daedd1a4147ab8481fff60f01fcb8f
     },
   ],
 })

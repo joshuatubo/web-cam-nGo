@@ -70,7 +70,8 @@ const fetchRentalItems = async () => {
   try {
     const { data, error } = await supabase
       .from('rental_items')
-      .select(`
+      .select(
+        `
         id,
         customer_id,
         item_id,
@@ -89,7 +90,8 @@ const fetchRentalItems = async () => {
           return_date,
           total_amount
         )
-      `)
+      `,
+      )
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -169,10 +171,15 @@ const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
     if (rentalItemError) throw rentalItemError
 
     // Update items status in product management
-    const productStatus = newStatus === 'Returned' ? 'Available' : 
-                         newStatus === 'Lost' ? 'Out of Stock' : 
-                         newStatus === 'Rented' ? 'Rented' : 'Available'
-    
+    const productStatus =
+      newStatus === 'Returned'
+        ? 'Available'
+        : newStatus === 'Lost'
+          ? 'Out of Stock'
+          : newStatus === 'Rented'
+            ? 'Rented'
+            : 'Available'
+
     const { error: itemError } = await supabase
       .from('items')
       .update({ status: productStatus })
@@ -182,7 +189,7 @@ const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
 
     snackbarMessage.value = `Item status updated to "${newStatus}"`
     snackbar.value = true
-    
+
     // Refresh data
     await fetchRentalItems()
     await fetchRentals()
@@ -234,7 +241,7 @@ onMounted(async () => {
               <v-card-text class="text-center">
                 <div class="text-h6 mb-1">Active Rentals</div>
                 <div class="text-h4">
-                  {{ rentals.filter((r) => r.rental_details?.items?.status === 'Rented').length }}
+                  {{ rentalItems.filter((item) => item.status === 'Rented').length }}
                 </div>
               </v-card-text>
             </v-card>
@@ -309,7 +316,13 @@ onMounted(async () => {
                   <td>{{ item.status }}</td>
                   <td>{{ item.items.status }}</td>
                   <td>{{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}</td>
-                  <td>{{ item.rental_transactions.return_date ? new Date(item.rental_transactions.return_date).toLocaleDateString() : 'Not Returned' }}</td>
+                  <td>
+                    {{
+                      item.rental_transactions.return_date
+                        ? new Date(item.rental_transactions.return_date).toLocaleDateString()
+                        : 'Not Returned'
+                    }}
+                  </td>
                   <td>
                     <v-btn
                       v-if="item.status === 'Pending'"
@@ -344,9 +357,7 @@ onMounted(async () => {
             <div v-else-if="loading" class="text-center pa-4">
               <v-progress-circular indeterminate></v-progress-circular>
             </div>
-            <div v-else class="text-center pa-4">
-              No rental items found
-            </div>
+            <div v-else class="text-center pa-4">No rental items found</div>
           </v-card-text>
         </v-card>
 
