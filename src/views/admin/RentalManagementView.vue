@@ -5,6 +5,7 @@ import AppLayout from '@/components/layout/AppLayout.vue'
 
 const rentals = ref([])
 const rentalDetails = ref([])
+const rentalItems = ref([])
 const loading = ref(true)
 const snackbar = ref(false)
 const snackbarMessage = ref('')
@@ -65,6 +66,41 @@ const fetchRentals = async () => {
   }
 }
 
+const fetchRentalItems = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('rental_items')
+      .select(`
+        id,
+        customer_id,
+        item_id,
+        rental_transaction_id,
+        status,
+        created_at,
+        items:item_id (
+          id,
+          brand,
+          model,
+          status
+        ),
+        rental_transactions:rental_transaction_id (
+          id,
+          rental_date,
+          return_date,
+          total_amount
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    rentalItems.value = data
+  } catch (error) {
+    console.error('Error fetching rental items:', error)
+    snackbarMessage.value = 'Error loading rental items'
+    snackbar.value = true
+  }
+}
+
 const updatePaymentStatus = async (transactionId, newStatus) => {
   try {
     const { error } = await supabase
@@ -75,6 +111,34 @@ const updatePaymentStatus = async (transactionId, newStatus) => {
     if (error) throw error
 
     if (newStatus === 'Accepted') {
+      // Get rental items for this transaction
+      const { data: rentalItems, error: rentalError } = await supabase
+        .from('rental_items')
+        .select('id, item_id')
+        .eq('rental_transaction_id', transactionId)
+
+      if (rentalError) throw rentalError
+
+      // Update each item's status to 'Rented'
+      for (const item of rentalItems) {
+        // Update item status
+        const { error: itemError } = await supabase
+          .from('items')
+          .update({ status: 'Rented' })
+          .eq('id', item.item_id)
+
+        if (itemError) throw itemError
+
+        // Update rental_items status
+        const { error: rentalItemError } = await supabase
+          .from('rental_items')
+          .update({ status: 'Rented' })
+          .eq('id', item.id)
+
+        if (rentalItemError) throw rentalItemError
+      }
+
+      // Handle commission
       const { error: commissionError } = await supabase.from('admin_commissions').insert({
         admin_id: currentAdminId.value,
         total_commission: calculateCommission(transactionId),
@@ -86,9 +150,45 @@ const updatePaymentStatus = async (transactionId, newStatus) => {
     snackbarMessage.value = `Payment status updated to "${newStatus}"`
     snackbar.value = true
     await fetchRentals()
+    await fetchRentalItems()
   } catch (error) {
     console.error('Error updating payment status:', error)
     snackbarMessage.value = 'Error updating payment status'
+    snackbar.value = true
+  }
+}
+
+const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
+  try {
+    // Update rental_items status
+    const { error: rentalItemError } = await supabase
+      .from('rental_items')
+      .update({ status: newStatus })
+      .eq('id', rentalItemId)
+
+    if (rentalItemError) throw rentalItemError
+
+    // Update items status in product management
+    const productStatus = newStatus === 'Returned' ? 'Available' : 
+                         newStatus === 'Lost' ? 'Out of Stock' : 
+                         newStatus === 'Rented' ? 'Rented' : 'Available'
+    
+    const { error: itemError } = await supabase
+      .from('items')
+      .update({ status: productStatus })
+      .eq('id', itemId)
+
+    if (itemError) throw itemError
+
+    snackbarMessage.value = `Item status updated to "${newStatus}"`
+    snackbar.value = true
+    
+    // Refresh data
+    await fetchRentalItems()
+    await fetchRentals()
+  } catch (error) {
+    console.error('Error updating item status:', error)
+    snackbarMessage.value = 'Error updating item status'
     snackbar.value = true
   }
 }
@@ -104,6 +204,7 @@ const calculateCommission = (transactionId) => {
 onMounted(async () => {
   await fetchCurrentAdmin()
   await fetchRentals()
+  await fetchRentalItems()
 })
 </script>
 
@@ -181,6 +282,71 @@ onMounted(async () => {
                 </tr>
               </tbody>
             </v-table>
+          </v-card-text>
+        </v-card>
+
+        <!-- Rental Items -->
+        <v-card class="mt-4">
+          <v-card-title class="d-flex align-center">
+            <v-icon icon="mdi-camera" class="me-2"></v-icon>
+            Rental Items
+          </v-card-title>
+          <v-card-text>
+            <v-table v-if="!loading && rentalItems.length > 0">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Current Status</th>
+                  <th>Product Status</th>
+                  <th>Rental Date</th>
+                  <th>Return Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in rentalItems" :key="item.id">
+                  <td>{{ item.items.brand }} {{ item.items.model }}</td>
+                  <td>{{ item.status }}</td>
+                  <td>{{ item.items.status }}</td>
+                  <td>{{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}</td>
+                  <td>{{ item.rental_transactions.return_date ? new Date(item.rental_transactions.return_date).toLocaleDateString() : 'Not Returned' }}</td>
+                  <td>
+                    <v-btn
+                      v-if="item.status === 'Pending'"
+                      color="success"
+                      class="me-2"
+                      size="small"
+                      @click="updateItemStatus(item.items.id, item.id, 'Rented')"
+                    >
+                      Set as Rented
+                    </v-btn>
+                    <v-btn
+                      v-if="item.status === 'Rented'"
+                      color="warning"
+                      class="me-2"
+                      size="small"
+                      @click="updateItemStatus(item.items.id, item.id, 'Returned')"
+                    >
+                      Set as Returned
+                    </v-btn>
+                    <v-btn
+                      v-if="item.status === 'Rented'"
+                      color="error"
+                      size="small"
+                      @click="updateItemStatus(item.items.id, item.id, 'Lost')"
+                    >
+                      Mark as Lost
+                    </v-btn>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+            <div v-else-if="loading" class="text-center pa-4">
+              <v-progress-circular indeterminate></v-progress-circular>
+            </div>
+            <div v-else class="text-center pa-4">
+              No rental items found
+            </div>
           </v-card-text>
         </v-card>
 

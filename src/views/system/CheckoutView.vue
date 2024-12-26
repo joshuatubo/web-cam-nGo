@@ -97,6 +97,17 @@ const submitBooking = async () => {
 
     if (transactionError) throw transactionError
 
+    // Create rental item entry
+    const { error: rentalItemError } = await supabase.from('rental_items').insert({
+      rental_transaction_id: transaction.id,
+      customer_id: customer.id,
+      item_id: selectedItem.value.id,
+      status: 'Pending',
+      created_at: new Date().toISOString()
+    })
+
+    if (rentalItemError) throw rentalItemError
+
     // Create rental details
     const { error: detailsError } = await supabase.from('rental_details').insert({
       rental_transaction_id: transaction.id,
