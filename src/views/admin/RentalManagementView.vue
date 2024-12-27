@@ -678,7 +678,7 @@ onMounted(async () => {
                   <td>
                     {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
                     <div class="text-caption">
-                      Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }}
+                      <!-- Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }} -->
                       -
                       {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
                     </div>

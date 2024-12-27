@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <v-container class="provider-view" fluid>
     <v-row justify="space-between" class="mb-4">
       <v-col>
@@ -11,7 +11,7 @@
       </v-col>
     </v-row>
 
-    <!-- Modal for Adding New Item -->
+    
     <v-dialog v-model="showModal" persistent max-width="800px">
       <v-card class="rounded-card">
         <v-card-title class="headline">Add New Item</v-card-title>
@@ -105,7 +105,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- Products Table -->
+    
     <ItemsTable :products="products" :headers="headers" />
   </v-container>
 </template>
@@ -261,4 +261,4 @@ export default {
 .rounded-input .v-select__selections {
   border-radius: 15px !important;
 }
-</style>
+</style> -->
