@@ -256,6 +256,11 @@ const fetchUserRentalItems = async () => {
           return_date,
           total_amount,
           customer_id
+        ),
+        lost_item_payments (
+          id,
+          status,
+          payment_date
         )
       `)
       .in('customer_id', customerIds)
@@ -276,7 +281,8 @@ const fetchUserRentalItems = async () => {
         total_amount: rental.rental_transactions?.total_amount,
         customer_id: rental.customer_id,
         status: rental.status,
-        items: rental.items
+        items: rental.items,
+        lost_item_payments: rental.lost_item_payments
       }
       console.log('Processed rental:', processedRental)
       return processedRental
@@ -382,6 +388,13 @@ onMounted(() => {
                   >
                     {{ selectedRentalItem.status }}
                   </v-chip>
+                  <!-- Add payment status message -->
+                  <div 
+                    v-if="selectedRentalItem.lost_item_payments && selectedRentalItem.lost_item_payments[0]?.status === 'completed'" 
+                    class="text-success text-caption mt-2"
+                  >
+                    Payment Status: Lost item has been fully paid
+                  </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="text-caption">Total Amount</div>
@@ -437,7 +450,7 @@ onMounted(() => {
               </v-btn>
 
               <v-btn
-                v-if="selectedRentalItem.status === 'Lost'"
+                v-if="selectedRentalItem.status === 'Lost' && (!selectedRentalItem.lost_item_payments || selectedRentalItem.lost_item_payments[0]?.status !== 'completed')"
                 color="error"
                 block
                 class="mt-4"
