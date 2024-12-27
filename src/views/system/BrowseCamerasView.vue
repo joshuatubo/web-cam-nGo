@@ -88,7 +88,7 @@
                       v-if="item.feedback && item.feedback.length > 0"
                       variant="text"
                       density="compact"
-                      class="ms-2"
+                      class="ms-2 pr-2"
                       @click="openDetails(item)"
                     >
                       View Reviews
