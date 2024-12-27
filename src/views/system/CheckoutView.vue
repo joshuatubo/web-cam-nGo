@@ -174,7 +174,7 @@ const submitBooking = async () => {
                   <v-card-subtitle class="text-truncate">{{ item.specification }}</v-card-subtitle>
                   <v-card-text>
                     <div class="d-flex align-center mb-2">
-                      <span class="text-h6">${{ item.rental_price_per_day.toFixed(2) }}</span>
+                      <span class="text-h6">₱{{ item.rental_price_per_day.toFixed(2) }}</span>
                       <span class="text-subtitle-1 ms-1">/day</span>
                     </div>
                     <v-chip
@@ -294,9 +294,9 @@ const submitBooking = async () => {
                     ></v-select>
                   </v-col>
                   <v-col cols="6">
-                    <div class="text-h6">Total Amount: ${{ calculateTotalAmount.toFixed(2) }}</div>
+                    <div class="text-h6">Total Amount: ₱{{ calculateTotalAmount.toFixed(2) }}</div>
                     <div class="text-caption">
-                      Late return penalty: ${{
+                      Late return penalty: ₱{{
                         (selectedItem.rental_price_per_day * 1.5).toFixed(2)
                       }}/day
                     </div>

@@ -57,7 +57,7 @@
                   <v-card-subtitle class="text-truncate">{{ item.specification }}</v-card-subtitle>
                   <v-card-text>
                     <div class="d-flex align-center mb-2">
-                      <span class="text-h6">${{ item.rental_price_per_day.toFixed(2) }}</span>
+                      <span class="text-h6">₱{{ item.rental_price_per_day.toFixed(2) }}</span>
                       <span class="text-subtitle-1 ms-1">/day</span>
                       <v-spacer></v-spacer>
                       <div v-if="item.averageRating" class="d-flex align-center">
@@ -88,7 +88,7 @@
                       v-if="item.feedback && item.feedback.length > 0"
                       variant="text"
                       density="compact"
-                      class="ms-2 pr-2"
+                      class="ms-2 "
                       @click="openDetails(item)"
                     >
                       View Reviews

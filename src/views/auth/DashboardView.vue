@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -23,15 +23,15 @@ const { mobile } = useDisplay()
   <AppLayout>
     <template #content>
       <v-app>
-        <!-- App Bar -->
+
         <v-app-bar app color="primary" dark>
           <v-toolbar-title>Camera Rental Dashboard</v-toolbar-title>
         </v-app-bar>
 
-        <!-- Main Content -->
+
         <v-main>
           <v-container>
-            <!-- Hero Section -->
+         
             <v-row class="mb-6">
               <v-col>
                 <v-card color="blue lighten-4" elevation="8">
@@ -43,7 +43,7 @@ const { mobile } = useDisplay()
               </v-col>
             </v-row>
 
-            <!-- Browse Cameras -->
+   
             <v-row>
               <v-col cols="12">
                 <h4>Available Cameras</h4>
@@ -52,7 +52,7 @@ const { mobile } = useDisplay()
                 <v-card class="pa-4" elevation="2">
                   <v-img :src="camera.image" height="200px"></v-img>
                   <v-card-title class="text-h6">{{ camera.name }}</v-card-title>
-                  <v-card-subtitle>Price: ${{ camera.price }} / day</v-card-subtitle>
+                  <v-card-subtitle>Price: ₱{{ camera.price }} / day</v-card-subtitle>
                   <v-card-actions>
                     <v-btn color="primary" :disabled="!camera.available">
                       {{ camera.available ? 'Rent Now' : 'Unavailable' }}
@@ -62,7 +62,7 @@ const { mobile } = useDisplay()
               </v-col>
             </v-row>
 
-            <!-- My Rentals -->
+     
             <v-row class="mt-10">
               <v-col cols="12">
                 <h4>My Rentals</h4>
@@ -105,4 +105,4 @@ h4 {
   font-family: 'Roboto', sans-serif;
   font-weight: bold;
 }
-</style>
+</style> -->

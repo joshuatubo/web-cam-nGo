@@ -80,8 +80,8 @@ const addItem = async () => {
     const timestamp = new Date().getTime()
     const random = Math.random().toString(36).substring(2, 15)
     const fileExt = selectedFile.value.name.split('.').pop().toLowerCase()
-    const fileName = `${timestamp}-${random}.${fileExt}`
-    const filePath = `items/${fileName}`
+    const fileName = `₱{timestamp}-₱{random}.₱{fileExt}`
+    const filePath = `items/₱{fileName}`
 
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -114,7 +114,7 @@ const addItem = async () => {
     await getItems()
   } catch (error) {
     console.error('Error adding item:', error)
-    formErrors.value.image = `Failed to add item: ${error.message}`
+    formErrors.value.image = `Failed to add item: ₱{error.message}`
   } finally {
     loading.value = false
   }
@@ -146,8 +146,8 @@ const updateItem = async () => {
       const timestamp = new Date().getTime()
       const random = Math.random().toString(36).substring(2, 15)
       const fileExt = selectedFile.value.name.split('.').pop().toLowerCase()
-      const fileName = `${timestamp}-${random}.${fileExt}`
-      const filePath = `items/${fileName}`
+      const fileName = `₱{timestamp}-₱{random}.₱{fileExt}`
+      const filePath = `items/₱{fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
@@ -184,7 +184,7 @@ const updateItem = async () => {
     showEditDialog.value = false // Close the dialog here after success
   } catch (error) {
     console.error('Error updating item:', error)
-    formErrors.value.image = `Failed to update item: ${error.message}`
+    formErrors.value.image = `Failed to update item: ₱{error.message}`
   } finally {
     loading.value = false
   }
@@ -225,7 +225,7 @@ const deleteItem = async (item) => {
       const imagePath = item.image.split('/').pop()
       const { error: deleteImageError } = await supabase.storage
         .from('images')
-        .remove([`items/${imagePath}`])
+        .remove([`items/₱{imagePath}`])
 
       if (deleteImageError) throw deleteImageError
     }
@@ -241,7 +241,7 @@ const deleteItem = async (item) => {
     await getItems()
   } catch (error) {
     console.error('Error in delete operation:', error)
-    alert(`Failed to delete item: ${error.message}`)
+    alert(`Failed to delete item: ₱{error.message}`)
   } finally {
     loading.value = false
   }
@@ -287,7 +287,7 @@ onMounted(() => {
                       <td>{{ item.brand }}</td>
                       <td>{{ item.model }}</td>
                       <td>{{ item.specification }}</td>
-                      <td>${{ item.rental_price_per_day }}</td>
+                      <td>₱{{ item.rental_price_per_day }}</td>
                       <td>{{ item.status }}</td>
                       <td>{{ item.serial_number }}</td>
                       <!-- Display serial_number -->

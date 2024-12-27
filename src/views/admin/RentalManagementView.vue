@@ -263,7 +263,7 @@ const updatePaymentStatus = async (transactionId, newStatus) => {
       if (commissionError) throw commissionError
     }
 
-    snackbarMessage.value = `Payment status updated to "${newStatus}"`
+    snackbarMessage.value = `Payment status updated to "₱{newStatus}"`
     snackbar.value = true
     await fetchRentals()
     await fetchRentalItems()
@@ -301,7 +301,7 @@ const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
 
     if (itemError) throw itemError
 
-    snackbarMessage.value = `Item status updated to "${newStatus}"`
+    snackbarMessage.value = `Item status updated to "₱{newStatus}"`
     snackbar.value = true
 
     // Refresh data
@@ -359,8 +359,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Processed - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been processed and marked as paid.`,
+            title: `Lost Item Payment Processed - ₱{payment.items.brand} ₱{payment.items.model}`,
+            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has been processed and marked as paid.`,
             type: 'payment',
             read: false,
             created_at: new Date().toISOString()
@@ -400,8 +400,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Refunded - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been refunded. The item has been returned to our inventory.`,
+            title: `Lost Item Payment Refunded - ₱{payment.items.brand} ₱{payment.items.model}`,
+            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has been refunded. The item has been returned to our inventory.`,
             type: 'refund',
             read: false,
             created_at: new Date().toISOString()
@@ -434,8 +434,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Failed - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has failed. Please contact support for assistance.`,
+            title: `Lost Item Payment Failed - ₱{payment.items.brand} ₱{payment.items.model}`,
+            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has failed. Please contact support for assistance.`,
             type: 'payment_failed',
             read: false,
             created_at: new Date().toISOString()
@@ -453,7 +453,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
       }
     }
 
-    snackbarMessage.value = `Payment status updated to ${newStatus} successfully`
+    snackbarMessage.value = `Payment status updated to ₱{newStatus} successfully`
     snackbar.value = true
   } catch (error) {
     console.error('Error in updateLostItemPaymentStatus:', error)
@@ -559,7 +559,7 @@ onMounted(async () => {
             <v-card>
               <v-card-text class="text-center">
                 <div class="text-h6 mb-1">Total Commission</div>
-                <div class="text-h4">${{ totalCommission.toFixed(2) }}</div>
+                <div class="text-h4">₱{{ totalCommission.toFixed(2) }}</div>
               </v-card-text>
             </v-card>
           </v-col>
@@ -589,41 +589,43 @@ onMounted(async () => {
             Manage Transactions
           </v-card-title>
           <v-card-text>
-            <v-table v-if="!loading && rentals.length > 0">
-              <thead>
-                <tr>
-                  <th>Transaction ID</th>
-                  <th>Rental Date</th>
-                  <th>Return Date</th>
-                  <th>Total Amount</th>
-                  <th>Payment Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="rental in rentals" :key="rental.id">
-                  <td>{{ rental.id }}</td>
-                  <td>{{ rental.rental_date }}</td>
-                  <td>{{ rental.return_date || 'Not Returned' }}</td>
-                  <td>${{ rental.total_amount }}</td>
-                  <td>
-                    <v-select
-                      v-model="rental.payment_status"
-                      :items="['Pending', 'Accepted', 'Declined']"
-                      @change="updatePaymentStatus(rental.id, rental.payment_status)"
-                    ></v-select>
-                  </td>
-                  <td>
-                    <v-btn
-                      color="primary"
-                      @click="updatePaymentStatus(rental.id, rental.payment_status)"
-                    >
-                      Update Status
-                    </v-btn>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
+            <div class="table-wrapper">
+              <v-table v-if="!loading && rentals.length > 0" fixed-header height="400">
+                <thead>
+                  <tr>
+                    <th>Transaction ID</th>
+                    <th>Rental Date</th>
+                    <th>Return Date</th>
+                    <th>Total Amount</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="rental in rentals" :key="rental.id">
+                    <td>{{ rental.id }}</td>
+                    <td>{{ rental.rental_date }}</td>
+                    <td>{{ rental.return_date || 'Not Returned' }}</td>
+                    <td>₱{{ rental.total_amount }}</td>
+                    <td>
+                      <v-select
+                        v-model="rental.payment_status"
+                        :items="['Pending', 'Accepted', 'Declined']"
+                        @change="updatePaymentStatus(rental.id, rental.payment_status)"
+                      ></v-select>
+                    </td>
+                    <td>
+                      <v-btn
+                        color="primary"
+                        @click="updatePaymentStatus(rental.id, rental.payment_status)"
+                      >
+                        Update Status
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </div>
           </v-card-text>
         </v-card>
 
@@ -645,85 +647,87 @@ onMounted(async () => {
 
           <v-divider></v-divider>
 
-          <v-table>
-            <thead>
-              <tr>
-                <th>Payment Date</th>
-                <th>Customer</th>
-                <th>Item</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="loading">
-                <td colspan="7" class="text-center">
-                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                </td>
-              </tr>
-              <tr v-else-if="!lostItemPayments.length">
-                <td colspan="7" class="text-center">
-                  No lost item payments found
-                </td>
-              </tr>
-              <template v-else>
-                <tr v-for="payment in lostItemPayments" :key="payment.id">
-                  <td>{{ new Date(payment.payment_date).toLocaleDateString() }}</td>
-                  <td>
-                    {{ payment.customers?.F_name || '' }} {{ payment.customers?.L_name || '' }}
-                    <div class="text-caption">{{ payment.customers?.email || 'No email' }}</div>
-                  </td>
-                  <td>
-                    {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
-                    <div class="text-caption">
-                      <!-- Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }} -->
-                      -
-                      {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
-                    </div>
-                  </td>
-                  <td>${{ payment.amount.toFixed(2) }}</td>
-                  <td>{{ payment.payment_method }}</td>
-                  <td>
-                    <v-chip
-                      :color="
-                        payment.status === 'completed' ? 'success' :
-                        payment.status === 'pending' ? 'warning' :
-                        payment.status === 'failed' ? 'error' :
-                        'grey'
-                      "
-                      size="small"
-                    >
-                      {{ payment.status }}
-                    </v-chip>
-                  </td>
-                  <td>
-                    <v-menu>
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          icon="mdi-dots-vertical"
-                          variant="text"
-                          size="small"
-                          v-bind="props"
-                        ></v-btn>
-                      </template>
-                      <v-list>
-                        <v-list-item
-                          v-for="status in paymentStatuses"
-                          :key="status.value"
-                          :disabled="payment.status === status.value"
-                          @click="updateLostItemPaymentStatus(payment, status.value)"
-                        >
-                          <v-list-item-title>Mark as {{ status.label }}</v-list-item-title>
-                        </v-list-item>
-                      </v-list>
-                    </v-menu>
+          <div class="table-wrapper">
+            <v-table fixed-header height="400">
+              <thead>
+                <tr>
+                  <th>Payment Date</th>
+                  <th>Customer</th>
+                  <th>Item</th>
+                  <th>Amount</th>
+                  <th>Payment Method</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="loading">
+                  <td colspan="7" class="text-center">
+                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   </td>
                 </tr>
-              </template>
-            </tbody>
-          </v-table>
+                <tr v-else-if="!lostItemPayments.length">
+                  <td colspan="7" class="text-center">
+                    No lost item payments found
+                  </td>
+                </tr>
+                <template v-else>
+                  <tr v-for="payment in lostItemPayments" :key="payment.id">
+                    <td>{{ new Date(payment.payment_date).toLocaleDateString() }}</td>
+                    <td>
+                      {{ payment.customers?.F_name || '' }} {{ payment.customers?.L_name || '' }}
+                      <div class="text-caption">{{ payment.customers?.email || 'No email' }}</div>
+                    </td>
+                    <td>
+                      {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
+                      <div class="text-caption">
+                        <!-- Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }} -->
+                        -
+                        {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
+                      </div>
+                    </td>
+                    <td>₱{{ payment.amount.toFixed(2) }}</td>
+                    <td>{{ payment.payment_method }}</td>
+                    <td>
+                      <v-chip
+                        :color="
+                          payment.status === 'completed' ? 'success' :
+                          payment.status === 'pending' ? 'warning' :
+                          payment.status === 'failed' ? 'error' :
+                          'grey'
+                        "
+                        size="small"
+                      >
+                        {{ payment.status }}
+                      </v-chip>
+                    </td>
+                    <td>
+                      <v-menu>
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon="mdi-dots-vertical"
+                            variant="text"
+                            size="small"
+                            v-bind="props"
+                          ></v-btn>
+                        </template>
+                        <v-list>
+                          <v-list-item
+                            v-for="status in paymentStatuses"
+                            :key="status.value"
+                            :disabled="payment.status === status.value"
+                            @click="updateLostItemPaymentStatus(payment, status.value)"
+                          >
+                            <v-list-item-title>Mark as {{ status.label }}</v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-menu>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </v-table>
+          </div>
         </v-card>
 
         <!-- Rental Items -->
@@ -733,65 +737,63 @@ onMounted(async () => {
             Rental Items
           </v-card-title>
           <v-card-text>
-            <v-table v-if="!loading && rentalItems.length > 0">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Current Status</th>
-                  <th>Product Status</th>
-                  <th>Rental Date</th>
-                  <th>Return Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in rentalItems" :key="item.id">
-                  <td>{{ item.items.brand }} {{ item.items.model }}</td>
-                  <td>{{ item.status }}</td>
-                  <td>{{ item.items.status }}</td>
-                  <td>{{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}</td>
-                  <td>
-                    {{
-                      item.rental_transactions.return_date
-                        ? new Date(item.rental_transactions.return_date).toLocaleDateString()
-                        : 'Not Returned'
-                    }}
-                  </td>
-                  <td>
-                    <v-btn
-                      v-if="item.status === 'Pending'"
-                      color="success"
-                      class="me-2"
-                      size="small"
-                      @click="updateItemStatus(item.items.id, item.id, 'Rented')"
-                    >
-                      Set as Rented
-                    </v-btn>
-                    <v-btn
-                      v-if="item.status === 'Rented'"
-                      color="warning"
-                      class="me-2"
-                      size="small"
-                      @click="updateItemStatus(item.items.id, item.id, 'Returned')"
-                    >
-                      Set as Returned
-                    </v-btn>
-                    <v-btn
-                      v-if="item.status === 'Rented'"
-                      color="error"
-                      size="small"
-                      @click="updateItemStatus(item.items.id, item.id, 'Lost')"
-                    >
-                      Mark as Lost
-                    </v-btn>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-            <div v-else-if="loading" class="text-center pa-4">
-              <v-progress-circular indeterminate></v-progress-circular>
+            <div class="table-wrapper">
+              <v-table v-if="!loading && rentalItems.length > 0" fixed-header height="400">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Current Status</th>
+                    <th>Product Status</th>
+                    <th>Rental Date</th>
+                    <th>Return Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in rentalItems" :key="item.id">
+                    <td>{{ item.items.brand }} {{ item.items.model }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.items.status }}</td>
+                    <td>{{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}</td>
+                    <td>
+                      {{
+                        item.rental_transactions.return_date
+                          ? new Date(item.rental_transactions.return_date).toLocaleDateString()
+                          : 'Not Returned'
+                      }}
+                    </td>
+                    <td>
+                      <v-btn
+                        v-if="item.status === 'Pending'"
+                        color="success"
+                        class="me-2"
+                        size="small"
+                        @click="updateItemStatus(item.items.id, item.id, 'Rented')"
+                      >
+                        Set as Rented
+                      </v-btn>
+                      <v-btn
+                        v-if="item.status === 'Rented'"
+                        color="warning"
+                        class="me-2"
+                        size="small"
+                        @click="updateItemStatus(item.items.id, item.id, 'Returned')"
+                      >
+                        Set as Returned
+                      </v-btn>
+                      <v-btn
+                        v-if="item.status === 'Rented'"
+                        color="error"
+                        size="small"
+                        @click="updateItemStatus(item.items.id, item.id, 'Lost')"
+                      >
+                        Mark as Lost
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </div>
-            <div v-else class="text-center pa-4">No rental items found</div>
           </v-card-text>
         </v-card>
 
@@ -806,3 +808,67 @@ onMounted(async () => {
     </template>
   </AppLayout>
 </template>
+
+<style scoped>
+.table-wrapper {
+  position: relative;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.v-table {
+  background: transparent !important;
+}
+
+.v-table > .v-table__wrapper > table {
+  background: transparent !important;
+}
+
+.v-table__wrapper {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--v-theme-on-surface), 0.12) transparent;
+}
+
+.v-table__wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.v-table__wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.v-table__wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 4px;
+}
+
+.v-table__wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.24);
+}
+
+.v-table > .v-table__wrapper > table > thead > tr > th {
+  background: var(--v-theme-background);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr:hover {
+  background: rgba(var(--v-theme-on-surface), 0.04);
+}
+
+/* Add subtle shadow to fixed header */
+.v-table > .v-table__wrapper > table > thead > tr > th::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(var(--v-border-color), var(--v-border-opacity));
+}
+</style>
