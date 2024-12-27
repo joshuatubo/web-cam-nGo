@@ -71,6 +71,7 @@ const submitBooking = async () => {
         address: bookingDetails.address,
         phone_number: bookingDetails.phone_number,
         status: 'Active',
+        registration_date: new Date().toISOString()
       })
       .select()
       .single()

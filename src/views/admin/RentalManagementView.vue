@@ -67,7 +67,13 @@ const fetchRentals = async () => {
     const { data, error } = await supabase
       .from('rental_transactions')
       .select(
-        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day, feedbacks_id, admin_commissions_id, customer_id`,
+        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day, feedbacks_id, admin_commissions_id, 
+        customer_id, customers (
+          id,
+          F_name,
+          L_name,
+          registration_date
+        )`
       )
       .order('rental_date', { ascending: false })
 
@@ -618,6 +624,8 @@ onMounted(async () => {
                 <thead>
                   <tr>
                     <th>Transaction ID</th>
+                    <th>Customer</th>
+                    <th>Registration Date</th>
                     <th>Rental Date</th>
                     <th>Return Date</th>
                     <th>Total Amount</th>
@@ -628,9 +636,11 @@ onMounted(async () => {
                 <tbody>
                   <tr v-for="rental in rentals" :key="rental.id">
                     <td>{{ rental.id }}</td>
+                    <td>{{ rental.customers?.F_name }} {{ rental.customers?.L_name }}</td>
+                    <td>{{ rental.customers?.registration_date ? new Date(rental.customers.registration_date).toLocaleDateString() : 'N/A' }}</td>
                     <td>{{ rental.rental_date }}</td>
-                    <td>{{ rental.return_date || 'Not Returned' }}</td>
-                    <td>₱{{ rental.total_amount }}</td>
+                    <td>{{ rental.return_date || 'Not returned' }}</td>
+                    <td>${{ rental.total_amount?.toFixed(2) }}</td>
                     <td>
                       <v-select
                         v-model="rental.payment_status"
