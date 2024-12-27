@@ -67,12 +67,18 @@ const fetchRentals = async () => {
     const { data, error } = await supabase
       .from('rental_transactions')
       .select(
-        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day, feedbacks_id, admin_commissions_id, 
+        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day, 
+        feedbacks_id, admin_commissions_id, 
         customer_id, customers (
           id,
           F_name,
           L_name,
           registration_date
+        ),
+        admin_commissions (
+          id,
+          total_commission,
+          commission_date
         )`
       )
       .order('rental_date', { ascending: false })
@@ -83,6 +89,10 @@ const fetchRentals = async () => {
       ...rental,
       rental_date: new Date(rental.rental_date).toLocaleDateString(),
       return_date: rental.return_date ? new Date(rental.return_date).toLocaleDateString() : null,
+      commission_info: rental.admin_commissions ? {
+        amount: rental.admin_commissions.total_commission,
+        date: new Date(rental.admin_commissions.commission_date).toLocaleDateString()
+      } : null
     }))
   } catch (error) {
     console.error('Error fetching rentals:', error)
@@ -519,21 +529,39 @@ const calculateCommission = async (transactionId) => {
   if (rental) {
     const commission = rental.total_amount * 0.1 // 10% commission
     
-    // Insert commission record with date
-    const { error: commissionError } = await supabase
-      .from('admin_commissions')
-      .insert({
-        admin_id: currentAdminId.value,
-        total_commission: commission,
-        commission_date: new Date().toISOString()
-      })
+    try {
+      // Insert commission record with date
+      const { data: commissionData, error: commissionError } = await supabase
+        .from('admin_commissions')
+        .insert({
+          admin_id: currentAdminId.value,
+          total_commission: commission,
+          commission_date: new Date().toISOString()
+        })
+        .select()
+        .single()
 
-    if (commissionError) {
-      console.error('Error recording commission:', commissionError)
-      throw commissionError
+      if (commissionError) {
+        console.error('Error recording commission:', commissionError)
+        throw commissionError
+      }
+
+      // Update rental transaction with commission ID
+      const { error: updateError } = await supabase
+        .from('rental_transactions')
+        .update({ admin_commissions_id: commissionData.id })
+        .eq('id', transactionId)
+
+      if (updateError) {
+        console.error('Error updating rental transaction:', updateError)
+        throw updateError
+      }
+
+      return commission
+    } catch (error) {
+      console.error('Error in commission process:', error)
+      throw error
     }
-
-    return commission
   }
   return 0
 }
@@ -629,6 +657,7 @@ onMounted(async () => {
                     <th>Rental Date</th>
                     <th>Return Date</th>
                     <th>Total Amount</th>
+                    <th>Commission</th>
                     <th>Payment Status</th>
                     <th>Actions</th>
                   </tr>
@@ -641,6 +670,15 @@ onMounted(async () => {
                     <td>{{ rental.rental_date }}</td>
                     <td>{{ rental.return_date || 'Not returned' }}</td>
                     <td>${{ rental.total_amount?.toFixed(2) }}</td>
+                    <td>
+                      <v-tooltip v-if="rental.commission_info" location="top">
+                        <template v-slot:activator="{ props }">
+                          <span v-bind="props">${{ rental.commission_info.amount?.toFixed(2) }}</span>
+                        </template>
+                        Recorded on {{ rental.commission_info.date }}
+                      </v-tooltip>
+                      <span v-else>-</span>
+                    </td>
                     <td>
                       <v-select
                         v-model="rental.payment_status"
