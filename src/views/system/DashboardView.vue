@@ -199,7 +199,7 @@ onMounted(async () => {
 
                     <v-card-title>{{ camera.brand }} {{ camera.model }}</v-card-title>
                     <v-card-text>
-                      <p class="mb-2">Price: ₱{{ camera.rental_price_perday }}/day</p>
+                      <p class="mb-2">Price: ${{ camera.rental_price_perday }}/day</p>
                       <p>{{ camera.specification }}</p>
                     </v-card-text>
 
@@ -287,7 +287,7 @@ onMounted(async () => {
 
                     <v-card-text>
                       <p>Returned: {{ new Date(rental.return_date).toLocaleDateString() }}</p>
-                      <p>Total Amount: ₱{{ rental.total_amount.toFixed(2) }}</p>
+                      <p>Total Amount: ${{ rental.total_amount.toFixed(2) }}</p>
                       
                       <template v-if="rental.feedbacks">
                         <div class="mt-2">

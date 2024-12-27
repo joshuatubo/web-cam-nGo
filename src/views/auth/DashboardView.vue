@@ -52,7 +52,7 @@ const { mobile } = useDisplay()
                 <v-card class="pa-4" elevation="2">
                   <v-img :src="camera.image" height="200px"></v-img>
                   <v-card-title class="text-h6">{{ camera.name }}</v-card-title>
-                  <v-card-subtitle>Price: ₱{{ camera.price }} / day</v-card-subtitle>
+                  <v-card-subtitle>Price: ${{ camera.price }} / day</v-card-subtitle>
                   <v-card-actions>
                     <v-btn color="primary" :disabled="!camera.available">
                       {{ camera.available ? 'Rent Now' : 'Unavailable' }}

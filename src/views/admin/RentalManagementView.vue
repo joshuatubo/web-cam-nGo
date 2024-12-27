@@ -293,7 +293,7 @@ const updatePaymentStatus = async (transactionId, newStatus) => {
       if (commissionError) throw commissionError
     }
 
-    snackbarMessage.value = `Payment status updated to "₱{newStatus}"`
+    snackbarMessage.value = `Payment status updated to "${newStatus}"`
     snackbar.value = true
     await fetchRentals()
     await fetchRentalItems()
@@ -331,7 +331,7 @@ const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
 
     if (itemError) throw itemError
 
-    snackbarMessage.value = `Item status updated to "₱{newStatus}"`
+    snackbarMessage.value = `Item status updated to "${newStatus}"`
     snackbar.value = true
 
     // Refresh data
@@ -389,8 +389,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Processed - ₱{payment.items.brand} ₱{payment.items.model}`,
-            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has been processed and marked as paid.`,
+            title: `Lost Item Payment Processed - ${payment.items.brand} ${payment.items.model}`,
+            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been processed and marked as paid.`,
             type: 'payment',
             read: false,
             created_at: new Date().toISOString()
@@ -430,8 +430,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Refunded - ₱{payment.items.brand} ₱{payment.items.model}`,
-            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has been refunded. The item has been returned to our inventory.`,
+            title: `Lost Item Payment Refunded - ${payment.items.brand} ${payment.items.model}`,
+            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been refunded. The item has been returned to our inventory.`,
             type: 'refund',
             read: false,
             created_at: new Date().toISOString()
@@ -464,8 +464,8 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
           .from('notifications')
           .insert({
             customer_id: payment.customer_id,
-            title: `Lost Item Payment Failed - ₱{payment.items.brand} ₱{payment.items.model}`,
-            message: `Dear ₱{payment.customers.F_name}, your payment for the lost item (₱{payment.items.brand} ₱{payment.items.model}) has failed. Please contact support for assistance.`,
+            title: `Lost Item Payment Failed - ${payment.items.brand} ${payment.items.model}`,
+            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has failed. Please contact support for assistance.`,
             type: 'payment_failed',
             read: false,
             created_at: new Date().toISOString()
@@ -483,7 +483,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
       }
     }
 
-    snackbarMessage.value = `Payment status updated to ₱{newStatus} successfully`
+    snackbarMessage.value = `Payment status updated to ${newStatus} successfully`
     snackbar.value = true
   } catch (error) {
     console.error('Error in updateLostItemPaymentStatus:', error)
@@ -787,7 +787,7 @@ onMounted(async () => {
                         {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
                       </div>
                     </td>
-                    <td>₱{{ payment.amount.toFixed(2) }}</td>
+                    <td>${{ payment.amount.toFixed(2) }}</td>
                     <td>{{ payment.payment_method }}</td>
                     <td>
                       <v-chip
