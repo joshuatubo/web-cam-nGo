@@ -14,6 +14,7 @@ const totalCommission = ref(0)
 const lostItemPayments = ref([])
 const selectedPayment = ref(null)
 const paymentDialog = ref(false)
+const commissionData = ref(null)
 
 const paymentStatuses = [
   { value: 'pending', label: 'Pending' },
@@ -43,16 +44,18 @@ const fetchCurrentAdmin = async () => {
 
     if (adminData) {
       currentAdminId.value = adminData.id
-      const { data: commissionData, error: commissionError } = await supabase
+      const { data: commissionDataResult, error: commissionError } = await supabase
         .from('admin_commissions')
-        .select('total_commission')
+        .select('total_commission, commission_date')
         .eq('admin_id', adminData.id)
+        .order('commission_date', { ascending: false })
 
-      if (!commissionError && commissionData) {
-        totalCommission.value = commissionData.reduce(
+      if (!commissionError && commissionDataResult) {
+        totalCommission.value = commissionDataResult.reduce(
           (sum, record) => sum + record.total_commission,
           0,
         )
+        commissionData.value = commissionDataResult
       }
     }
   }
@@ -505,10 +508,26 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
   }
 }
 
-const calculateCommission = (transactionId) => {
+const calculateCommission = async (transactionId) => {
   const rental = rentals.value.find((r) => r.id === transactionId)
   if (rental) {
-    return rental.total_amount * 0.1 // 10% commission
+    const commission = rental.total_amount * 0.1 // 10% commission
+    
+    // Insert commission record with date
+    const { error: commissionError } = await supabase
+      .from('admin_commissions')
+      .insert({
+        admin_id: currentAdminId.value,
+        total_commission: commission,
+        commission_date: new Date().toISOString()
+      })
+
+    if (commissionError) {
+      console.error('Error recording commission:', commissionError)
+      throw commissionError
+    }
+
+    return commission
   }
   return 0
 }
@@ -559,7 +578,12 @@ onMounted(async () => {
             <v-card>
               <v-card-text class="text-center">
                 <div class="text-h6 mb-1">Total Commission</div>
-                <div class="text-h4">₱{{ totalCommission.toFixed(2) }}</div>
+                <div class="text-h4">${{ totalCommission.toFixed(2) }}</div>
+                <div class="text-caption text-grey">
+                  Last commission on {{ commissionData && commissionData[0]?.commission_date 
+                    ? new Date(commissionData[0].commission_date).toLocaleDateString() 
+                    : 'No commissions yet' }}
+                </div>
               </v-card-text>
             </v-card>
           </v-col>
