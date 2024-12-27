@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { supabase } from '@/utilities/supabaseClient'
 import AppLayout from '@/components/layout/AppLayout.vue'
 
@@ -11,6 +11,16 @@ const snackbar = ref(false)
 const snackbarMessage = ref('')
 const currentAdminId = ref(null)
 const totalCommission = ref(0)
+const lostItemPayments = ref([])
+const selectedPayment = ref(null)
+const paymentDialog = ref(false)
+
+const paymentStatuses = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'refunded', label: 'Refunded' }
+]
 
 const fetchCurrentAdmin = async () => {
   const {
@@ -100,6 +110,102 @@ const fetchRentalItems = async () => {
     console.error('Error fetching rental items:', error)
     snackbarMessage.value = 'Error loading rental items'
     snackbar.value = true
+  }
+}
+
+const fetchLostItemPayments = async () => {
+  try {
+    loading.value = true
+    console.log('Fetching lost item payments...')
+
+    // First, let's check if there are any payments at all
+    const { data: simplePayments, error: simpleError } = await supabase
+      .from('lost_item_payments')
+      .select('*')
+
+    if (simpleError) {
+      console.error('Error in simple payments query:', simpleError)
+      throw simpleError
+    }
+
+    console.log('Simple payments query result:', simplePayments)
+
+    // Now fetch with all relations
+    const { data: payments, error } = await supabase
+      .from('lost_item_payments')
+      .select(`
+        *,
+        rental_items (
+          id,
+          status,
+          customer_id,
+          item_id,
+          rental_transactions (
+            rental_date,
+            return_date
+          )
+        ),
+        customers (
+          id,
+          F_name,
+          L_name,
+          email
+        ),
+        items (
+          id,
+          brand,
+          model,
+          rental_price_per_day
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching payments with relations:', error)
+      throw error
+    }
+
+    console.log('Full payments data:', payments)
+
+    if (payments && payments.length > 0) {
+      lostItemPayments.value = payments.map(payment => {
+        console.log('Processing payment:', payment)
+        return {
+          ...payment,
+          rental_date: payment.rental_items?.rental_transactions?.[0]?.rental_date,
+          return_date: payment.rental_items?.rental_transactions?.[0]?.return_date
+        }
+      })
+    } else {
+      console.log('No payments found in database')
+      lostItemPayments.value = []
+    }
+
+    console.log('Final processed payments:', lostItemPayments.value)
+  } catch (error) {
+    console.error('Error in fetchLostItemPayments:', error)
+    snackbarMessage.value = 'Error loading payments: ' + error.message
+    snackbar.value = true
+  } finally {
+    loading.value = false
+  }
+}
+
+const checkTableStructure = async () => {
+  try {
+    console.log('Checking lost_item_payments table structure...')
+    const { data, error } = await supabase
+      .from('lost_item_payments')
+      .select('*')
+      .limit(1)
+
+    if (error) {
+      console.error('Error checking table:', error)
+    } else {
+      console.log('Table structure:', data)
+    }
+  } catch (error) {
+    console.error('Error in checkTableStructure:', error)
   }
 }
 
@@ -200,6 +306,58 @@ const updateItemStatus = async (itemId, rentalItemId, newStatus) => {
   }
 }
 
+const updateLostItemPaymentStatus = async (payment, newStatus) => {
+  try {
+    loading.value = true
+    console.log('Updating payment status:', { payment, newStatus })
+
+    // Update payment status
+    const { error: updateError } = await supabase
+      .from('lost_item_payments')
+      .update({ 
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', payment.id)
+
+    if (updateError) throw updateError
+
+    // If payment is completed, update rental item status
+    if (newStatus === 'completed') {
+      const { error: rentalError } = await supabase
+        .from('rental_items')
+        .update({ status: 'Lost and Paid' })
+        .eq('id', payment.rental_item_id)
+
+      if (rentalError) throw rentalError
+
+      // Create notification for customer
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Processed - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been processed and marked as paid.`,
+          type: 'payment',
+          read: false,
+          created_at: new Date().toISOString()
+        })
+
+      if (notificationError) throw notificationError
+    }
+
+    snackbarMessage.value = 'Payment status updated successfully'
+    snackbar.value = true
+    await fetchLostItemPayments()
+  } catch (error) {
+    console.error('Error updating payment status:', error)
+    snackbarMessage.value = 'Error updating status: ' + error.message
+    snackbar.value = true
+  } finally {
+    loading.value = false
+  }
+}
+
 const calculateCommission = (transactionId) => {
   const rental = rentals.value.find((r) => r.id === transactionId)
   if (rental) {
@@ -208,10 +366,40 @@ const calculateCommission = (transactionId) => {
   return 0
 }
 
+watch(lostItemPayments, (newValue) => {
+  console.log('lostItemPayments changed:', newValue)
+}, { deep: true })
+
 onMounted(async () => {
-  await fetchCurrentAdmin()
-  await fetchRentals()
-  await fetchRentalItems()
+  await checkTableStructure()
+  await Promise.all([
+    fetchCurrentAdmin(),
+    fetchRentals(),
+    fetchRentalItems(),
+    fetchLostItemPayments()
+  ])
+
+  // Set up real-time subscription for lost item payments
+  const paymentsSubscription = supabase
+    .channel('lost_item_payments_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'lost_item_payments'
+      },
+      (payload) => {
+        console.log('Payment change detected:', payload)
+        fetchLostItemPayments()
+      }
+    )
+    .subscribe()
+
+  // Clean up subscription on component unmount
+  onUnmounted(() => {
+    paymentsSubscription.unsubscribe()
+  })
 })
 </script>
 
@@ -292,6 +480,105 @@ onMounted(async () => {
           </v-card-text>
         </v-card>
 
+        <!-- Lost Items Payment Management -->
+        <v-card class="mt-4">
+          <v-card-title class="d-flex align-center">
+            <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
+            Lost Items Payment Management
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+              density="compact"
+            ></v-text-field>
+          </v-card-title>
+
+          <v-divider></v-divider>
+
+          <v-table>
+            <thead>
+              <tr>
+                <th>Payment Date</th>
+                <th>Customer</th>
+                <th>Item</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="loading">
+                <td colspan="7" class="text-center">
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                </td>
+              </tr>
+              <tr v-else-if="!lostItemPayments.length">
+                <td colspan="7" class="text-center">
+                  No lost item payments found
+                </td>
+              </tr>
+              <template v-else>
+                <tr v-for="payment in lostItemPayments" :key="payment.id">
+                  <td>{{ new Date(payment.payment_date).toLocaleDateString() }}</td>
+                  <td>
+                    {{ payment.customers?.F_name || '' }} {{ payment.customers?.L_name || '' }}
+                    <div class="text-caption">{{ payment.customers?.email || 'No email' }}</div>
+                  </td>
+                  <td>
+                    {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
+                    <div class="text-caption">
+                      Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }}
+                      -
+                      {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
+                    </div>
+                  </td>
+                  <td>${{ payment.amount.toFixed(2) }}</td>
+                  <td>{{ payment.payment_method }}</td>
+                  <td>
+                    <v-chip
+                      :color="
+                        payment.status === 'completed' ? 'success' :
+                        payment.status === 'pending' ? 'warning' :
+                        payment.status === 'failed' ? 'error' :
+                        'grey'
+                      "
+                      size="small"
+                    >
+                      {{ payment.status }}
+                    </v-chip>
+                  </td>
+                  <td>
+                    <v-menu>
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          icon="mdi-dots-vertical"
+                          variant="text"
+                          size="small"
+                          v-bind="props"
+                        ></v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          v-for="status in paymentStatuses"
+                          :key="status.value"
+                          :disabled="payment.status === status.value"
+                          @click="updateLostItemPaymentStatus(payment, status.value)"
+                        >
+                          <v-list-item-title>Mark as {{ status.label }}</v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </v-table>
+        </v-card>
+
         <!-- Rental Items -->
         <v-card class="mt-4">
           <v-card-title class="d-flex align-center">
@@ -365,7 +652,7 @@ onMounted(async () => {
         <v-snackbar v-model="snackbar" :timeout="3000">
           {{ snackbarMessage }}
           <template v-slot:actions>
-            <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
+            <v-btn color="white" variant="text" @click="snackbar = false">Close</v-btn>
           </template>
         </v-snackbar>
       </v-container>
