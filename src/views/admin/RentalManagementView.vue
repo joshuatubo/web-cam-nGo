@@ -322,8 +322,9 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
 
     if (updateError) throw updateError
 
-    // If payment is completed, update rental item status
+    // Handle different status updates
     if (newStatus === 'completed') {
+      // Update rental item status to Lost and Paid
       const { error: rentalError } = await supabase
         .from('rental_items')
         .update({ status: 'Lost and Paid' })
@@ -331,7 +332,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
 
       if (rentalError) throw rentalError
 
-      // Create notification for customer
+      // Create notification for completed payment
       const { error: notificationError } = await supabase
         .from('notifications')
         .insert({
@@ -344,9 +345,63 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         })
 
       if (notificationError) throw notificationError
+    } 
+    else if (newStatus === 'refunded') {
+      // First update the item status to Available
+      const { error: itemError } = await supabase
+        .from('items')
+        .update({ status: 'Available' })
+        .eq('id', payment.item_id)
+
+      if (itemError) throw itemError
+
+      // Then update the rental status to Returned (since we can't use Refunded)
+      const { error: rentalError } = await supabase
+        .from('rental_items')
+        .update({ status: 'Returned' })
+        .eq('id', payment.rental_item_id)
+
+      if (rentalError) throw rentalError
+
+      // Create notification for refund
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Refunded - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been refunded. The item has been returned to our inventory.`,
+          type: 'refund',
+          read: false,
+          created_at: new Date().toISOString()
+        })
+
+      if (notificationError) throw notificationError
+    }
+    else if (newStatus === 'failed') {
+      // Update rental item status back to Lost
+      const { error: rentalError } = await supabase
+        .from('rental_items')
+        .update({ status: 'Lost' })
+        .eq('id', payment.rental_item_id)
+
+      if (rentalError) throw rentalError
+
+      // Create notification for failed payment
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Failed - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has failed. Please contact support for assistance.`,
+          type: 'payment_failed',
+          read: false,
+          created_at: new Date().toISOString()
+        })
+
+      if (notificationError) throw notificationError
     }
 
-    snackbarMessage.value = 'Payment status updated successfully'
+    snackbarMessage.value = `Payment status updated to ${newStatus} successfully`
     snackbar.value = true
     await fetchLostItemPayments()
   } catch (error) {
