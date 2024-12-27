@@ -79,6 +79,12 @@ const fetchRentals = async () => {
           id,
           total_commission,
           commission_date
+        ),
+        feedback:feedbacks_id (
+          id,
+          rating,
+          comment,
+          feedback_date
         )`
       )
       .order('rental_date', { ascending: false })
@@ -92,6 +98,11 @@ const fetchRentals = async () => {
       commission_info: rental.admin_commissions ? {
         amount: rental.admin_commissions.total_commission,
         date: new Date(rental.admin_commissions.commission_date).toLocaleDateString()
+      } : null,
+      feedback_info: rental.feedback ? {
+        rating: rental.feedback.rating,
+        comment: rental.feedback.comment,
+        date: new Date(rental.feedback.feedback_date).toLocaleDateString()
       } : null
     }))
   } catch (error) {
@@ -658,6 +669,7 @@ onMounted(async () => {
                     <th>Return Date</th>
                     <th>Total Amount</th>
                     <th>Commission</th>
+                    <th>Feedback</th>
                     <th>Payment Status</th>
                     <th>Actions</th>
                   </tr>
@@ -678,6 +690,23 @@ onMounted(async () => {
                         Recorded on {{ rental.commission_info.date }}
                       </v-tooltip>
                       <span v-else>-</span>
+                    </td>
+                    <td>
+                      <v-tooltip v-if="rental.feedback_info" location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-rating
+                            v-bind="props"
+                            :model-value="rental.feedback_info.rating"
+                            readonly
+                            density="compact"
+                            size="small"
+                          ></v-rating>
+                        </template>
+                        {{ rental.feedback_info.comment || 'No comment provided' }}
+                        <br>
+                        Submitted on {{ rental.feedback_info.date }}
+                      </v-tooltip>
+                      <span v-else>No feedback</span>
                     </td>
                     <td>
                       <v-select

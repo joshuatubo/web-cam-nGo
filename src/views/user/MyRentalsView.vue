@@ -83,10 +83,22 @@ const submitFeedback = async () => {
         comment: feedback.value.comment || ''
       })
       .select()
+      .single()
 
     if (createError) {
       console.error('Error creating feedback:', createError)
       throw createError
+    }
+
+    // Update rental transaction with feedback ID
+    const { error: updateError } = await supabase
+      .from('rental_transactions')
+      .update({ feedbacks_id: feedbackData.id })
+      .eq('id', selectedRentalItem.value.rental_transaction_id)
+
+    if (updateError) {
+      console.error('Error updating rental transaction:', updateError)
+      throw updateError
     }
 
     console.log('Feedback submitted successfully:', feedbackData)
@@ -282,7 +294,8 @@ const fetchUserRentalItems = async () => {
         customer_id: rental.customer_id,
         status: rental.status,
         items: rental.items,
-        lost_item_payments: rental.lost_item_payments
+        lost_item_payments: rental.lost_item_payments,
+        rental_transaction_id: rental.rental_transactions?.id // Add rental_transaction_id
       }
       console.log('Processed rental:', processedRental)
       return processedRental
