@@ -656,6 +656,7 @@ export default {
               <v-card-text class="text-center">
                 <div class="text-h6 mb-1">Total Rentals</div>
                 <div class="text-h4">{{ rentals.length }}</div>
+                <br>
               </v-card-text>
             </v-card>
           </v-col>
@@ -666,14 +667,16 @@ export default {
                 <div class="text-h4">
                   {{ rentalItems.filter((item) => item.status === 'Rented').length }}
                 </div>
+                <br>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
 
 
-         <!-- Button Group -->
-         <v-btn-group>
+
+         <!-- Filter Buttons -->
+         <v-row justify="center" class="my-4" align="center ">
           <v-btn
             color="primary"
             :outlined="activeView !== 'transactionDetails'"
@@ -695,7 +698,7 @@ export default {
           >
             Rental Items
           </v-btn>
-        </v-btn-group>
+          </v-row>
         <div v-if="activeView === 'transactionDetails'"> 
                   <!-- Transaction Details -->
         <v-card>
