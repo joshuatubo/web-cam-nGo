@@ -676,9 +676,10 @@ export default {
 
 
          <!-- Filter Buttons -->
-         <v-row justify="center" class="my-4" align="center ">
+         <v-row justify="center" class="my-5" align="center ">
           <v-btn
             color="primary"
+            class="mx-2"
             :outlined="activeView !== 'transactionDetails'"
             @click="activeView = 'transactionDetails'"
           >
@@ -686,13 +687,15 @@ export default {
           </v-btn>
           <v-btn
             color="primary"
+            class="mx-2"
             :outlined="activeView !== 'lostItems'"
             @click="activeView = 'lostItems'"
           >
-            Lost Items Payment Management
+            Lost Items Payment
           </v-btn>
           <v-btn
             color="primary"
+            class="mx-2"
             :outlined="activeView !== 'rentalItems'"
             @click="activeView = 'rentalItems'"
           >
@@ -787,14 +790,7 @@ export default {
             <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
             Lost Items Payment Management
             <v-spacer></v-spacer>
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-              density="compact"
-            ></v-text-field>
+           
           </v-card-title>
 
           <v-divider></v-divider>
