@@ -607,11 +607,30 @@ onMounted(async () => {
     )
     .subscribe()
 
+
+    
   // Clean up subscription on component unmount
   onUnmounted(() => {
     paymentsSubscription.unsubscribe()
   })
 })
+
+
+
+</script>
+
+<script>
+export default {
+  data() {
+    return {
+      activeView: "transactionDetails", // Default active view
+      // Existing data properties...
+    };
+  },
+  methods: {
+    // Existing methods...
+  },
+};
 </script>
 
 <template>
@@ -651,7 +670,34 @@ onMounted(async () => {
             </v-card>
           </v-col>
         </v-row>
-        <!-- Transaction Details -->
+
+
+         <!-- Button Group -->
+         <v-btn-group>
+          <v-btn
+            color="primary"
+            :outlined="activeView !== 'transactionDetails'"
+            @click="activeView = 'transactionDetails'"
+          >
+            Transaction Details
+          </v-btn>
+          <v-btn
+            color="primary"
+            :outlined="activeView !== 'lostItems'"
+            @click="activeView = 'lostItems'"
+          >
+            Lost Items Payment Management
+          </v-btn>
+          <v-btn
+            color="primary"
+            :outlined="activeView !== 'rentalItems'"
+            @click="activeView = 'rentalItems'"
+          >
+            Rental Items
+          </v-btn>
+        </v-btn-group>
+        <div v-if="activeView === 'transactionDetails'"> 
+                  <!-- Transaction Details -->
         <v-card>
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
@@ -729,8 +775,10 @@ onMounted(async () => {
             </div>
           </v-card-text>
         </v-card>
+        </div>
 
-        <!-- Lost Items Payment Management -->
+        <div v-else-if="activeView === 'lostItems'">
+                  <!-- Lost Items Payment Management -->
         <v-card class="mt-4">
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
@@ -830,8 +878,10 @@ onMounted(async () => {
             </v-table>
           </div>
         </v-card>
+        </div>
 
-        <!-- Rental Items -->
+        <div v-else-if="activeView === 'rentalItems'">
+                  <!-- Rental Items -->
         <v-card class="mt-4">
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-camera" class="me-2"></v-icon>
@@ -897,6 +947,8 @@ onMounted(async () => {
             </div>
           </v-card-text>
         </v-card>
+        </div>
+
 
         <!-- Snackbar -->
         <v-snackbar v-model="snackbar" :timeout="3000">
