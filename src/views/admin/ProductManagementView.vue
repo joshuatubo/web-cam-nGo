@@ -212,7 +212,36 @@ const deleteItem = async (item) => {
   try {
     loading.value = true
 
-    // First delete related rental_details
+    // First get all rental_items for this item
+    const { data: rentalItems, error: fetchError } = await supabase
+      .from('rental_items')
+      .select('id')
+      .eq('item_id', item.id)
+
+    if (fetchError) throw fetchError
+
+    // Then delete related lost_item_payments for each rental_item
+    if (rentalItems && rentalItems.length > 0) {
+      const { error: lostItemPaymentsError } = await supabase
+        .from('lost_item_payments')
+        .delete()
+        .in(
+          'rental_item_id',
+          rentalItems.map((ri) => ri.id),
+        )
+
+      if (lostItemPaymentsError) throw lostItemPaymentsError
+    }
+
+    // Then delete related rental_items
+    const { error: rentalItemsError } = await supabase
+      .from('rental_items')
+      .delete()
+      .eq('item_id', item.id)
+
+    if (rentalItemsError) throw rentalItemsError
+
+    // Then delete related rental_details
     const { error: rentalDetailsError } = await supabase
       .from('rental_details')
       .delete()
@@ -231,10 +260,7 @@ const deleteItem = async (item) => {
     }
 
     // Finally delete the item itself
-    const { error: deleteItemError } = await supabase
-      .from('items')
-      .delete()
-      .eq('id', item.id)
+    const { error: deleteItemError } = await supabase.from('items').delete().eq('id', item.id)
 
     if (deleteItemError) throw deleteItemError
 

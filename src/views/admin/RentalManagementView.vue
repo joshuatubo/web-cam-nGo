@@ -20,7 +20,7 @@ const paymentStatuses = [
   { value: 'pending', label: 'Pending' },
   { value: 'completed', label: 'Completed' },
   { value: 'failed', label: 'Failed' },
-  { value: 'refunded', label: 'Refunded' }
+  { value: 'refunded', label: 'Refunded' },
 ]
 
 // Define allowed rental item statuses
@@ -28,7 +28,7 @@ const RENTAL_ITEM_STATUSES = {
   COMPLETED: 'Completed',
   LOST: 'Lost',
   RETURNED: 'Returned',
-  PENDING: 'Pending'
+  PENDING: 'Pending',
 }
 
 const fetchCurrentAdmin = async () => {
@@ -85,7 +85,7 @@ const fetchRentals = async () => {
           rating,
           comment,
           feedback_date
-        )`
+        )`,
       )
       .order('rental_date', { ascending: false })
 
@@ -95,15 +95,19 @@ const fetchRentals = async () => {
       ...rental,
       rental_date: new Date(rental.rental_date).toLocaleDateString(),
       return_date: rental.return_date ? new Date(rental.return_date).toLocaleDateString() : null,
-      commission_info: rental.admin_commissions ? {
-        amount: rental.admin_commissions.total_commission,
-        date: new Date(rental.admin_commissions.commission_date).toLocaleDateString()
-      } : null,
-      feedback_info: rental.feedback ? {
-        rating: rental.feedback.rating,
-        comment: rental.feedback.comment,
-        date: new Date(rental.feedback.feedback_date).toLocaleDateString()
-      } : null
+      commission_info: rental.admin_commissions
+        ? {
+            amount: rental.admin_commissions.total_commission,
+            date: new Date(rental.admin_commissions.commission_date).toLocaleDateString(),
+          }
+        : null,
+      feedback_info: rental.feedback
+        ? {
+            rating: rental.feedback.rating,
+            comment: rental.feedback.comment,
+            date: new Date(rental.feedback.feedback_date).toLocaleDateString(),
+          }
+        : null,
     }))
   } catch (error) {
     console.error('Error fetching rentals:', error)
@@ -171,7 +175,8 @@ const fetchLostItemPayments = async () => {
     // Now fetch with all relations
     const { data: payments, error } = await supabase
       .from('lost_item_payments')
-      .select(`
+      .select(
+        `
         *,
         rental_items (
           id,
@@ -195,7 +200,8 @@ const fetchLostItemPayments = async () => {
           model,
           rental_price_per_day
         )
-      `)
+      `,
+      )
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -206,12 +212,12 @@ const fetchLostItemPayments = async () => {
     console.log('Full payments data:', payments)
 
     if (payments && payments.length > 0) {
-      lostItemPayments.value = payments.map(payment => {
+      lostItemPayments.value = payments.map((payment) => {
         console.log('Processing payment:', payment)
         return {
           ...payment,
           rental_date: payment.rental_items?.rental_transactions?.[0]?.rental_date,
-          return_date: payment.rental_items?.rental_transactions?.[0]?.return_date
+          return_date: payment.rental_items?.rental_transactions?.[0]?.return_date,
         }
       })
     } else {
@@ -232,10 +238,7 @@ const fetchLostItemPayments = async () => {
 const checkTableStructure = async () => {
   try {
     console.log('Checking lost_item_payments table structure...')
-    const { data, error } = await supabase
-      .from('lost_item_payments')
-      .select('*')
-      .limit(1)
+    const { data, error } = await supabase.from('lost_item_payments').select('*').limit(1)
 
     if (error) {
       console.error('Error checking table:', error)
@@ -350,7 +353,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
     console.log('Updating payment status:', { payment, newStatus })
 
     // Optimistically update the UI
-    const paymentIndex = lostItemPayments.value.findIndex(p => p.id === payment.id)
+    const paymentIndex = lostItemPayments.value.findIndex((p) => p.id === payment.id)
     if (paymentIndex !== -1) {
       const updatedPayment = { ...lostItemPayments.value[paymentIndex] }
       updatedPayment.status = newStatus
@@ -360,9 +363,9 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
     // Update payment status
     const { data: updatedPayment, error: updateError } = await supabase
       .from('lost_item_payments')
-      .update({ 
+      .update({
         status: newStatus,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', payment.id)
       .select('*')
@@ -385,16 +388,14 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         if (rentalError) throw rentalError
 
         // Create notification for completed payment
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert({
-            customer_id: payment.customer_id,
-            title: `Lost Item Payment Processed - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been processed and marked as paid.`,
-            type: 'payment',
-            read: false,
-            created_at: new Date().toISOString()
-          })
+        const { error: notificationError } = await supabase.from('notifications').insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Processed - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been processed and marked as paid.`,
+          type: 'payment',
+          read: false,
+          created_at: new Date().toISOString(),
+        })
 
         if (notificationError) throw notificationError
 
@@ -406,8 +407,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         console.error('Error in completed payment updates:', error)
         throw new Error('Failed to complete payment process: ' + error.message)
       }
-    } 
-    else if (newStatus === 'refunded') {
+    } else if (newStatus === 'refunded') {
       try {
         // First update the item status to Available
         const { error: itemError } = await supabase
@@ -426,16 +426,14 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         if (rentalError) throw rentalError
 
         // Create notification for refund
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert({
-            customer_id: payment.customer_id,
-            title: `Lost Item Payment Refunded - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been refunded. The item has been returned to our inventory.`,
-            type: 'refund',
-            read: false,
-            created_at: new Date().toISOString()
-          })
+        const { error: notificationError } = await supabase.from('notifications').insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Refunded - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has been refunded. The item has been returned to our inventory.`,
+          type: 'refund',
+          read: false,
+          created_at: new Date().toISOString(),
+        })
 
         if (notificationError) throw notificationError
 
@@ -448,8 +446,7 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         console.error('Error in refund updates:', error)
         throw new Error('Failed to process refund: ' + error.message)
       }
-    }
-    else if (newStatus === 'failed') {
+    } else if (newStatus === 'failed') {
       try {
         // Update rental item status back to Lost
         const { error: rentalError } = await supabase
@@ -460,16 +457,14 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
         if (rentalError) throw rentalError
 
         // Create notification for failed payment
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert({
-            customer_id: payment.customer_id,
-            title: `Lost Item Payment Failed - ${payment.items.brand} ${payment.items.model}`,
-            message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has failed. Please contact support for assistance.`,
-            type: 'payment_failed',
-            read: false,
-            created_at: new Date().toISOString()
-          })
+        const { error: notificationError } = await supabase.from('notifications').insert({
+          customer_id: payment.customer_id,
+          title: `Lost Item Payment Failed - ${payment.items.brand} ${payment.items.model}`,
+          message: `Dear ${payment.customers.F_name}, your payment for the lost item (${payment.items.brand} ${payment.items.model}) has failed. Please contact support for assistance.`,
+          type: 'payment_failed',
+          read: false,
+          created_at: new Date().toISOString(),
+        })
 
         if (notificationError) throw notificationError
 
@@ -487,12 +482,13 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
     snackbar.value = true
   } catch (error) {
     console.error('Error in updateLostItemPaymentStatus:', error)
-    
+
     // Revert optimistic update if there was an error
     if (payment.id) {
       const { data } = await supabase
         .from('lost_item_payments')
-        .select(`
+        .select(
+          `
           *,
           rental_items (
             id,
@@ -516,12 +512,13 @@ const updateLostItemPaymentStatus = async (payment, newStatus) => {
             model,
             rental_price_per_day
           )
-        `)
+        `,
+        )
         .eq('id', payment.id)
         .single()
 
       if (data) {
-        const paymentIndex = lostItemPayments.value.findIndex(p => p.id === payment.id)
+        const paymentIndex = lostItemPayments.value.findIndex((p) => p.id === payment.id)
         if (paymentIndex !== -1) {
           lostItemPayments.value[paymentIndex] = data
         }
@@ -539,7 +536,7 @@ const calculateCommission = async (transactionId) => {
   const rental = rentals.value.find((r) => r.id === transactionId)
   if (rental) {
     const commission = rental.total_amount * 0.1 // 10% commission
-    
+
     try {
       // Insert commission record with date
       const { data: commissionData, error: commissionError } = await supabase
@@ -547,7 +544,7 @@ const calculateCommission = async (transactionId) => {
         .insert({
           admin_id: currentAdminId.value,
           total_commission: commission,
-          commission_date: new Date().toISOString()
+          commission_date: new Date().toISOString(),
         })
         .select()
         .single()
@@ -577,9 +574,13 @@ const calculateCommission = async (transactionId) => {
   return 0
 }
 
-watch(lostItemPayments, (newValue) => {
-  console.log('lostItemPayments changed:', newValue)
-}, { deep: true })
+watch(
+  lostItemPayments,
+  (newValue) => {
+    console.log('lostItemPayments changed:', newValue)
+  },
+  { deep: true },
+)
 
 onMounted(async () => {
   await checkTableStructure()
@@ -587,7 +588,7 @@ onMounted(async () => {
     fetchCurrentAdmin(),
     fetchRentals(),
     fetchRentalItems(),
-    fetchLostItemPayments()
+    fetchLostItemPayments(),
   ])
 
   // Set up real-time subscription for lost item payments
@@ -598,39 +599,34 @@ onMounted(async () => {
       {
         event: '*',
         schema: 'public',
-        table: 'lost_item_payments'
+        table: 'lost_item_payments',
       },
       (payload) => {
         console.log('Payment change detected:', payload)
         fetchLostItemPayments()
-      }
+      },
     )
     .subscribe()
 
-
-    
   // Clean up subscription on component unmount
   onUnmounted(() => {
     paymentsSubscription.unsubscribe()
   })
 })
-
-
-
 </script>
 
 <script>
 export default {
   data() {
     return {
-      activeView: "transactionDetails", // Default active view
+      activeView: 'transactionDetails', // Default active view
       // Existing data properties...
-    };
+    }
   },
   methods: {
     // Existing methods...
   },
-};
+}
 </script>
 
 <template>
@@ -644,9 +640,12 @@ export default {
                 <div class="text-h6 mb-1">Total Commission</div>
                 <div class="text-h4">${{ totalCommission.toFixed(2) }}</div>
                 <div class="text-caption text-grey">
-                  Last commission on {{ commissionData && commissionData[0]?.commission_date 
-                    ? new Date(commissionData[0].commission_date).toLocaleDateString() 
-                    : 'No commissions yet' }}
+                  Last commission on
+                  {{
+                    commissionData && commissionData[0]?.commission_date
+                      ? new Date(commissionData[0].commission_date).toLocaleDateString()
+                      : 'No commissions yet'
+                  }}
                 </div>
               </v-card-text>
             </v-card>
@@ -656,7 +655,7 @@ export default {
               <v-card-text class="text-center">
                 <div class="text-h6 mb-1">Total Rentals</div>
                 <div class="text-h4">{{ rentals.length }}</div>
-                <br>
+                <br />
               </v-card-text>
             </v-card>
           </v-col>
@@ -667,16 +666,14 @@ export default {
                 <div class="text-h4">
                   {{ rentalItems.filter((item) => item.status === 'Rented').length }}
                 </div>
-                <br>
+                <br />
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
 
-
-
-         <!-- Filter Buttons -->
-         <v-row justify="center" class="my-5" align="center ">
+        <!-- Filter Buttons -->
+        <v-row justify="center" class="my-5" align="center ">
           <v-btn
             color="primary"
             class="mx-2"
@@ -701,253 +698,266 @@ export default {
           >
             Rental Items
           </v-btn>
-          </v-row>
-        <div v-if="activeView === 'transactionDetails'"> 
-                  <!-- Transaction Details -->
-        <v-card>
-          <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
-            Manage Transactions
-          </v-card-title>
-          <v-card-text>
-            <div class="table-wrapper">
-              <v-table v-if="!loading && rentals.length > 0" fixed-header height="400">
-                <thead>
-                  <tr>
-                    <th>Transaction ID</th>
-                    <th>Customer</th>
-                    <th>Registration Date</th>
-                    <th>Rental Date</th>
-                    <th>Return Date</th>
-                    <th>Total Amount</th>
-                    <th>Commission</th>
-                    <th>Feedback</th>
-                    <th>Payment Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="rental in rentals" :key="rental.id">
-                    <td>{{ rental.id }}</td>
-                    <td>{{ rental.customers?.F_name }} {{ rental.customers?.L_name }}</td>
-                    <td>{{ rental.customers?.registration_date ? new Date(rental.customers.registration_date).toLocaleDateString() : 'N/A' }}</td>
-                    <td>{{ rental.rental_date }}</td>
-                    <td>{{ rental.return_date || 'Not returned' }}</td>
-                    <td>${{ rental.total_amount?.toFixed(2) }}</td>
-                    <td>
-                      <v-tooltip v-if="rental.commission_info" location="top">
-                        <template v-slot:activator="{ props }">
-                          <span v-bind="props">${{ rental.commission_info.amount?.toFixed(2) }}</span>
-                        </template>
-                        Recorded on {{ rental.commission_info.date }}
-                      </v-tooltip>
-                      <span v-else>-</span>
-                    </td>
-                    <td>
-                      <v-tooltip v-if="rental.feedback_info" location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-rating
-                            v-bind="props"
-                            :model-value="rental.feedback_info.rating"
-                            readonly
-                            density="compact"
-                            size="small"
-                          ></v-rating>
-                        </template>
-                        {{ rental.feedback_info.comment || 'No comment provided' }}
-                        <br>
-                        Submitted on {{ rental.feedback_info.date }}
-                      </v-tooltip>
-                      <span v-else>No feedback</span>
-                    </td>
-                    <td>
-                      <v-select
-                        v-model="rental.payment_status"
-                        :items="['Pending', 'Accepted', 'Declined']"
-                        @change="updatePaymentStatus(rental.id, rental.payment_status)"
-                      ></v-select>
-                    </td>
-                    <td>
-                      <v-btn
-                        color="primary"
-                        @click="updatePaymentStatus(rental.id, rental.payment_status)"
-                      >
-                        Update Status
-                      </v-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </div>
-          </v-card-text>
-        </v-card>
+        </v-row>
+        <div v-if="activeView === 'transactionDetails'">
+          <!-- Transaction Details -->
+          <v-card>
+            <v-card-title class="d-flex align-center">
+              <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
+              Manage Transactions
+            </v-card-title>
+            <v-card-text>
+              <div class="table-wrapper">
+                <v-table v-if="!loading && rentals.length > 0" fixed-header height="400">
+                  <thead>
+                    <tr>
+                      <th>Transaction ID</th>
+                      <th>Customer</th>
+                      <th>Registration Date</th>
+                      <th>Rental Date</th>
+                      <th>Return Date</th>
+                      <th>Total Amount</th>
+                      <th>Commission</th>
+                      <th>Feedback</th>
+                      <th>Payment Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="rental in rentals" :key="rental.id">
+                      <td>{{ rental.id }}</td>
+                      <td>{{ rental.customers?.F_name }} {{ rental.customers?.L_name }}</td>
+                      <td>
+                        {{
+                          rental.customers?.registration_date
+                            ? new Date(rental.customers.registration_date).toLocaleDateString()
+                            : 'N/A'
+                        }}
+                      </td>
+                      <td>{{ rental.rental_date }}</td>
+                      <td>{{ rental.return_date || 'Not returned' }}</td>
+                      <td>${{ rental.total_amount?.toFixed(2) }}</td>
+                      <td>
+                        <v-tooltip v-if="rental.commission_info" location="top">
+                          <template v-slot:activator="{ props }">
+                            <span v-bind="props"
+                              >${{ rental.commission_info.amount?.toFixed(2) }}</span
+                            >
+                          </template>
+                          Recorded on {{ rental.commission_info.date }}
+                        </v-tooltip>
+                        <span v-else>-</span>
+                      </td>
+                      <td>
+                        <v-tooltip v-if="rental.feedback_info" location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-rating
+                              v-bind="props"
+                              :model-value="rental.feedback_info.rating"
+                              readonly
+                              density="compact"
+                              size="small"
+                            ></v-rating>
+                          </template>
+                          {{ rental.feedback_info.comment || 'No comment provided' }}
+                          <br />
+                          Submitted on {{ rental.feedback_info.date }}
+                        </v-tooltip>
+                        <span v-else>No feedback</span>
+                      </td>
+                      <td>
+                        <v-select
+                          v-model="rental.payment_status"
+                          :items="['Pending', 'Accepted', 'Declined']"
+                          @change="updatePaymentStatus(rental.id, rental.payment_status)"
+                        ></v-select>
+                      </td>
+                      <td>
+                        <v-btn
+                          color="primary"
+                          @click="updatePaymentStatus(rental.id, rental.payment_status)"
+                        >
+                          Update Status
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </div>
+            </v-card-text>
+          </v-card>
         </div>
 
         <div v-else-if="activeView === 'lostItems'">
-                  <!-- Lost Items Payment Management -->
-        <v-card class="mt-4">
-          <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
-            Lost Items Payment Management
-            <v-spacer></v-spacer>
-           
-          </v-card-title>
+          <!-- Lost Items Payment Management -->
+          <v-card class="mt-4">
+            <v-card-title class="d-flex align-center">
+              <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
+              Lost Items Payment Management
+              <v-spacer></v-spacer>
+            </v-card-title>
 
-          <v-divider></v-divider>
+            <v-divider></v-divider>
 
-          <div class="table-wrapper">
-            <v-table fixed-header height="400">
-              <thead>
-                <tr>
-                  <th>Payment Date</th>
-                  <th>Customer</th>
-                  <th>Item</th>
-                  <th>Amount</th>
-                  <th>Payment Method</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="loading">
-                  <td colspan="7" class="text-center">
-                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  </td>
-                </tr>
-                <tr v-else-if="!lostItemPayments.length">
-                  <td colspan="7" class="text-center">
-                    No lost item payments found
-                  </td>
-                </tr>
-                <template v-else>
-                  <tr v-for="payment in lostItemPayments" :key="payment.id">
-                    <td>{{ new Date(payment.payment_date).toLocaleDateString() }}</td>
-                    <td>
-                      {{ payment.customers?.F_name || '' }} {{ payment.customers?.L_name || '' }}
-                      <div class="text-caption">{{ payment.customers?.email || 'No email' }}</div>
-                    </td>
-                    <td>
-                      {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
-                      <div class="text-caption">
-                        <!-- Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }} -->
-                        -
-                        {{ payment.return_date ? new Date(payment.return_date).toLocaleDateString() : 'Not returned' }}
-                      </div>
-                    </td>
-                    <td>${{ payment.amount.toFixed(2) }}</td>
-                    <td>{{ payment.payment_method }}</td>
-                    <td>
-                      <v-chip
-                        :color="
-                          payment.status === 'completed' ? 'success' :
-                          payment.status === 'pending' ? 'warning' :
-                          payment.status === 'failed' ? 'error' :
-                          'grey'
-                        "
-                        size="small"
-                      >
-                        {{ payment.status }}
-                      </v-chip>
-                    </td>
-                    <td>
-                      <v-menu>
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            icon="mdi-dots-vertical"
-                            variant="text"
-                            size="small"
-                            v-bind="props"
-                          ></v-btn>
-                        </template>
-                        <v-list>
-                          <v-list-item
-                            v-for="status in paymentStatuses"
-                            :key="status.value"
-                            :disabled="payment.status === status.value"
-                            @click="updateLostItemPaymentStatus(payment, status.value)"
-                          >
-                            <v-list-item-title>Mark as {{ status.label }}</v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-menu>
-                    </td>
-                  </tr>
-                </template>
-              </tbody>
-            </v-table>
-          </div>
-        </v-card>
-        </div>
-
-        <div v-else-if="activeView === 'rentalItems'">
-                  <!-- Rental Items -->
-        <v-card class="mt-4">
-          <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-camera" class="me-2"></v-icon>
-            Rental Items
-          </v-card-title>
-          <v-card-text>
             <div class="table-wrapper">
-              <v-table v-if="!loading && rentalItems.length > 0" fixed-header height="400">
+              <v-table fixed-header height="400">
                 <thead>
                   <tr>
+                    <th>Payment Date</th>
+                    <th>Customer</th>
                     <th>Item</th>
-                    <th>Current Status</th>
-                    <th>Product Status</th>
-                    <th>Rental Date</th>
-                    <th>Return Date</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in rentalItems" :key="item.id">
-                    <td>{{ item.items.brand }} {{ item.items.model }}</td>
-                    <td>{{ item.status }}</td>
-                    <td>{{ item.items.status }}</td>
-                    <td>{{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}</td>
-                    <td>
-                      {{
-                        item.rental_transactions.return_date
-                          ? new Date(item.rental_transactions.return_date).toLocaleDateString()
-                          : 'Not Returned'
-                      }}
-                    </td>
-                    <td>
-                      <v-btn
-                        v-if="item.status === 'Pending'"
-                        color="success"
-                        class="me-2"
-                        size="small"
-                        @click="updateItemStatus(item.items.id, item.id, 'Rented')"
-                      >
-                        Set as Rented
-                      </v-btn>
-                      <v-btn
-                        v-if="item.status === 'Rented'"
-                        color="warning"
-                        class="me-2"
-                        size="small"
-                        @click="updateItemStatus(item.items.id, item.id, 'Returned')"
-                      >
-                        Set as Returned
-                      </v-btn>
-                      <v-btn
-                        v-if="item.status === 'Rented'"
-                        color="error"
-                        size="small"
-                        @click="updateItemStatus(item.items.id, item.id, 'Lost')"
-                      >
-                        Mark as Lost
-                      </v-btn>
+                  <tr v-if="loading">
+                    <td colspan="7" class="text-center">
+                      <v-progress-circular indeterminate color="primary"></v-progress-circular>
                     </td>
                   </tr>
+                  <tr v-else-if="!lostItemPayments.length">
+                    <td colspan="7" class="text-center">No lost item payments found</td>
+                  </tr>
+                  <template v-else>
+                    <tr v-for="payment in lostItemPayments" :key="payment.id">
+                      <td>{{ new Date(payment.payment_date).toLocaleDateString() }}</td>
+                      <td>
+                        {{ payment.customers?.F_name || '' }} {{ payment.customers?.L_name || '' }}
+                        <div class="text-caption">{{ payment.customers?.email || 'No email' }}</div>
+                      </td>
+                      <td>
+                        {{ payment.items?.brand || '' }} {{ payment.items?.model || '' }}
+                        <div class="text-caption">
+                          <!-- Rental: {{ payment.rental_date ? new Date(payment.rental_date).toLocaleDateString() : 'N/A' }} -->
+                          -
+                          {{
+                            payment.return_date
+                              ? new Date(payment.return_date).toLocaleDateString()
+                              : 'Not returned'
+                          }}
+                        </div>
+                      </td>
+                      <td>${{ payment.amount.toFixed(2) }}</td>
+                      <td>{{ payment.payment_method }}</td>
+                      <td>
+                        <v-chip
+                          :color="
+                            payment.status === 'completed'
+                              ? 'success'
+                              : payment.status === 'pending'
+                                ? 'warning'
+                                : payment.status === 'failed'
+                                  ? 'error'
+                                  : 'grey'
+                          "
+                          size="small"
+                        >
+                          {{ payment.status }}
+                        </v-chip>
+                      </td>
+                      <td>
+                        <v-menu>
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon="mdi-dots-vertical"
+                              variant="text"
+                              size="small"
+                              v-bind="props"
+                            ></v-btn>
+                          </template>
+                          <v-list>
+                            <v-list-item
+                              v-for="status in paymentStatuses"
+                              :key="status.value"
+                              :disabled="payment.status === status.value"
+                              @click="updateLostItemPaymentStatus(payment, status.value)"
+                            >
+                              <v-list-item-title>Mark as {{ status.label }}</v-list-item-title>
+                            </v-list-item>
+                          </v-list>
+                        </v-menu>
+                      </td>
+                    </tr>
+                  </template>
                 </tbody>
               </v-table>
             </div>
-          </v-card-text>
-        </v-card>
+          </v-card>
         </div>
 
+        <div v-else-if="activeView === 'rentalItems'">
+          <!-- Rental Items -->
+          <v-card class="mt-4">
+            <v-card-title class="d-flex align-center">
+              <v-icon icon="mdi-camera" class="me-2"></v-icon>
+              Rental Items
+            </v-card-title>
+            <v-card-text>
+              <div class="table-wrapper">
+                <v-table v-if="!loading && rentalItems.length > 0" fixed-header height="400">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Current Status</th>
+                      <th>Product Status</th>
+                      <th>Rental Date</th>
+                      <th>Return Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in rentalItems" :key="item.id">
+                      <td>{{ item.items.brand }} {{ item.items.model }}</td>
+                      <td>{{ item.status }}</td>
+                      <td>{{ item.items.status }}</td>
+                      <td>
+                        {{ new Date(item.rental_transactions.rental_date).toLocaleDateString() }}
+                      </td>
+                      <td>
+                        {{
+                          item.rental_transactions.return_date
+                            ? new Date(item.rental_transactions.return_date).toLocaleDateString()
+                            : 'Not Returned'
+                        }}
+                      </td>
+                      <td>
+                        <v-btn
+                          v-if="item.status === 'Pending'"
+                          color="success"
+                          class="me-2"
+                          size="small"
+                          @click="updateItemStatus(item.items.id, item.id, 'Rented')"
+                        >
+                          Set as Rented
+                        </v-btn>
+                        <v-btn
+                          v-if="item.status === 'Rented'"
+                          color="warning"
+                          class="me-2"
+                          size="small"
+                          @click="updateItemStatus(item.items.id, item.id, 'Returned')"
+                        >
+                          Set as Returned
+                        </v-btn>
+                        <v-btn
+                          v-if="item.status === 'Rented'"
+                          color="error"
+                          size="small"
+                          @click="updateItemStatus(item.items.id, item.id, 'Lost')"
+                        >
+                          Mark as Lost
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
 
         <!-- Snackbar -->
         <v-snackbar v-model="snackbar" :timeout="3000">
