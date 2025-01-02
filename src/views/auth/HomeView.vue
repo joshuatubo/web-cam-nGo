@@ -48,6 +48,38 @@ function scrollToSection(sectionId) {
                     :style="{ width: mobile ? '100%' : '45%', height: 'auto' }"
                   />
                 </div>
+
+                <!--Carousel logo-->
+                <div class="carousel-logo">
+                  <div class="carousel-appbar">
+                    <v-layout>
+                      <v-class class="adjust-button ml-4">
+                        <v-btn variant="plain" class="button" @click="scrollToSection('products')">
+                          <h6><b>About</b></h6></v-btn
+                        >
+                        <v-btn variant="plain" class="button" @click="scrollToSection('developers')"
+                          ><h6><b>Developers</b></h6></v-btn
+                        >
+                        <v-btn variant="plain" class="button" @click="scrollToSection('contact')"
+                          ><h6><b>Contact</b></h6></v-btn
+                        >
+                      </v-class>
+                    </v-layout>
+                  </div>
+                  <div class="carousel-text">
+                    <v-btn class="mt-8 start-revert">
+                      <router-link to="/login" style="text-decoration: none; color: #333">
+                        <p>Let's Start!</p>
+                      </router-link>
+                    </v-btn>
+                    <v-btn
+                      class="mt-8 ml-3 start-revert adjust-explore"
+                      @click="scrollToSection('main')"
+                    >
+                      <p>Explore More!</p>
+                    </v-btn>
+                  </div>
+                </div>
               </v-carousel>
             </v-card>
           </v-layout>
