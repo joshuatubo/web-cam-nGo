@@ -71,7 +71,7 @@ const submitBooking = async () => {
         address: bookingDetails.address,
         phone_number: bookingDetails.phone_number,
         status: 'Active',
-        registration_date: new Date().toISOString()
+        registration_date: new Date().toISOString(),
       })
       .select()
       .single()
@@ -104,7 +104,7 @@ const submitBooking = async () => {
       customer_id: customer.id,
       item_id: selectedItem.value.id,
       status: 'Pending',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     })
 
     if (rentalItemError) throw rentalItemError
@@ -157,7 +157,7 @@ const submitBooking = async () => {
   <AppLayout>
     <template #content>
       <div>
-        <v-card flat>
+        <v-card flat style="height: 100vh">
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-bookmark-multiple" class="me-2"></v-icon>
             Saved Items

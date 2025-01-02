@@ -18,28 +18,30 @@ const feedback = ref({
 const lostItemPayment = ref({
   amount: 0,
   payment_method: 'credit_card',
-  notes: ''
+  notes: '',
 })
-const rentalDuration = ref(null) // Define rentalDuration as a reactive variable
 
+//const rentalDuration = ref(null) // Define rentalDuration as a reactive variable
+
+/*
 const rules = {
   required: (v) => !!v || 'This field is required',
   rating: (v) => v > 0 || 'Please provide a rating',
-}
+}*/
 
 // Payment methods available
 const paymentMethods = [
   { value: 'credit_card', label: 'Credit Card' },
   { value: 'gcash', label: 'GCash' },
   { value: 'maya', label: 'Maya' },
-  { value: 'bank_transfer', label: 'Bank Transfer' }
+  { value: 'bank_transfer', label: 'Bank Transfer' },
 ]
 
 const openFeedbackDialog = (rentalItem) => {
   selectedRentalItem.value = rentalItem
   feedback.value = {
     rating: 0,
-    comment: ''
+    comment: '',
   }
   feedbackDialog.value = true
   detailsDialog.value = false // Close details dialog when opening feedback dialog
@@ -58,7 +60,8 @@ const closeDetailsDialog = () => {
 const openLostItemDialog = (rentalItem) => {
   selectedRentalItem.value = rentalItem
   // Set the payment amount to the item's value or a default multiplier of the rental price
-  lostItemPayment.value.amount = rentalItem.items.item_value || rentalItem.items.rental_price_per_day * 30
+  lostItemPayment.value.amount =
+    rentalItem.items.item_value || rentalItem.items.rental_price_per_day * 30
   lostItemDialog.value = true
 }
 
@@ -71,7 +74,7 @@ const submitFeedback = async () => {
 
   try {
     loading.value = true
-    
+
     // Create new feedback record using the customer_id from the selected rental
     const { data: feedbackData, error: createError } = await supabase
       .from('feedback')
@@ -80,7 +83,7 @@ const submitFeedback = async () => {
         customer_id: selectedRentalItem.value.customer_id,
         feedback_date: new Date().toISOString(),
         rating: feedback.value.rating,
-        comment: feedback.value.comment || ''
+        comment: feedback.value.comment || '',
       })
       .select()
       .single()
@@ -108,11 +111,11 @@ const submitFeedback = async () => {
     detailsDialog.value = false
     feedback.value = { rating: 0, comment: '' }
     selectedRentalItem.value = null
-    
+
     // Show success message
     snackbarMessage.value = 'Thank you for your feedback!'
     snackbar.value = true
-    
+
     // Refresh the rentals list to show new feedback
     await fetchUserRentalItems()
   } catch (error) {
@@ -135,7 +138,10 @@ const submitLostItemPayment = async () => {
     loading.value = true
 
     // Debug logging
-    console.log('Selected rental item full object:', JSON.stringify(selectedRentalItem.value, null, 2))
+    console.log(
+      'Selected rental item full object:',
+      JSON.stringify(selectedRentalItem.value, null, 2),
+    )
     console.log('Rental item ID:', selectedRentalItem.value.id)
     console.log('Customer ID:', selectedRentalItem.value.customer_id)
     console.log('Item ID:', selectedRentalItem.value.items.id)
@@ -169,7 +175,7 @@ const submitLostItemPayment = async () => {
         payment_method: lostItemPayment.value.payment_method,
         payment_date: new Date().toISOString(),
         notes: lostItemPayment.value.notes,
-        status: 'pending'
+        status: 'pending',
       })
       .select()
 
@@ -205,7 +211,7 @@ const submitLostItemPayment = async () => {
     lostItemDialog.value = false
     snackbarMessage.value = 'Lost item payment submitted successfully'
     snackbar.value = true
-    
+
     // Refresh rentals list
     await fetchUserRentalItems()
   } catch (error) {
@@ -221,7 +227,10 @@ const fetchUserRentalItems = async () => {
   loading.value = true
   try {
     // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError) throw userError
 
     // Get customer records for the user
@@ -238,13 +247,14 @@ const fetchUserRentalItems = async () => {
       return
     }
 
-    const customerIds = customerData.map(customer => customer.id)
+    const customerIds = customerData.map((customer) => customer.id)
     console.log('Customer IDs:', customerIds)
 
     // Get rental items with all related data
     const { data: rentalData, error: rentalError } = await supabase
       .from('rental_items')
-      .select(`
+      .select(
+        `
         *,
         items (
           id,
@@ -274,7 +284,8 @@ const fetchUserRentalItems = async () => {
           status,
           payment_date
         )
-      `)
+      `,
+      )
       .in('customer_id', customerIds)
 
     if (rentalError) throw rentalError
@@ -285,24 +296,25 @@ const fetchUserRentalItems = async () => {
       return
     }
 
-    rentalItems.value = rentalData.map(rental => {
-      const processedRental = {
-        id: rental.id, // This is the rental_items UUID
-        rental_date: rental.rental_transactions?.rental_date,
-        return_date: rental.rental_transactions?.return_date,
-        total_amount: rental.rental_transactions?.total_amount,
-        customer_id: rental.customer_id,
-        status: rental.status,
-        items: rental.items,
-        lost_item_payments: rental.lost_item_payments,
-        rental_transaction_id: rental.rental_transactions?.id // Add rental_transaction_id
-      }
-      console.log('Processed rental:', processedRental)
-      return processedRental
-    }).filter(rental => rental.id != null)
+    rentalItems.value = rentalData
+      .map((rental) => {
+        const processedRental = {
+          id: rental.id, // This is the rental_items UUID
+          rental_date: rental.rental_transactions?.rental_date,
+          return_date: rental.rental_transactions?.return_date,
+          total_amount: rental.rental_transactions?.total_amount,
+          customer_id: rental.customer_id,
+          status: rental.status,
+          items: rental.items,
+          lost_item_payments: rental.lost_item_payments,
+          rental_transaction_id: rental.rental_transactions?.id, // Add rental_transaction_id
+        }
+        console.log('Processed rental:', processedRental)
+        return processedRental
+      })
+      .filter((rental) => rental.id != null)
 
     console.log('Final rentals:', rentalItems.value)
-
   } catch (error) {
     console.error('Error in fetchUserRentalItems:', error)
     snackbarMessage.value = 'Error loading rentals: ' + error.message
@@ -333,7 +345,14 @@ onMounted(() => {
         </div>
 
         <v-row v-else>
-          <v-col v-for="rentalItem in rentalItems" :key="rentalItem.id" cols="12" sm="6" md="4" lg="3">
+          <v-col
+            v-for="rentalItem in rentalItems"
+            :key="rentalItem.id"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+          >
             <v-hover v-slot="{ isHovering, props }">
               <v-card
                 v-bind="props"
@@ -349,7 +368,10 @@ onMounted(() => {
                 >
                   <template v-slot:placeholder>
                     <v-row class="fill-height ma-0" align="center" justify="center">
-                      <v-progress-circular indeterminate color="grey-lighten-5"></v-progress-circular>
+                      <v-progress-circular
+                        indeterminate
+                        color="grey-lighten-5"
+                      ></v-progress-circular>
                     </v-row>
                   </template>
                   <div
@@ -402,8 +424,11 @@ onMounted(() => {
                     {{ selectedRentalItem.status }}
                   </v-chip>
                   <!-- Add payment status message -->
-                  <div 
-                    v-if="selectedRentalItem.lost_item_payments && selectedRentalItem.lost_item_payments[0]?.status === 'completed'" 
+                  <div
+                    v-if="
+                      selectedRentalItem.lost_item_payments &&
+                      selectedRentalItem.lost_item_payments[0]?.status === 'completed'
+                    "
                     class="text-success text-caption mt-2"
                   >
                     Payment Status: Lost item has been fully paid
@@ -419,7 +444,11 @@ onMounted(() => {
 
               <!-- Reviews Section -->
               <div class="text-h6 mb-2">Reviews</div>
-              <div v-if="selectedRentalItem.items?.feedback && selectedRentalItem.items.feedback.length > 0">
+              <div
+                v-if="
+                  selectedRentalItem.items?.feedback && selectedRentalItem.items.feedback.length > 0
+                "
+              >
                 <v-list>
                   <v-list-item
                     v-for="feedback in selectedRentalItem.items.feedback"
@@ -448,12 +477,16 @@ onMounted(() => {
                   </v-list-item>
                 </v-list>
               </div>
-              <div v-else class="text-body-2 text-grey">
-                No reviews yet
-              </div>
+              <div v-else class="text-body-2 text-grey">No reviews yet</div>
 
               <v-btn
-                v-if="selectedRentalItem.status === 'Returned' && (!selectedRentalItem.items?.feedback || !selectedRentalItem.items.feedback.some(f => f.customer_id === selectedRentalItem.customer_id))"
+                v-if="
+                  selectedRentalItem.status === 'Returned' &&
+                  (!selectedRentalItem.items?.feedback ||
+                    !selectedRentalItem.items.feedback.some(
+                      (f) => f.customer_id === selectedRentalItem.customer_id,
+                    ))
+                "
                 color="primary"
                 block
                 class="mt-4"
@@ -463,7 +496,11 @@ onMounted(() => {
               </v-btn>
 
               <v-btn
-                v-if="selectedRentalItem.status === 'Lost' && (!selectedRentalItem.lost_item_payments || selectedRentalItem.lost_item_payments[0]?.status !== 'completed')"
+                v-if="
+                  selectedRentalItem.status === 'Lost' &&
+                  (!selectedRentalItem.lost_item_payments ||
+                    selectedRentalItem.lost_item_payments[0]?.status !== 'completed')
+                "
                 color="error"
                 block
                 class="mt-4"
@@ -491,7 +528,7 @@ onMounted(() => {
               <div v-if="selectedRentalItem" class="text-subtitle-1 mb-2">
                 {{ selectedRentalItem.items?.brand }} {{ selectedRentalItem.items?.model }}
               </div>
-              
+
               <div class="mb-4">
                 <label class="text-body-2 mb-1 d-block">Rating *</label>
                 <v-rating
@@ -516,11 +553,7 @@ onMounted(() => {
 
             <v-card-actions class="pa-4">
               <v-spacer></v-spacer>
-              <v-btn
-                color="grey-darken-1"
-                variant="text"
-                @click="feedbackDialog = false"
-              >
+              <v-btn color="grey-darken-1" variant="text" @click="feedbackDialog = false">
                 Cancel
               </v-btn>
               <v-btn
@@ -543,11 +576,7 @@ onMounted(() => {
             </v-card-title>
 
             <v-card-text class="pa-4">
-              <v-alert
-                type="warning"
-                variant="tonal"
-                class="mb-4"
-              >
+              <v-alert type="warning" variant="tonal" class="mb-4">
                 This item has been marked as lost. Please proceed with the lost item payment.
               </v-alert>
 
@@ -579,18 +608,10 @@ onMounted(() => {
 
                 <v-card-actions class="pa-0">
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="grey"
-                    variant="text"
-                    @click="lostItemDialog = false"
-                  >
+                  <v-btn color="grey" variant="text" @click="lostItemDialog = false">
                     Cancel
                   </v-btn>
-                  <v-btn
-                    color="error"
-                    :loading="loading"
-                    @click="submitLostItemPayment"
-                  >
+                  <v-btn color="error" :loading="loading" @click="submitLostItemPayment">
                     Submit Payment
                   </v-btn>
                 </v-card-actions>
@@ -613,7 +634,7 @@ onMounted(() => {
 
 <style scoped>
 .bg-black-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .transition-fast-in-fast-out {
