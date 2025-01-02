@@ -484,9 +484,12 @@ function scrollToSection(sectionId) {
                         </div>
                       </v-col>
                     </v-row>
+                    <v-col cols="12" class="mt-10"></v-col>
                   </v-row>
                 </v-container>
               </v-main>
+
+              <!--Contact-->
             </v-card>
           </v-layout>
         </v-col>
