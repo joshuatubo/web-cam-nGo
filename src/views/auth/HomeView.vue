@@ -126,6 +126,46 @@ function scrollToSection(sectionId) {
                         </p>
                       </v-col>
                       <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
+
+                      <!--Row 3-->
+                      <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
+                      <v-col cols="12" md="4" class="mt-10 reduce-gap">
+                        <v-card
+                          class="mx-auto"
+                          prepend-icon="mdi-camera-enhance-outline"
+                          subtitle="Rent Cameras for low prices"
+                          height="400px"
+                          style="border-radius: 20px"
+                          variant="outlined"
+                        >
+                          <template v-slot:title>
+                            <span class="font-weight-normal">Equipment Lease</span>
+                          </template>
+
+                          <v-img
+                            src="/images/rent_cameras.png"
+                            class="mx-auto fill-height"
+                            cover
+                          ></v-img>
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="6" class="mt-10">
+                        <v-card
+                          class="mx-auto"
+                          prepend-icon="mdi-camera-outline  "
+                          subtitle="Rent out your camera"
+                          height="400px"
+                          style="border-radius: 20px"
+                          variant="outlined"
+                        >
+                          <template v-slot:title>
+                            <span class="font-weight-normal">Provider</span>
+                          </template>
+
+                          <v-img src="/images/rental.png" class="mx-auto" cover></v-img>
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
                     </v-row>
                   </v-row>
                 </v-container>
