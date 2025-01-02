@@ -40,6 +40,14 @@ function scrollToSection(sectionId) {
                   cover
                 >
                 </v-carousel-item>
+                <div class="logo-text">
+                  <img
+                    src="/images/logo-text1.png"
+                    draggable="false"
+                    class="img-logo"
+                    :style="{ width: mobile ? '100%' : '45%', height: 'auto' }"
+                  />
+                </div>
               </v-carousel>
             </v-card>
           </v-layout>
