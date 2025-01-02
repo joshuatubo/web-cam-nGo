@@ -78,6 +78,11 @@ router.beforeEach(async (to) => {
     return { name: 'dashboard' }
   }
 
+  //Check if user is logged in and wants to go back to homepage
+  if (isLoggedIn && to.name === 'home') {
+    return { name: 'dashboard' }
+  }
+
   //check if the user is logged in and not admin
   if (isLoggedIn) {
     //retrieve information
