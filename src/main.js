@@ -30,4 +30,9 @@ app.use(pinia)
 app.use(router)
 app.use(vuetify)
 
+// Suppress Vue warnings
+app.config.warnHandler = () => {
+  // Optionally log the warnings somewhere else
+}
+
 app.mount('#app')
