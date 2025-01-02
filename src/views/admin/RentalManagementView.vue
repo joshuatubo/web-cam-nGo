@@ -701,7 +701,7 @@ export default {
         </v-row>
         <div v-if="activeView === 'transactionDetails'">
           <!-- Transaction Details -->
-          <v-card>
+          <v-card class="mt-4">
             <v-card-title class="d-flex align-center">
               <v-icon icon="mdi-clipboard-list" class="me-2"></v-icon>
               Manage Transactions
@@ -792,7 +792,7 @@ export default {
           <!-- Lost Items Payment Management -->
           <v-card class="mt-4">
             <v-card-title class="d-flex align-center">
-              <v-icon icon="mdi-cash-multiple" class="mr-2" color="primary"></v-icon>
+              <v-icon icon="mdi-cash-multiple" class="mr-2"></v-icon>
               Lost Items Payment Management
               <v-spacer></v-spacer>
             </v-card-title>
