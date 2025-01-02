@@ -166,6 +166,9 @@ function scrollToSection(sectionId) {
                         </v-card>
                       </v-col>
                       <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
+
+                      <!--Row 4-->
+                      <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
                     </v-row>
                   </v-row>
                 </v-container>
