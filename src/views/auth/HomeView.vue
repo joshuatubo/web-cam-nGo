@@ -490,6 +490,60 @@ function scrollToSection(sectionId) {
               </v-main>
 
               <!--Contact-->
+              <v-card id="contact" class="mx-auto bg-black" style="border-radius: 0">
+                <v-row>
+                  <!--1st col-->
+                  <v-col cols="12" md="7">
+                    <v-container class="text-white mt-10" fluid>
+                      <v-row justify="center" class="mb-8">
+                        <!-- Heading -->
+                        <v-col cols="12" class="d-flex justify-center mt-10">
+                          <v-img
+                            src="/images/contact.png"
+                            style="width: 20%"
+                            contain
+                            max-width="300"
+                            max-height="100"
+                          ></v-img>
+                        </v-col>
+                      </v-row>
+                      <v-row justify="center">
+                        <!-- First Column -->
+                        <v-col cols="12" md="4" offset-md="2" class="text-left mt-5">
+                          <h4 style="font-weight: bold">Message Us</h4>
+                          <p style="opacity: 0.6">
+                            Phone No. <v-spacer></v-spacer>+63 9 9999 9999
+                            <v-spacer> ID: camngoph </v-spacer>
+                          </p>
+                        </v-col>
+                        <!-- Second Column -->
+                        <v-col cols="12" md="4" class="text-left mt-5">
+                          <h4 style="font-weight: bold">Address</h4>
+                          <p style="opacity: 0.6">
+                            J.C Aquino Avenue Street, <v-spacer></v-spacer> Butuan City,
+                            <v-spacer></v-spacer>Mindanao, Philippines
+                          </p>
+                        </v-col>
+                        <v-col cols="12"></v-col>
+                        <!-- Third Column -->
+                        <v-col cols="12" md="4" offset-md="2" class="text-left">
+                          <h4 style="font-weight: bold">Business Hours</h4>
+                          <p style="opacity: 0.6">
+                            Monday - Friday <v-spacer></v-spacer> 9:00 AM - 5:00 PM
+                          </p>
+                        </v-col>
+                        <!-- Fourth Column -->
+                        <v-col cols="12" md="4" class="text-left">
+                          <h4 style="font-weight: bold">General Inquiries</h4>
+                          <p style="opacity: 0.6">camngo@gmail.com</p>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-col>
+
+                  <!--2nd col-->
+                </v-row>
+              </v-card>
             </v-card>
           </v-layout>
         </v-col>
