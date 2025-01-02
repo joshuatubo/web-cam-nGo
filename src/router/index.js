@@ -8,6 +8,7 @@ import { getUserInformation, isAuthenticated } from '@/utilities/supabase'
 import CartView from '@/views/system/CartView.vue'
 import BrowseCamerasView from '@/views/system/BrowseCamerasView.vue'
 import CheckoutView from '@/views/system/CheckoutView.vue'
+import HomeView from '@/views/auth/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      component: HomeView,
     },
     {
       path: '/login',
@@ -66,9 +68,10 @@ router.beforeEach(async (to) => {
   const isLoggedIn = await isAuthenticated()
 
   //Redirect to appropriate page if accessing home route
+  /*
   if (to.name === 'home') {
     return isLoggedIn ? { name: 'dashboard' } : { name: 'login' }
-  }
+  }*/
 
   //Check if user is logged in
   if (isLoggedIn && (to.name === 'login' || to.name == 'register')) {
