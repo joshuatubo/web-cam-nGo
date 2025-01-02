@@ -107,9 +107,9 @@ const links = ['About', 'Developers', 'Contact']
                     </v-col>
 
                     <!--Row 2-->
-                    <v-row id="products" class="pa-5">
-                      <v-divider></v-divider>
-                      <v-col cols="12" md="1" class="mt-10"></v-col>
+                    <v-divider></v-divider>
+                    <v-row class="pa-5">
+                      <v-col id="products" cols="12" md="1" class="mt-10"></v-col>
                       <v-col cols="12" md="4" class="mt-10 reduce-gap">
                         <v-img
                           src="/images/goal.png"
