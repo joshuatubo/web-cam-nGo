@@ -542,6 +542,19 @@ function scrollToSection(sectionId) {
                   </v-col>
 
                   <!--2nd col-->
+                  <v-col>
+                    <v-col cols="12" md="9" class="mt-10 mb-16">
+                      <v-card
+                        class="mx-auto"
+                        height="400px"
+                        max-width="400px"
+                        style="border-radius: 0px"
+                      >
+                        <!--Image effect has been disabled-->
+                        <v-img src="/images/kamera.png" class="mx-auto fill-height" cover></v-img>
+                      </v-card>
+                    </v-col>
+                  </v-col>
                 </v-row>
               </v-card>
             </v-card>
