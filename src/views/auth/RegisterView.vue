@@ -66,7 +66,7 @@ import '@/assets/theme_style.css'
                   </v-sheet>
 
                   <v-footer class="footer-text font-weight-light my-2"
-                    >Copyright © 2024. All rights reserved</v-footer
+                    >2024 @Copyright. All rights reserved</v-footer
                   >
                 </v-card>
               </v-col>
