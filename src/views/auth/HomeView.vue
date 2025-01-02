@@ -223,6 +223,23 @@ function scrollToSection(sectionId) {
                         </v-card>
                       </v-col>
                     </v-row>
+
+                    <!--Row 5-->
+                    <v-col cols="12" md="3" class="mt-10"></v-col>
+                    <v-col cols="12" md="6" class="mt-10">
+                      <i
+                        ><p class="mt-2 mb-10">
+                          "Renting a Camera Has Never Been Easier. Access professional-grade
+                          equipment without the hassle of ownership. Whether capturing memories or
+                          working on creative projects, our platform offers high-quality cameras,
+                          flexible rentals, secure transactions, and excellent support. Bring your
+                          vision to life effortlessly."
+                        </p>
+                      </i>
+                    </v-col>
+                    <v-col cols="12" md="3" class="mt-10"></v-col>
+
+                    <v-divider></v-divider>
                   </v-row>
                 </v-container>
               </v-main>
