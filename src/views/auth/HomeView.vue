@@ -169,6 +169,59 @@ function scrollToSection(sectionId) {
 
                       <!--Row 4-->
                       <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
+                      <v-col cols="12" md="4" class="mt-10 reduce-gap">
+                        <v-card
+                          class="mx-auto"
+                          prepend-icon="mdi-percent-box-outline"
+                          subtitle="Offers special pricing and packages for students"
+                          height="400px"
+                          style="border-radius: 20px"
+                          variant="outlined"
+                        >
+                          <template v-slot:title>
+                            <span class="font-weight-normal">Exclusive Student Discount</span>
+                          </template>
+
+                          <!---<v-card-text class="bg-surface-light pt-4"> </v-card-text>-->
+                          <v-img src="/images/for_rent.png" class="mx-auto" cover></v-img>
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="3" class="mt-10">
+                        <v-card
+                          class="mx-auto"
+                          prepend-icon="mdi-creation-outline"
+                          subtitle="Rented cameras are well-maintained"
+                          height="400px"
+                          style="border-radius: 20px"
+                          variant="outlined"
+                        >
+                          <template v-slot:title>
+                            <span class="font-weight-normal">Maintenance and Care</span>
+                          </template>
+
+                          <v-img src="/images/care.png" class="mx-auto" cover></v-img>
+
+                          <!---<v-card-text class="bg-surface-light pt-4"> </v-card-text>-->
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="3" class="mt-10 reduce-gap">
+                        <v-card
+                          class="mx-auto"
+                          prepend-icon="mdi-camera-plus-outline"
+                          subtitle="Quality-checked cameras"
+                          height="400px"
+                          style="border-radius: 20px"
+                          variant="outlined"
+                        >
+                          <template v-slot:title>
+                            <span class="font-weight-normal">Verified Listings</span>
+                          </template>
+
+                          <v-img src="/images/quality.png" class="mx-auto" cover></v-img>
+
+                          <!---<v-card-text class="bg-surface-light pt-4"> </v-card-text>-->
+                        </v-card>
+                      </v-col>
                     </v-row>
                   </v-row>
                 </v-container>
