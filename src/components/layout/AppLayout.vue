@@ -123,10 +123,7 @@ onMounted(() => {
       <v-layout>
         <!-- Horizontal Navigation Bar -->
         <div class="navbar">
-          <div class="logo ml-10" @click="navigateTo('home')">Cam 'n Go</div>
-          <v-btn class="menu-icon" @click="isDrawerOpen = !isDrawerOpen" icon>
-            <v-icon>mdi-menu</v-icon>
-          </v-btn>
+          <div class="logo" style="padding-left: 10%" @click="navigateTo('home')"></div>
         </div>
 
         <v-navigation-drawer expand-on-hover rail class="d-flex flex-column">
