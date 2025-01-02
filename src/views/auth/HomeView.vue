@@ -14,6 +14,9 @@ function scrollToSection(sectionId) {
     })
   }
 }
+
+/* footer */
+const links = ['About', 'Developers', 'Contact']
 </script>
 
 <template>
@@ -31,7 +34,7 @@ function scrollToSection(sectionId) {
               style="text-align: center; border-radius: 0"
             >
               <!--Carousel-->
-              <v-carousel :show-arrows="false" cycle height="1000px" hide-delimiters>
+              <v-carousel :show-arrows="false" cycle hide-delimiters height="1000px">
                 <v-carousel-item
                   v-for="(camera, i) in cameras"
                   :key="i"
@@ -48,8 +51,6 @@ function scrollToSection(sectionId) {
                     :style="{ width: mobile ? '100%' : '45%', height: 'auto' }"
                   />
                 </div>
-
-                <!--Carousel log-->
                 <div class="carousel-logo">
                   <div class="carousel-appbar">
                     <v-layout>
@@ -82,7 +83,6 @@ function scrollToSection(sectionId) {
                 </div>
               </v-carousel>
 
-              <!--Main-->
               <v-main id="main">
                 <v-container fluid>
                   <v-row style="padding-top: 100px">
@@ -106,7 +106,7 @@ function scrollToSection(sectionId) {
                       </p>
                     </v-col>
 
-                    <!--Row 2 and 3-->
+                    <!--Row 2-->
                     <v-row id="products" class="pa-5">
                       <v-divider></v-divider>
                       <v-col cols="12" md="1" class="mt-10"></v-col>
@@ -127,6 +127,7 @@ function scrollToSection(sectionId) {
                       </v-col>
                       <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
 
+                      <!--prepend-icon="$vuetify-->
                       <!--Row 3-->
                       <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
                       <v-col cols="12" md="4" class="mt-10 reduce-gap">
@@ -224,7 +225,7 @@ function scrollToSection(sectionId) {
                       </v-col>
                     </v-row>
 
-                    <!--Row 5-->
+                    <!--Row 4-->
                     <v-col cols="12" md="3" class="mt-10"></v-col>
                     <v-col cols="12" md="6" class="mt-10">
                       <i
@@ -241,7 +242,7 @@ function scrollToSection(sectionId) {
 
                     <v-divider></v-divider>
 
-                    <!--Developers-->
+                    <!--Devlopers-->
                     <v-col id="developers" cols="12" md="1"></v-col>
                     <v-col cols="12" md="10" class="d-flex justify-center mt-10">
                       <v-img
@@ -254,9 +255,10 @@ function scrollToSection(sectionId) {
                     </v-col>
                     <v-col col="12" md="1"></v-col>
 
-                    <!--1st row-->
+                    <!-- 1st row -->
+
+                    <!--joshua-->
                     <v-row class="justify-center mt-10">
-                      <!--Joshua-->
                       <v-col cols="12" md="3">
                         <div class="card">
                           <div class="img">
@@ -331,7 +333,8 @@ function scrollToSection(sectionId) {
                         </div>
                       </v-col>
 
-                      <!--Kevin-->
+                      <!--kevin-->
+
                       <v-col cols="12" md="3">
                         <div class="card">
                           <div class="img">
@@ -408,6 +411,7 @@ function scrollToSection(sectionId) {
                       </v-col>
 
                       <!--virgel-->
+
                       <v-col cols="12" md="3">
                         <div class="card">
                           <div class="img">
@@ -557,9 +561,38 @@ function scrollToSection(sectionId) {
                   </v-col>
                 </v-row>
               </v-card>
-            </v-card>
 
-            <!--footer-->
+              <!--footer-->
+              <v-card id="contact" class="mx-auto bg-black" style="border-radius: 0">
+                <v-row>
+                  <v-footer class="bg-black">
+                    <v-row justify="center" no-gutters>
+                      <v-class>
+                        <v-btn
+                          variant="plain"
+                          class="ml-5 button"
+                          @click="scrollToSection('products')"
+                        >
+                          <h6><b>About</b></h6></v-btn
+                        >
+                        <v-btn variant="plain" class="button" @click="scrollToSection('developers')"
+                          ><h6><b>Developers</b></h6></v-btn
+                        >
+                        <v-btn variant="plain" class="button" @click="scrollToSection('home')"
+                          ><h6><b>Home</b></h6></v-btn
+                        >
+                      </v-class>
+                      <v-col class="text-center mb-1 mb-5" cols="12">
+                        <span style="opacity: 0.6"
+                          >Copyright © {{ new Date().getFullYear() }}</span
+                        >
+                        <span style="opacity: 0.6"> CamnGo. All Rights Reserved</span>
+                      </v-col>
+                    </v-row>
+                  </v-footer>
+                </v-row>
+              </v-card>
+            </v-card>
           </v-layout>
         </v-col>
       </v-row>
