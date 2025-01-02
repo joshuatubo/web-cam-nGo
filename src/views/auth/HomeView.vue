@@ -31,7 +31,7 @@ function scrollToSection(sectionId) {
               style="text-align: center; border-radius: 0"
             >
               <!--Carousel-->
-              <v-carousel :show-arrows="false" cycle hide-delimeters height="1000px">
+              <v-carousel :show-arrows="false" cycle height="1000px" hide-delimiters>
                 <v-carousel-item
                   v-for="(camera, i) in cameras"
                   :key="i"
@@ -81,6 +81,35 @@ function scrollToSection(sectionId) {
                   </div>
                 </div>
               </v-carousel>
+
+              <!--Main-->
+              <v-main id="main">
+                <v-container fluid>
+                  <v-row style="padding-top: 100px">
+                    <v-col></v-col>
+                    <v-col cols="12" md="10" class="d-flex justify-center">
+                      <v-img
+                        style="width: 20%"
+                        src="/images/logo-text1.png"
+                        contain
+                        max-width="400"
+                        max-height="100"
+                      ></v-img>
+                    </v-col>
+                    <v-col></v-col>
+                    <v-col cols="12" md="2"></v-col>
+                    <v-col cols="12" md="8" class="mb-15">
+                      <p class="mt-1">
+                        Your go-to platform for camera rentals, offering the latest equipment to
+                        ensure you capture every moment in stunning quality. Whether you're a
+                        seasoned photographer or just starting out, we have something for everyone.
+                      </p>
+                    </v-col>
+
+                    <!--Row 2-->
+                  </v-row>
+                </v-container>
+              </v-main>
             </v-card>
           </v-layout>
         </v-col>
