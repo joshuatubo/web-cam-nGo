@@ -240,6 +240,9 @@ function scrollToSection(sectionId) {
                     <v-col cols="12" md="3" class="mt-10"></v-col>
 
                     <v-divider></v-divider>
+
+                    <!--Developers-->
+                    <v-col id="developers" cols="12" md="1"></v-col>
                   </v-row>
                 </v-container>
               </v-main>
