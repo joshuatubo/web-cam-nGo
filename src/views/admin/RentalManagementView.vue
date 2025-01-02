@@ -67,8 +67,8 @@ const fetchRentals = async () => {
     const { data, error } = await supabase
       .from('rental_transactions')
       .select(
-        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day, 
-        feedbacks_id, admin_commissions_id, 
+        `id, rental_date, return_date, total_amount, payment_status, penalty_per_day,
+        feedbacks_id, admin_commissions_id,
         customer_id, customers (
           id,
           F_name,

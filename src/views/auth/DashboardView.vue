@@ -31,7 +31,7 @@ const { mobile } = useDisplay()
 
         <v-main>
           <v-container>
-         
+
             <v-row class="mb-6">
               <v-col>
                 <v-card color="blue lighten-4" elevation="8">
@@ -43,7 +43,7 @@ const { mobile } = useDisplay()
               </v-col>
             </v-row>
 
-   
+
             <v-row>
               <v-col cols="12">
                 <h4>Available Cameras</h4>
@@ -62,7 +62,7 @@ const { mobile } = useDisplay()
               </v-col>
             </v-row>
 
-     
+
             <v-row class="mt-10">
               <v-col cols="12">
                 <h4>My Rentals</h4>

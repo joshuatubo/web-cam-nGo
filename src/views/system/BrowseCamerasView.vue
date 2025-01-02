@@ -89,7 +89,7 @@ onMounted(fetchCameras)
   <AppLayout>
     <template #content>
       <div>
-        <v-card flat style="height: 1000vh">
+        <v-card flat style="height: 100vh">
           <!-- Title and Search -->
           <v-card-title class="d-flex align-center pe-2">
             <v-icon icon="mdi-video-input-component"></v-icon>&nbsp; Browse Section
