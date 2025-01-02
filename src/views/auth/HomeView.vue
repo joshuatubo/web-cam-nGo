@@ -558,6 +558,8 @@ function scrollToSection(sectionId) {
                 </v-row>
               </v-card>
             </v-card>
+
+            <!--footer-->
           </v-layout>
         </v-col>
       </v-row>
