@@ -49,7 +49,7 @@ function scrollToSection(sectionId) {
                   />
                 </div>
 
-                <!--Carousel logo-->
+                <!--Carousel log-->
                 <div class="carousel-logo">
                   <div class="carousel-appbar">
                     <v-layout>
