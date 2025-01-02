@@ -1,0 +1,181 @@
+.header {
+  font-size: 100px;
+}
+.button {
+  text-decoration: none;
+  transition: 0.3s;
+  color: #ffffff;
+}
+
+.button:hover {
+  color: rgb(42, 250, 101);
+  transition: ease-out 0.3s;
+}
+
+.signup {
+  font-size: 14px;
+  border-radius: 10px;
+  border-color: rgb(248, 248, 248);
+  opacity: 1.7;
+}
+/*carousel*/
+
+.carousel-logo {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+@media (max-width: 800px) and (min-width: 600px) {
+  .adjust-button {
+    margin-left: 10px !important; /* Adjust as needed */
+  }
+}
+
+@media (max-width: 600px) {
+  .adjust-explore {
+    margin-left: -2px !important; /* Adjust as needed */
+  }
+}
+
+.logo-text {
+  position: absolute;
+  top: 0;
+  left: 50%; /* Center the container horizontally */
+  transform: translateX(-50%) scale(2); /* Adjust for centering based on the left 50% */
+  margin-top: 100px;
+  z-index: 1;
+  height: auto;
+  width: auto;
+  /* Remove the scale transformation if it affects layout on smaller screens */
+}
+
+/*start button*/
+.start {
+  transition: ease-in-out 0.2s;
+  background-color: #00e676;
+  border-style: none;
+  text-decoration: none;
+}
+
+.start:hover {
+  color: #ffff;
+  background-color: transparent;
+  outline: #00e676 solid 2px;
+}
+
+.start-revert {
+  transition: ease-in-out 0.2s;
+  background-color: transparent;
+  border-style: none;
+  text-decoration: none;
+  color: #3f3f3f;
+  outline: #6c6c6c solid 2px;
+}
+
+.start-revert:hover {
+  color: #000000;
+  background-color: #ffffff;
+  outline: none;
+}
+
+/*end button*/
+
+/*for card*/
+.card {
+  width: 22.7em;
+  height: 25.5em;
+  background: #171717;
+  transition: 1s ease-in-out;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ffffff;
+}
+
+.card span {
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  display: block;
+  font-size: 1em;
+}
+
+.card .info {
+  font-weight: 400;
+  color: white;
+  display: block;
+  text-align: center;
+  font-size: 0.72em;
+  margin: 1em;
+}
+
+.card .img {
+  width: 4.8em;
+  height: 4.8em;
+  background: white;
+  border-radius: 15px;
+  margin: auto;
+}
+
+.card .share {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.card a {
+  color: white;
+  transition: 0.4s ease-in-out;
+}
+
+.card a:hover {
+  color: #00e676;
+}
+
+.card button {
+  padding: 0.8em 1.7em;
+  display: block;
+  margin: auto;
+  border-radius: 25px;
+  border: none;
+  font-weight: bold;
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  transition: 0.4s ease-in-out;
+}
+
+.card button:hover {
+  background: #00e676;
+  color: white;
+  cursor: pointer;
+}
+
+/* for contact image */
+.image-effect {
+  filter: grayscale(100%); /* Makes the image black and white */
+  transition: filter 0.5s ease; /* Smooth transition to color */
+}
+
+.image-effect:hover {
+  filter: grayscale(0%); /* Restores color on hover */
+}
+
+@media (max-width: 700px) {
+  .card {
+    margin-left: 5px !important; /* Applies from 700px and below */
+  }
+}
+
+/* for responsiveness */
+/* Starts with equipment lease*/
+@media (max-width: 600px) {
+  .reduce-gap {
+    margin-top: 8px !important; /* Adjust as needed */
+    margin-bottom: -30px !important;
+  }
+}
