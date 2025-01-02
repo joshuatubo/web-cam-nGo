@@ -106,7 +106,27 @@ function scrollToSection(sectionId) {
                       </p>
                     </v-col>
 
-                    <!--Row 2-->
+                    <!--Row 2 and 3-->
+                    <v-row id="products" class="pa-5">
+                      <v-divider></v-divider>
+                      <v-col cols="12" md="1" class="mt-10"></v-col>
+                      <v-col cols="12" md="4" class="mt-10 reduce-gap">
+                        <v-img
+                          src="/images/goal.png"
+                          contain
+                          max-width="400"
+                          max-height="100"
+                        ></v-img>
+                      </v-col>
+                      <v-col cols="12" md="6" class="mt-10">
+                        <p class="mt-2">
+                          We aim to provide high-quality cameras for those who can't afford to buy,
+                          especially students and individuals with occasional needs, making
+                          creativity accessible to everyone.
+                        </p>
+                      </v-col>
+                      <v-col cols="12" md="1" class="mt-10 reduce-gap"></v-col>
+                    </v-row>
                   </v-row>
                 </v-container>
               </v-main>
