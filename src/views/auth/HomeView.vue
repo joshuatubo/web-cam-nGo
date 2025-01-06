@@ -257,7 +257,7 @@ const links = ['About', 'Developers', 'Contact']
 
                     <!-- 1st row -->
                     <v-container fluid>
-                      <v-row class="justify-center mt-10 my-4">
+                      <v-row class="justify-center mt-10">
                         <!--joshua-->
                         <v-col cols="12" sm="4" md="3">
                           <div class="card">

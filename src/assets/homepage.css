@@ -85,7 +85,7 @@
 
 /*for card*/
 .card {
-  width: 22.7em;
+  width: auto;
   height: 25.5em;
   background: #171717;
   transition: 1s ease-in-out;
