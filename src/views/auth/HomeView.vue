@@ -17,6 +17,11 @@ function scrollToSection(sectionId) {
 
 /* footer */
 const links = ['About', 'Developers', 'Contact']
+
+/* opening a link */
+function openLink(url) {
+  window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -329,7 +334,15 @@ const links = ['About', 'Developers', 'Contact']
                                   ></path></svg
                               ></a>
                             </div>
-                            <button>Resume</button>
+                            <button
+                              @click="
+                                openLink(
+                                  'https://drive.google.com/file/d/17gvEkx1YrOKnZ9YnYC16fFmXNR1aJAkq/view',
+                                )
+                              "
+                            >
+                              Resume
+                            </button>
                           </div>
                         </v-col>
 
@@ -353,7 +366,7 @@ const links = ['About', 'Developers', 'Contact']
                               enhance my knowledge of ethical hacking.
                             </p>
                             <div class="share">
-                              <a href=""
+                              <a href="https://github.com/jkdionaldo"
                                 ><svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="16"
@@ -406,7 +419,15 @@ const links = ['About', 'Developers', 'Contact']
                                   ></path></svg
                               ></a>
                             </div>
-                            <button>Resume</button>
+                            <button
+                              @click="
+                                openLink(
+                                  'https://drive.google.com/file/d/17CxcIz4kGMMyXZtA-BNrmxLH__ugTkGk/view?usp=sharing',
+                                )
+                              "
+                            >
+                              Resume
+                            </button>
                           </div>
                         </v-col>
 
@@ -484,7 +505,15 @@ const links = ['About', 'Developers', 'Contact']
                                   ></path></svg
                               ></a>
                             </div>
-                            <button>Resume</button>
+                            <button
+                              @click="
+                                openLink(
+                                  'https://drive.google.com/file/d/18v11TTOAvLi-wPHEFy1kV09GdknFy7I1/view?usp=sharing',
+                                )
+                              "
+                            >
+                              Resume
+                            </button>
                           </div>
                         </v-col>
                       </v-row>
