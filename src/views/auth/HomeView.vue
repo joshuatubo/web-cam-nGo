@@ -281,7 +281,7 @@ function openLink(url) {
                               about technology and problem-solving.
                             </p>
                             <div class="share">
-                              <a href=""
+                              <a href="https://github.com/joshuatubo"
                                 ><svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="16"
@@ -452,7 +452,7 @@ function openLink(url) {
                               UI/UX design.
                             </p>
                             <div class="share">
-                              <a href=""
+                              <a href="https://github.com/DjDelopere"
                                 ><svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="16"
