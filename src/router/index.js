@@ -7,7 +7,6 @@ import NotFoundView from '../views/errors/NotFoundView.vue'
 import { getUserInformation, isAuthenticated } from '@/utilities/supabase'
 import BrowseCamerasView from '@/views/system/BrowseCamerasView.vue'
 import CheckoutView from '@/views/system/CheckoutView.vue'
-import HomeView from '@/views/auth/HomeView.vue'
 import ProductManagementView from '@/views/admin/ProductManagementView.vue'
 
 const router = createRouter({
@@ -15,11 +14,6 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/login',
       name: 'login',
       component: LoginView,
     },
@@ -85,10 +79,10 @@ router.beforeEach(async (to) => {
   const isLoggedIn = await isAuthenticated()
 
   //Redirect to appropriate page if accessing home route
-  /*
+
   if (to.name === 'home') {
     return isLoggedIn ? { name: 'dashboard' } : { name: 'login' }
-  }*/
+  }
 
   //Check if user is logged in
   if (isLoggedIn && (to.name === 'login' || to.name == 'register')) {
